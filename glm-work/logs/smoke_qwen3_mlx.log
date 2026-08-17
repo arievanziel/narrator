@@ -1,0 +1,6 @@
+[smoke] mlx-audio Qwen3-TTS VoiceDesign smoke test
+[smoke] model: mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit
+[smoke] import done in 0.2s
+[smoke] loading model (triggers download on first run)...
+Fetching 12 files:   0%|          | 0/12 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 12 files:   8%|▊         | 1/12 [00:00<00:07,  1.42it/s]Fetching 12 files:  17%|█▋        | 2/12 [00:00<00:04,  2.36it/s]Fetching 12 files:  25%|██▌       | 3/12 [00:01<00:02,  3.15it/s]Fetching 12 files:  58%|█████▊    | 7/12 [00:01<00:00,  7.04it/s]Fetching 12 files:  67%|██████▋   | 8/12 [00:01<00:00,  6.62it/s]Fetching 12 files:  75%|███████▌  | 9/12 [00:02<00:01,  2.97it/s]Fetching 12 files:  83%|████████▎ | 10/12 [00:05<00:01,  1.11it/s]
