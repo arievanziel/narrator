@@ -71,9 +71,34 @@ Hard constraints (from `docs/SPEC.md`):
 - [x] All 3 Phase 1 test scripts run through Kokoro (5-7x real-time on CPU).
 - [x] 5 output `.wav` files saved to `glm-work/outputs/kokoro/` (~12 MB total).
 - [x] Kokoro notes written up at `glm-work/notes/kokoro_notes.md`.
-- [ ] Arie listens to Kokoro outputs and gives subjective quality feedback.
-- [ ] Qwen3-TTS download sizes researched and presented to Arie.
-- [ ] Qwen3-TTS installed + 3 test scripts run + outputs saved.
+- [x] Arie listened to Kokoro outputs and gave feedback (see `notes/kokoro_notes.md`).
+      Key points: "not good enough", weak pauses, unconvincing narrator/character
+      voice changes. Fixed preset voices acceptable for v1; 54 voices sufficient.
+- [x] Market research written: `glm-work/MARKET_RESEARCH.md` (Task 0 from Sonnet).
+- [x] Pipeline design reference written: `glm-work/notes/pipeline_design_reference.md`
+      (key patterns from multivoice and TTS-Story for pause/emotion/voice handling).
+- [x] mlx-audio 0.4.8 installed in the venv (MLX/Metal acceleration path).
+- [x] Confirmed mlx-audio supports Qwen3-TTS VoiceDesign via `instruct` parameter.
+- [x] Confirmed mlx-audio supports original Dia-1.6B (NOT Dia2 — no MLX port exists).
+- [x] Confirmed mlx-audio supports Higgs Audio V2 (q6 4.75GB, q8 6.18GB).
+- [x] Test runners written for all remaining models:
+      `run_qwen3_voicedesign.py`, `run_dia_1_6b.py`, `run_higgs_audio.py`,
+      `run_kokoro_mlx.py` (MLX Kokoro for comparison with PyTorch version).
+- [x] Prototype web app written: `glm-work/prototype_app/app.py`
+      (paste → generate → listen, supports all 3 model types).
+- [x] UTMOSv2 installed for objective quality scoring (MOS 1-5 prediction).
+- [~] **Qwen3-TTS VoiceDesign 8bit model downloading** (~3.07 GB total):
+      - Main model: 2.39 GB (downloading via curl with resume)
+      - Speech tokenizer: 682 MB (downloading via curl with resume)
+      - Config files: downloaded
+      - Download path: `glm-work/models/qwen3_voicedesign_8bit/` (local, not HF cache)
+      - Speed: ~1 MB/s on 5G, ~50 min remaining
+- [~] **UTMOSv2 model downloading** (~800 MB, at 30%, ~16 min remaining)
+- [ ] Run Qwen3-TTS VoiceDesign through all 3 test scripts (after download completes).
+- [ ] Score all Kokoro outputs with UTMOSv2 (after UTMOSv2 model downloads).
+- [ ] Test Dia-1.6B via mlx-audio (3.22 GB download, original Dia not Dia2).
+- [ ] Test Higgs Audio V2 via mlx-audio (q6 4.75 GB or q8 6.18 GB).
+- [ ] Test Kokoro MLX for speed comparison with PyTorch version.
 - [ ] `RESULTS.md` writeup (per spec: comparison table, do NOT recommend a final model).
 
 ## Test scripts
@@ -89,24 +114,22 @@ For single-speaker-only models (Kokoro, Qwen3-TTS base mode), the multi-speaker 
 
 ## Where I need help from smarter models
 
-### 1. Dia2 on Apple Silicon (anticipated, not yet stuck)
+### 1. Dia2 on Apple Silicon (RESOLVED — no MLX port exists)
 
-**Stuck on:** Dia2 is CUDA-first. The CLI auto-selects CUDA or CPU but has no
-explicit MPS support. On M1 Max, CPU fallback for a 1B+ param transformer will
-likely be very slow (possibly sub-real-time).
+**Finding:** mlx-audio supports the **original Dia-1.6B** (via `mlx-community/Dia-1.6B-fp16`,
+3.22 GB) but does **NOT** support Dia2. No mlx-community port of Dia2 exists as of
+2026-08-17. Dia2 is CUDA-first with no MPS path.
 
-**What I'll try first:** `uv run -m dia2.cli --device cpu --dtype bfloat16` with
-the 1B model. If it's <1x real-time, I'll document and stop per spec.
+**Decision:** Test the original Dia-1.6B via mlx-audio instead. It supports native
+`[S1]`/`[S2]` speaker tags, which is its key strength. Dia2 is skipped unless Arie
+specifically requests it and a smarter model is willing to port it.
 
-**What I need from a smarter model (only if I get stuck):**
-- Is there a known MPS port or patch for Dia2 as of mid-2026?
-- Has anyone gotten Dia2 running on Apple Silicon via MLX?
-- If CPU is the only path, is there a quantized (q4/q8) Dia2 variant that would
-  be fast enough to be worth testing?
+**What I need from a smarter model (only if Arie wants Dia2 specifically):**
+- A proper MLX port of Dia2 (this is real porting work, not a config change)
+- Or confirmation that Dia2 runs acceptably on CPU with the 1B model
 
-**Cost sensitivity:** Only worth a smarter-model call if the CPU path is too slow
-to even produce test outputs AND Arie wants Dia2 tested badly enough to justify it.
-If Arie is happy with Kokoro + Qwen3-TTS results, skip Dia2 entirely.
+**Cost sensitivity:** Only worth a smarter-model call if Arie explicitly wants Dia2
+and is unsatisfied with Dia-1.6B + Qwen3-TTS + Higgs results.
 
 ### 2. Kokoro input engineering / post-processing (per Arie's feedback)
 
@@ -136,25 +159,34 @@ is the model he wants to use and just needs the pipeline improved. If Qwen3-TTS
 tests significantly better, this becomes moot. Recommend: test Qwen3-TTS first,
 then decide.
 
-### 3. Qwen3-TTS VoiceDesign API (anticipated)
+### 3. Qwen3-TTS VoiceDesign API (RESOLVED — mlx-audio path found)
 
-**Stuck on:** Not yet stuck — haven't installed Qwen3-TTS. But the VoiceDesign
-API (natural-language voice description → generated voice) is the key feature for
-Arie's NPC-voice requirement, and its documentation may be sparse or non-obvious.
+**Finding:** mlx-audio 0.4.8 supports Qwen3-TTS VoiceDesign natively via the
+`instruct` parameter in `generate_audio()`. The model type is detected from config
+(`tts_model_type == "voice_design"`), and the `instruct` parameter is a natural-
+language voice description. No PyTorch/MPS debugging needed — MLX/Metal handles
+acceleration.
 
-**What I'll try first:** Follow the official examples
-(`examples/test_model_12hz_voice_design.py`) with `device_map="mps"`,
-`dtype=torch.float16`, `attn_implementation="sdpa"`.
+**Model chosen:** `mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit` (3.08 GB)
+— best quality-to-size ratio for Arie's 5G connection.
 
-**What I need from a smarter model (only if the API is confusing):**
-- A clean reference implementation of Qwen3-TTS VoiceDesign on MPS
-- Best practices for voice description prompts (what makes a good natural-language
-  voice description? what attributes does the model respond to?)
-- How to maintain voice consistency across multiple generation calls (does the
-  model cache the designed voice? do you re-describe it each time?)
+**API confirmed working (from source inspection):**
+```python
+from mlx_audio.tts import load_model
+from mlx_audio.tts.generate import generate_audio
+model = load_model("mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit")
+generate_audio(text="...", model=model, instruct="A calm, warm female narrator...", lang_code="en")
+```
 
-**Cost sensitivity:** Only worth a smarter-model call if the official examples
-don't work out of the box on MPS AND I can't debug it myself within ~30 min.
+**What I still need to verify (after download completes):**
+- Voice consistency across multiple calls (does the same description produce the
+  same voice?)
+- Quality of multi-voice stitching (S1/S2 with different descriptions)
+- Real-time factor on M1 Max with 8-bit quantization
+
+**Cost sensitivity:** No smarter-model call needed unless the MLX path fails
+unexpectedly. Per Sonnet's instruction, fall back to PyTorch/MPS only if MLX
+fails and I can't debug it within ~30 min.
 
 ### Template for when I get stuck
 
