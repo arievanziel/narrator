@@ -12,7 +12,10 @@ from pathlib import Path
 OUT = Path(__file__).resolve().parent / "outputs" / "qwen3_voicedesign"
 OUT.mkdir(parents=True, exist_ok=True)
 
-MODEL = "mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit"
+# Use local path (manually downloaded via curl) — NOT the HF repo ID.
+# mlx_audio.utils.get_model_path() only treats strings starting with ".", "/", or "~"
+# as local paths; a bare "mlx-community/..." would trigger a re-download. (Sonnet catch.)
+MODEL = str(Path(__file__).resolve().parent / "models" / "qwen3_voicedesign_8bit")
 
 print(f"[smoke] mlx-audio Qwen3-TTS VoiceDesign smoke test", flush=True)
 print(f"[smoke] model: {MODEL}", flush=True)

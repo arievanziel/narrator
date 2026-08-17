@@ -22,7 +22,10 @@ LOG = ROOT / "logs" / "qwen3_voicedesign.log"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 LOG.parent.mkdir(parents=True, exist_ok=True)
 
-MODEL = "mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit"
+# Use local path (manually downloaded via curl) — NOT the HF repo ID.
+# mlx_audio.utils.get_model_path() only treats strings starting with ".", "/", or "~"
+# as local paths; a bare "mlx-community/..." would trigger a re-download. (Sonnet catch.)
+MODEL = str(Path(__file__).resolve().parent / "models" / "qwen3_voicedesign_8bit")
 
 # Voice descriptions for VoiceDesign
 # These are natural-language descriptions that Qwen3-TTS uses to synthesize the voice

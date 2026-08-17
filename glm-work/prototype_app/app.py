@@ -47,10 +47,12 @@ def get_kokoro_mlx():
     return _MODELS["kokoro_mlx"]
 
 def get_qwen3_voicedesign():
-    """Load Qwen3-TTS VoiceDesign via MLX."""
+    """Load Qwen3-TTS VoiceDesign via MLX (local path, not HF repo ID)."""
     if "qwen3_vd" not in _MODELS:
         from mlx_audio.tts import load_model
-        _MODELS["qwen3_vd"] = load_model("mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit")
+        # Use local path — see run_qwen3_voicedesign.py for the Sonnet-caught bug rationale
+        model_path = str(ROOT / "models" / "qwen3_voicedesign_8bit")
+        _MODELS["qwen3_vd"] = load_model(model_path)
     return _MODELS["qwen3_vd"]
 
 KOKORO_VOICES = [
