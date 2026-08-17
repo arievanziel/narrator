@@ -1,0 +1,12 @@
+[smoke] importing kokoro + torch...
+[smoke] imports done in 2.4s
+[smoke] torch version: 2.13.0
+[smoke] MPS available: True
+[smoke] building KPipeline(lang_code='a')...
+  WeightNorm.apply(module, name, dim)
+[smoke] pipeline ready in 2.4s
+[smoke] g2p + generate: Hello. This is a smoke test of the Kokoro text to speech pipeline.
+[smoke] generate done in 4.06s, 1 chunks
+[smoke] wrote /Users/arie/CascadeProjects/narrator/outputs/kokoro/smoke_test.wav (220844 bytes)
+[smoke] audio duration: 4.60s, generation took 4.06s -> 1.1x real-time
+[smoke] OK

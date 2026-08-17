@@ -1,0 +1,12 @@
+[S1] "Something's wrong with the water," Mireth said, kneeling at the bank.
+[S2] "Wrong how?"
+[S1] "It's not moving. Not even the reeds." She dipped a finger in — cold, unnervingly
+cold — and pulled back sharp.
+[S2] "Gods." A pause.
+[S1] "Don't. Not yet."
+Somewhere behind them, branches cracked — once, twice, then silence.
+[S2] "We need to go. Now."
+[S1] "Wait —" Her voice dropped to barely a breath. "It's a vodnik. It won't chase if we
+don't run."
+[S2] (whispering) "That's not exactly comforting."
+[S1] "No. It isn't."

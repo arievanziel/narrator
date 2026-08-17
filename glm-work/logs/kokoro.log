@@ -1,0 +1,47 @@
+======================================================================
+Kokoro test run — 2026-08-17 16:02:32
+======================================================================
+[setup] importing kokoro + torch...
+[setup] torch 2.13.0, MPS available: True
+[setup] building KPipeline(lang_code='a')...
+[setup] pipeline ready in 2.6s
+[setup] available voices: 0 total
+
+--- Test 1: 1_single_speaker.txt ---
+[t1] text length: 567 chars
+[t1] generated 30.75s audio in 5.28s -> 5.8x real-time, 1476044 bytes
+
+--- Test 2: 2_multi_speaker.txt ---
+[t2a] single-speaker adaptation (tags stripped, af_heart)
+[t2a] generated 26.20s audio in 3.85s -> 6.8x real-time, 1257644 bytes
+[t2b] multi-voice (S1=af_heart, S2=am_michael, stitched)
+[t2b]   S1 (af_heart): '"Something's wrong with the water," Mireth said, k...' -> 4.00s in 0.65s
+[t2b]   S2 (am_michael): '"Wrong how?"...' -> 1.68s in 2.52s
+[t2b]   S1 (af_heart): '"It's not moving. Not even the reeds." She dipped ...' -> 5.45s in 0.86s
+[t2b]   S1 (af_heart): 'cold — and pulled back sharp....' -> 2.15s in 0.38s
+[t2b]   S2 (am_michael): '"Gods." A pause....' -> 2.10s in 0.36s
+[t2b]   S1 (af_heart): '"Don't. Not yet."...' -> 1.73s in 0.32s
+[t2b]   S1 (af_heart): 'Somewhere behind them, branches cracked — once, tw...' -> 4.20s in 0.68s
+[t2b]   S2 (am_michael): '"We need to go. Now."...' -> 2.15s in 0.37s
+[t2b]   S1 (af_heart): '"Wait —" Her voice dropped to barely a breath. "It...' -> 5.25s in 0.80s
+[t2b]   S1 (af_heart): 'don't run."...' -> 1.48s in 0.31s
+[t2b]   S2 (am_michael): '(whispering) "That's not exactly comforting."...' -> 3.48s in 0.59s
+[t2b]   S1 (af_heart): '"No. It isn't."...' -> 1.80s in 0.33s
+[t2b] total: 35.45s audio in 8.16s -> 4.3x real-time, 1701644 bytes
+
+--- Test 3: 3_long_form.txt ---
+[t3] text length: 2937 chars
+[t3] generated 154.82s audio in 22.71s -> 6.8x real-time, 7431644 bytes
+
+======================================================================
+SUMMARY
+======================================================================
+test                                     voice                      audio_s    gen_s   x_rt
+1_single_speaker                         af_heart                     30.75     5.28    5.8
+2a_multi_speaker_single_voice            af_heart                     26.20     3.85    6.8
+2b_multi_speaker_two_voices              af_heart+am_michael          35.45     8.16    4.3
+3_long_form                              af_heart                    154.82    22.71    6.8
+
+Output files in: /Users/arie/CascadeProjects/narrator/glm-work/outputs/kokoro
+Log file: /Users/arie/CascadeProjects/narrator/glm-work/logs/kokoro.log
+DONE
