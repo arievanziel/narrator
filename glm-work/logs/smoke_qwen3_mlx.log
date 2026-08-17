@@ -1,6 +1,28 @@
 [smoke] mlx-audio Qwen3-TTS VoiceDesign smoke test
-[smoke] model: mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit
-[smoke] import done in 0.2s
+[smoke] model: /Users/arie/CascadeProjects/narrator/glm-work/models/qwen3_voicedesign_8bit
+[smoke] import done in 0.3s
 [smoke] loading model (triggers download on first run)...
-Fetching 12 files:   0%|          | 0/12 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Fetching 12 files:   8%|▊         | 1/12 [00:00<00:07,  1.42it/s]Fetching 12 files:  17%|█▋        | 2/12 [00:00<00:04,  2.36it/s]Fetching 12 files:  25%|██▌       | 3/12 [00:01<00:02,  3.15it/s]Fetching 12 files:  58%|█████▊    | 7/12 [00:01<00:00,  7.04it/s]Fetching 12 files:  67%|██████▋   | 8/12 [00:01<00:00,  6.62it/s]Fetching 12 files:  75%|███████▌  | 9/12 [00:02<00:01,  2.97it/s]Fetching 12 files:  83%|████████▎ | 10/12 [00:05<00:01,  1.11it/s]
+[transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.
+  Initialized encoder codebooks
+Loaded speech tokenizer from /Users/arie/CascadeProjects/narrator/glm-work/models/qwen3_voicedesign_8bit/speech_tokenizer
+[smoke] model loaded in 4.5s
+[smoke] generating with VoiceDesign...
+[smoke] voice description: A calm, warm female narrator with a measured pace, suitable for reading fantasy fiction.
+[smoke] text: Hello. This is a smoke test of the Qwen3-TTS VoiceDesign pipeline.
+[94mInstruct:[0m A calm, warm female narrator with a measured pace, suitable for reading fantasy fiction.
+[94mText:[0m Hello. This is a smoke test of the Qwen3-TTS VoiceDesign pipeline.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+Generating:   0%|          | 0/1200 [00:00<?, ?tokens/s]Generating:   0%|          | 1/1200 [00:01<24:33,  1.23s/tokens]Generating:   0%|          | 3/1200 [00:01<07:09,  2.79tokens/s]Generating:   1%|          | 8/1200 [00:01<02:18,  8.61tokens/s]Generating:   1%|          | 13/1200 [00:01<01:22, 14.38tokens/s]Generating:   2%|▏         | 18/1200 [00:01<00:59, 19.77tokens/s]Generating:   2%|▏         | 23/1200 [00:01<00:47, 24.56tokens/s]Generating:   2%|▏         | 28/1200 [00:01<00:41, 28.54tokens/s]Generating:   3%|▎         | 33/1200 [00:02<00:36, 31.71tokens/s]Generating:   3%|▎         | 38/1200 [00:02<00:34, 34.11tokens/s]Generating:   4%|▎         | 43/1200 [00:02<00:32, 35.96tokens/s]Generating:   4%|▍         | 48/1200 [00:02<00:30, 37.29tokens/s]Generating:   4%|▍         | 53/1200 [00:02<00:29, 38.29tokens/s]Generating:   5%|▍         | 58/1200 [00:02<00:29, 38.96tokens/s]Generating:   5%|▌         | 63/1200 [00:02<00:28, 39.44tokens/s]                                                                 ✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/qwen3_voicedesign/smoke_test_000.wav
+==========
+Duration:              00:00:05.360
+Samples/sec:           32584.3
+Prompt:                67 tokens, 17.0 tokens-per-sec
+Audio:                 128640 samples, 32584.3 samples-per-sec
+Real-time factor:      1.36x
+Processing time:       3.95s
+Peak memory usage:     6.37GB
+[smoke] generation done in 4.1s
+[smoke] WARNING: expected output not at /Users/arie/CascadeProjects/narrator/glm-work/outputs/qwen3_voicedesign/smoke_test.wav
+[smoke] found: /Users/arie/CascadeProjects/narrator/glm-work/outputs/qwen3_voicedesign/smoke_test_000.wav

@@ -1,0 +1,60 @@
+======================================================================
+Qwen3-TTS VoiceDesign test run — 2026-08-17 21:22:45
+======================================================================
+[setup] model: /Users/arie/CascadeProjects/narrator/glm-work/models/qwen3_voicedesign_8bit
+[setup] imports done in 0.3s
+[setup] loading model...
+[setup] model loaded in 2.8s
+
+--- Test 1: 1_single_speaker.txt ---
+[t1] text length: 567 chars
+[t1] voice: A calm, warm female narrator with a measured pace, suitable for reading fantasy ...
+[t1] generated 44.80s audio in 18.55s -> 2.4x real-time, 2150444 bytes
+
+--- Test 2: 2_multi_speaker.txt ---
+[t2a] single-speaker adaptation (tags stripped, narrator voice)
+[t2a] generated 46.32s audio in 20.03s -> 2.3x real-time, 2223404 bytes
+[t2b] multi-voice (S1=young woman, S2=older man, stitched)
+[t2b]   S1: '"Something's wrong with the water," Mireth said, k...'
+[t2b]     -> 5.36s in 2.97s
+[t2b]   S2: '"Wrong how?"...'
+[t2b]     -> 2.64s in 1.09s
+[t2b]   S1: '"It's not moving. Not even the reeds." She dipped ...'
+[t2b]     -> 7.36s in 2.84s
+[t2b]   S1: 'cold — and pulled back sharp....'
+[t2b]     -> 2.72s in 1.11s
+[t2b]   S2: '"Gods." A pause....'
+[t2b]     -> 4.48s in 1.85s
+[t2b]   S1: '"Don't. Not yet."...'
+[t2b]     -> 1.92s in 0.81s
+[t2b]   S1: 'Somewhere behind them, branches cracked — once, tw...'
+[t2b]     -> 5.76s in 2.23s
+[t2b]   S2: '"We need to go. Now."...'
+[t2b]     -> 2.56s in 1.12s
+[t2b]   S1: '"Wait —" Her voice dropped to barely a breath. "It...'
+[t2b]     -> 5.68s in 2.20s
+[t2b]   S1: 'don't run."...'
+[t2b]     -> 1.12s in 0.53s
+[t2b]   S2: '(whispering) "That's not exactly comforting."...'
+[t2b]     -> 4.64s in 1.81s
+[t2b]   S1: '"No. It isn't."...'
+[t2b]     -> 2.40s in 0.97s
+[t2b] total: 46.64s audio in 19.53s -> 2.4x real-time, 2238764 bytes
+
+--- Test 3: 3_long_form.txt ---
+[t3] text length: 2937 chars
+[t3] using max_tokens=2400 for long-form text
+[t3] generated 192.00s audio in 77.50s -> 2.5x real-time, 9216044 bytes
+
+======================================================================
+SUMMARY
+======================================================================
+test                                     voice                      audio_s    gen_s   x_rt
+1_single_speaker                         narrator_voicedesign         44.80    18.55    2.4
+2a_multi_speaker_single_voice            narrator_voicedesign         46.32    20.03    2.3
+2b_multi_speaker_two_voices              S1+S2 voicedesign            46.64    19.53    2.4
+3_long_form                              narrator_voicedesign        192.00    77.50    2.5
+
+Output files in: /Users/arie/CascadeProjects/narrator/glm-work/outputs/qwen3_voicedesign
+Log file: /Users/arie/CascadeProjects/narrator/glm-work/logs/qwen3_voicedesign.log
+DONE

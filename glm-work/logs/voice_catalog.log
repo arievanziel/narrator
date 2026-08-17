@@ -1,0 +1,114 @@
+======================================================================
+Voice catalog run — 2026-08-17 21:03:15
+======================================================================
+[setup] importing kokoro + torch...
+[setup] torch 2.13.0, MPS available: True
+[setup] building KPipeline(lang_code='a')...
+[setup] pipeline ready in 4.0s
+[setup] 28 voices to generate (2 samples each + 1 ensemble)
+[ 1/28] af_alloy_narration: 6.75s audio in 7.44s -> 0.9x RT, 324044 bytes
+[ 1/28] af_alloy_dialogue: 5.90s audio in 0.95s -> 6.2x RT, 283244 bytes
+[ 2/28] af_aoede_narration: 6.75s audio in 4.34s -> 1.6x RT, 324044 bytes
+[ 2/28] af_aoede_dialogue: 5.85s audio in 0.99s -> 5.9x RT, 280844 bytes
+[ 3/28] af_bella_narration: 7.25s audio in 7.36s -> 1.0x RT, 348044 bytes
+[ 3/28] af_bella_dialogue: 6.30s audio in 1.03s -> 6.1x RT, 302444 bytes
+[ 4/28] af_heart_narration: 6.92s audio in 1.53s -> 4.5x RT, 332444 bytes
+[ 4/28] af_heart_dialogue: 5.88s audio in 0.99s -> 5.9x RT, 282044 bytes
+[ 5/28] af_jessica_narration: 5.95s audio in 8.71s -> 0.7x RT, 285644 bytes
+[ 5/28] af_jessica_dialogue: 5.25s audio in 0.90s -> 5.8x RT, 252044 bytes
+[ 6/28] af_kore_narration: 6.97s audio in 9.76s -> 0.7x RT, 334844 bytes
+[ 6/28] af_kore_dialogue: 6.12s audio in 0.94s -> 6.5x RT, 294044 bytes
+[ 7/28] af_nicole_narration: 10.07s audio in 9.09s -> 1.1x RT, 483644 bytes
+[ 7/28] af_nicole_dialogue: 8.75s audio in 1.58s -> 5.5x RT, 420044 bytes
+[ 8/28] af_nova_narration: 6.65s audio in 11.38s -> 0.6x RT, 319244 bytes
+[ 8/28] af_nova_dialogue: 5.65s audio in 1.08s -> 5.2x RT, 271244 bytes
+[ 9/28] af_river_narration: 6.12s audio in 9.27s -> 0.7x RT, 294044 bytes
+[ 9/28] af_river_dialogue: 5.28s audio in 0.91s -> 5.8x RT, 253244 bytes
+[10/28] af_sarah_narration: 7.08s audio in 8.99s -> 0.8x RT, 339644 bytes
+[10/28] af_sarah_dialogue: 6.28s audio in 1.08s -> 5.8x RT, 301244 bytes
+[11/28] af_sky_narration: 6.78s audio in 8.60s -> 0.8x RT, 325244 bytes
+[11/28] af_sky_dialogue: 5.78s audio in 1.11s -> 5.2x RT, 277244 bytes
+[12/28] am_adam_narration: 6.78s audio in 3.98s -> 1.7x RT, 325244 bytes
+[12/28] am_adam_dialogue: 5.80s audio in 0.98s -> 5.9x RT, 278444 bytes
+[13/28] am_echo_narration: 6.75s audio in 7.79s -> 0.9x RT, 324044 bytes
+[13/28] am_echo_dialogue: 5.88s audio in 0.99s -> 5.9x RT, 282044 bytes
+[14/28] am_eric_narration: 6.08s audio in 9.42s -> 0.6x RT, 291644 bytes
+[14/28] am_eric_dialogue: 5.28s audio in 0.95s -> 5.5x RT, 253244 bytes
+[15/28] am_fenrir_narration: 6.85s audio in 10.77s -> 0.6x RT, 328844 bytes
+[15/28] am_fenrir_dialogue: 6.00s audio in 1.03s -> 5.8x RT, 288044 bytes
+[16/28] am_liam_narration: 6.25s audio in 8.53s -> 0.7x RT, 300044 bytes
+[16/28] am_liam_dialogue: 5.35s audio in 1.00s -> 5.4x RT, 256844 bytes
+[17/28] am_michael_narration: 7.47s audio in 2.34s -> 3.2x RT, 358844 bytes
+[17/28] am_michael_dialogue: 6.72s audio in 1.14s -> 5.9x RT, 322844 bytes
+[18/28] am_onyx_narration: 6.70s audio in 6.38s -> 1.1x RT, 321644 bytes
+[18/28] am_onyx_dialogue: 5.80s audio in 1.00s -> 5.8x RT, 278444 bytes
+[19/28] am_puck_narration: 6.78s audio in 8.24s -> 0.8x RT, 325244 bytes
+[19/28] am_puck_dialogue: 5.83s audio in 1.00s -> 5.8x RT, 279644 bytes
+[20/28] am_santa_narration: 7.00s audio in 8.32s -> 0.8x RT, 336044 bytes
+[20/28] am_santa_dialogue: 6.28s audio in 1.07s -> 5.9x RT, 301244 bytes
+[21/28] bf_alice_narration: 6.65s audio in 3.84s -> 1.7x RT, 319244 bytes
+[21/28] bf_alice_dialogue: 5.75s audio in 1.00s -> 5.7x RT, 276044 bytes
+[22/28] bf_emma_narration: 6.58s audio in 8.00s -> 0.8x RT, 315644 bytes
+[22/28] bf_emma_dialogue: 5.75s audio in 1.00s -> 5.7x RT, 276044 bytes
+[23/28] bf_isabella_narration: 6.72s audio in 10.23s -> 0.7x RT, 322844 bytes
+[23/28] bf_isabella_dialogue: 5.75s audio in 1.04s -> 5.5x RT, 276044 bytes
+[24/28] bf_lily_narration: 6.55s audio in 11.84s -> 0.6x RT, 314444 bytes
+[24/28] bf_lily_dialogue: 5.62s audio in 0.95s -> 5.9x RT, 270044 bytes
+[25/28] bm_daniel_narration: 6.55s audio in 8.48s -> 0.8x RT, 314444 bytes
+[25/28] bm_daniel_dialogue: 5.40s audio in 0.92s -> 5.9x RT, 259244 bytes
+[26/28] bm_fable_narration: 6.65s audio in 9.29s -> 0.7x RT, 319244 bytes
+[26/28] bm_fable_dialogue: 5.85s audio in 1.02s -> 5.8x RT, 280844 bytes
+[27/28] bm_george_narration: 7.58s audio in 1.58s -> 4.8x RT, 363644 bytes
+[27/28] bm_george_dialogue: 6.47s audio in 1.09s -> 6.0x RT, 310844 bytes
+[28/28] bm_lewis_narration: 7.47s audio in 9.80s -> 0.8x RT, 358844 bytes
+[28/28] bm_lewis_dialogue: 6.62s audio in 1.03s -> 6.4x RT, 318044 bytes
+
+[ensemble] generating 'The Last Lantern' — 30 segments
+[ensemble  1/30] bm_george (Narrator): 8.00s in 1.29s — "They gathered in the last lantern-lit tavern still standing,..."
+[ensemble  2/30] af_heart (Narrator): 4.15s in 0.71s — "The Dragon's Rest, they called it now — a joke none of them ..."
+[ensemble  3/30] af_alloy (Mara (innkeeper)): 5.35s in 0.88s — "Drink up. The first round's on the house. Might be the last ..."
+[ensemble  4/30] am_adam (Brom (blacksmith)): 5.17s in 0.86s — "My forge is gone. Twenty years of work, melted to slag in a ..."
+[ensemble  5/30] af_bella (Lira (survivor)): 5.28s in 0.88s — "I was in the market square when it came. I just ran. I didn'..."
+[ensemble  6/30] am_echo (Wren (scout)): 5.62s in 0.89s — "It flew east after the attack. I tracked it to the ridge, th..."
+[ensemble  7/30] bf_alice (Lady Cordelia (noblewoman)): 5.45s in 0.96s — "My family has held these lands for six generations. We do no..."
+[ensemble  8/30] am_eric (Elder Tomas): 5.38s in 0.94s — "Cordelia, your family has held these lands because they knew..."
+[ensemble  9/30] af_jessica (Helena (merchant)): 5.00s in 0.85s — "I've sent word to three cities. No one will trade with us wh..."
+[ensemble 10/30] am_fenrir (Grom (warrior)): 3.42s in 0.66s — "Then we stop trading and start fighting. Who's with me?..."
+[ensemble 11/30] af_kore (Sister Wynn (healer)): 5.62s in 0.94s — "Fighting costs lives. I've stitched fourteen people today wh..."
+[ensemble 12/30] am_liam (Sir Aldric (young knight)): 4.42s in 0.81s — "There must be a way. The old chronicles say dragons can be r..."
+[ensemble 13/30] af_nicole (Captain Voss (guard)): 7.58s in 1.20s — "The old chronicles also say they can be killed. I'd rather t..."
+[ensemble 14/30] am_michael (Magus Theln (wizard)): 6.40s in 1.04s — "Both are true, and neither is simple. This dragon spoke, bef..."
+[ensemble 15/30] af_nova (The Stranger): 5.35s in 0.95s — "You heard it because it wanted to be heard. That is not the ..."
+[ensemble 16/30] am_onyx (Sergeant Bray (veteran)): 4.25s in 0.72s — "I've fought monsters before. Talked to none of them. Dead is..."
+[ensemble 17/30] af_river (Tomasa (farmer)): 5.17s in 0.93s — "My children are hiding in the root cellar. I can't fight a d..."
+[ensemble 18/30] am_puck (Fenn the Bard): 5.15s in 0.92s — "Oh, what a tale this will make! The Last Lantern, where hero..."
+[ensemble 19/30] af_sarah (Della (barmaid)): 5.83s in 1.08s — "Fenn, if you write a song about this before we survive it, I..."
+[ensemble 20/30] am_santa (Father Aldous (priest)): 5.85s in 0.97s — "Pray, all of you. Not for rescue — for courage. The gods hel..."
+[ensemble 21/30] bf_emma (Mistress Nettle (apothecary)): 6.05s in 0.98s — "Courage won't stop dragonfire. I've mixed a salve that may r..."
+[ensemble 22/30] af_sky (Young Pell): 4.53s in 0.77s — "There's sulfur in the old mines. I know the way. I can guide..."
+[ensemble 23/30] bf_isabella (Envoy Sabine (diplomat)): 5.33s in 0.92s — "If it truly spoke, then perhaps the Crown should send an emi..."
+[ensemble 24/30] bm_daniel (Captain Hale (ship captain)): 4.00s in 0.74s — "The Crown is three weeks away by sea. We don't have three we..."
+[ensemble 25/30] bf_lily (Rose (seamstress)): 4.62s in 0.82s — "We have each other. Isn't that what the stories always say, ..."
+[ensemble 26/30] bm_fable (Cass (apprentice storyteller)): 4.53s in 0.78s — "The stories say the lantern always burns brightest before th..."
+[ensemble 27/30] bm_lewis (Old Drumm (drunk philosopher)): 6.15s in 0.92s — "The stories also say the lantern burns brightest right befor..."
+[ensemble 28/30] af_aoede (Saela (elven scholar)): 5.67s in 0.94s — "There is a fourth option. The old maps mark a place beneath ..."
+[ensemble 29/30] af_heart (Narrator): 8.85s in 1.46s — "They argued until the lantern guttered, and then they argued..."
+[ensemble 30/30] bm_george (Narrator): 7.40s in 1.28s — "Whether they found courage or fire, the stories do not agree..."
+[ensemble] total: 165.57s audio in 28.10s -> 5.9x RT
+
+[html] building preview page...
+[html] wrote index.html (11098 bytes)
+
+======================================================================
+SUMMARY
+======================================================================
+  voices processed:  28
+  files written:     57
+  total audio:       525.5s (8.8 min)
+  total gen time:    272.2s (4.5 min)
+  overall speed:     1.9x real-time
+  failures:          0
+  output dir:        /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog
+  preview page:      /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/index.html
+  log file:          /Users/arie/CascadeProjects/narrator/glm-work/logs/voice_catalog.log
+DONE
