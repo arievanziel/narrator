@@ -1,0 +1,403 @@
+======================================================================
+Ensemble #2 Qwen3 VoiceDesign — 'The Descent of Ysolde's Light'
+2026-08-17 21:43:47
+======================================================================
+[text] base story  -> /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent_qwen3.md (10975 bytes)
+[text] voice input -> /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent_qwen3_input.txt (10152 bytes)
+
+[setup] importing mlx-audio...
+[setup] imports done in 0.3s
+[setup] loading model...
+[transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.
+  Initialized encoder codebooks
+Loaded speech tokenizer from /Users/arie/CascadeProjects/narrator/glm-work/models/qwen3_voicedesign_8bit/speech_tokenizer
+[setup] model loaded in 3.2s
+[setup] 47 segments to generate
+[ 1/47] Narrator: generating... [1. The Cliffside at Dawn] "The wind came off the Greywater Sea like a living thing..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m The wind came off the Greywater Sea like a living thing, salt-edged and cold, and it bent the dead grass of the cliffside around the ruins of the old watchtower. Dawn was breaking — not the gentle dawn of the lowlands, but a hard, copper light that clawed its way over the horizon and turned the sea to hammered bronze. Seven figures stood where the tower had fallen, their cloaks snapping in the gale, looking down at a wound in the earth: a stair, black and smooth, plunging into the cliff itself.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_01_Narrator_000.wav
+[ 1/47] Narrator: 43.04s in 19.79s
+[ 2/47] Narrator: generating... [1. The Cliffside at Dawn] "Kaelen stood at the stair's edge, his hand on the hilt ..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m Kaelen stood at the stair's edge, his hand on the hilt of a sword older than any kingdom now living. Beside him, Lyra traced a faded map with one finger, her lips moving silently. Dax squinted into the dark, arms folded, unconvinced. Sera crouched at the rim, listening. Bram paced, restless as a hound on a leash. And Ysolde — Ysolde held the lantern, and within it, a flame that had not been lit by any human hand.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_02_Narrator_000.wav
+[ 2/47] Narrator: 38.16s in 17.51s
+[ 3/47] Narrator: generating... [1. The Cliffside at Dawn] "They were the Company of the Last Light, and the mounta..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m They were the Company of the Last Light, and the mountain had been waiting for them for a very long time.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_03_Narrator_000.wav
+[ 3/47] Narrator: 6.56s in 3.50s
+[ 4/47] Kaelen: generating... [1. The Cliffside at Dawn] "Lyra. How far down?..."
+[94mInstruct:[0m A man in his forties, battle-worn but steady. His voice is firm and authoritative, the voice of someone accustomed to giving orders that others follow without question. Mid-to-low pitch, clipped military precision, no wasted words.
+[94mText:[0m Lyra. How far down?
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_04_Kaelen_000.wav
+[ 4/47] Kaelen: 2.08s in 0.90s
+[ 5/47] Lyra: generating... [1. The Cliffside at Dawn] "The map says three hundred steps to the river, and then..."
+[94mInstruct:[0m A woman in her thirties, a scholar by training. Her voice is calm and precise, with a thoughtful, bookish quality. She speaks carefully, as though each word has been weighed. Warm but measured, mid-range pitch, slightly breathy on emphasized words.
+[94mText:[0m The map says three hundred steps to the river, and then the river takes us under the spine of the cliff. After that... the map ends. The cartographer drew a circle and wrote one word: 'beneath.'
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_05_Lyra_000.wav
+[ 5/47] Lyra: 14.48s in 5.56s
+[ 6/47] Dax: generating... [1. The Cliffside at Dawn] "A map that ends with a circle and a riddle. That's not ..."
+[94mInstruct:[0m A grizzled man in his fifties, skeptical and dry. His voice is rough and low, with a gravelly texture that comes from years of smoke and shouted orders. He speaks slowly, with a sardonic edge — every sentence carries the weight of someone who has seen too much to be surprised.
+[94mText:[0m A map that ends with a circle and a riddle. That's not a map, Lyra. That's a warning someone was too polite to write in blood.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_06_Dax_000.wav
+[ 6/47] Dax: 10.00s in 3.87s
+[ 7/47] Sera: generating... [1. The Cliffside at Dawn] "Dax is right that it's a warning. He's wrong that it ma..."
+[94mInstruct:[0m A young woman, quiet and watchful. Her voice is soft and low, almost a murmur, as if she is accustomed to speaking in places where sound travels dangerously. Clear but hushed, with a tense alertness underneath the calm.
+[94mText:[0m Dax is right that it's a warning. He's wrong that it matters. The stair goes down, and we go down it. That's the whole of it.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_07_Sera_000.wav
+[ 7/47] Sera: 12.00s in 4.64s
+[ 8/47] Bram: generating... [1. The Cliffside at Dawn] "Sera, if you've seen something down there, now would be..."
+[94mInstruct:[0m A young man in his early twenties, restless and hot-headed. His voice is energetic and bright, with a youthful edge that hasn't yet been grounded down by experience. He speaks quickly when excited, slower when afraid. Mid-range pitch, slightly breathless.
+[94mText:[0m Sera, if you've seen something down there, now would be the time.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_08_Bram_000.wav
+[ 8/47] Bram: 3.76s in 1.54s
+[ 9/47] Sera: generating... [1. The Cliffside at Dawn] "I haven't seen it, Bram. I've heard it. Last night, in ..."
+[94mInstruct:[0m A young woman, quiet and watchful. Her voice is soft and low, almost a murmur, as if she is accustomed to speaking in places where sound travels dangerously. Clear but hushed, with a tense alertness underneath the calm.
+[94mText:[0m I haven't seen it, Bram. I've heard it. Last night, in the wind. A voice, or something that remembers what a voice was. It said a name. It said Ysolde.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_09_Sera_000.wav
+[ 9/47] Sera: 11.92s in 4.59s
+[10/47] Ysolde: generating... [1. The Cliffside at Dawn] "Then it knows I'm coming. Good. Let it be afraid. Kaele..."
+[94mInstruct:[0m A woman in her thirties, noble-born and resolute. Her voice is clear and steady, with a quiet authority that doesn't need volume to command attention. There is warmth in it, but also iron — the voice of someone who has made a decision and will not unmake it. Mid-range, precise, with a slight formal quality.
+[94mText:[0m Then it knows I'm coming. Good. Let it be afraid. Kaelen — give the order. I'm tired of standing in the wind.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_10_Ysolde_000.wav
+[10/47] Ysolde: 10.72s in 4.12s
+[11/47] Kaelen: generating... [1. The Cliffside at Dawn] "You heard her. Dax, you have the rear. Sera, point. Bra..."
+[94mInstruct:[0m A man in his forties, battle-worn but steady. His voice is firm and authoritative, the voice of someone accustomed to giving orders that others follow without question. Mid-to-low pitch, clipped military precision, no wasted words.
+[94mText:[0m You heard her. Dax, you have the rear. Sera, point. Bram, with me. Lyra, stay close to Ysolde and that lantern. If the flame goes out, we are all buried in the dark. We move. Now.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_11_Kaelen_000.wav
+[11/47] Kaelen: 16.56s in 6.46s
+[12/47] Narrator: generating... [2. The Stair] "The stair swallowed them whole. The light of dawn retre..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m The stair swallowed them whole. The light of dawn retreated three steps in and gave up, as if the darkness were a tide and the sun had no claim here. The steps were carved from the living rock of the cliff — not rough-hewn, but polished, as though the mountain itself had been taught patience by whatever hands had made this place. The walls wept thin lines of water that caught the lantern-light and ran like veins of silver. Their footsteps echoed, and the echoes came back a half-beat too late, as if something below were walking with them, matching their pace, learning their rhythm.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_12_Narrator_000.wav
+[12/47] Narrator: 38.80s in 17.36s
+[13/47] Narrator: generating... [2. The Stair] "Down and down. The air grew thick and warm, and it tast..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m Down and down. The air grew thick and warm, and it tasted of old stone and older water. Sera moved first, silent as a draft, her hand on the wall. Kaelen followed, then Ysolde with the lantern held high — and the flame within it burned without flickering, without wind, a small steady gold that pushed the dark back exactly far enough for the next step, and no further.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_13_Narrator_000.wav
+[13/47] Narrator: 28.48s in 13.18s
+[14/47] Dax: generating... [2. The Stair] "Kaelen. Stop. Listen...."
+[94mInstruct:[0m A grizzled man in his fifties, skeptical and dry. His voice is rough and low, with a gravelly texture that comes from years of smoke and shouted orders. He speaks slowly, with a sardonic edge — every sentence carries the weight of someone who has seen too much to be surprised.
+[94mText:[0m Kaelen. Stop. Listen.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_14_Dax_000.wav
+[14/47] Dax: 3.44s in 2.32s
+[15/47] Kaelen: generating... [2. The Stair] "I hear it. Everyone still. Lyra — what is that?..."
+[94mInstruct:[0m A man in his forties, battle-worn but steady. His voice is firm and authoritative, the voice of someone accustomed to giving orders that others follow without question. Mid-to-low pitch, clipped military precision, no wasted words.
+[94mText:[0m I hear it. Everyone still. Lyra — what is that?
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_15_Kaelen_000.wav
+[15/47] Kaelen: 4.48s in 1.80s
+[16/47] Lyra: generating... [2. The Stair] "It's not an echo. An echo repeats. This... answers. It'..."
+[94mInstruct:[0m A woman in her thirties, a scholar by training. Her voice is calm and precise, with a thoughtful, bookish quality. She speaks carefully, as though each word has been weighed. Warm but measured, mid-range pitch, slightly breathy on emphasized words.
+[94mText:[0m It's not an echo. An echo repeats. This... answers. It's using our own voices to speak back to us. Bram, don't answer it. Whatever it says, don't answer it in your own voice.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_16_Lyra_000.wav
+[16/47] Lyra: 16.00s in 6.15s
+[17/47] The Hollow: generating... [2. The Stair] "Ysolde. You bring a borrowed flame into my house. You a..."
+[94mInstruct:[0m An inhuman voice that echoes as if from deep stone. It is male-ish but wrong — too smooth, too knowing, with a hollow resonance that suggests a vast empty space behind it. Slow, deliberate, almost tender in its menace. The voice of something that remembers being human but no longer is.
+[94mText:[0m Ysolde. You bring a borrowed flame into my house. You always were the brave one. Come down, little light-bearer. Come down and we will talk as we used to.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_17_The Hollow_000.wav
+[17/47] The Hollow: 12.40s in 4.94s
+[18/47] Ysolde: generating... [2. The Stair] "That is not my brother. My brother died on the field at..."
+[94mInstruct:[0m A woman in her thirties, noble-born and resolute. Her voice is clear and steady, with a quiet authority that doesn't need volume to command attention. There is warmth in it, but also iron — the voice of someone who has made a decision and will not unmake it. Mid-range, precise, with a slight formal quality.
+[94mText:[0m That is not my brother. My brother died on the field at Aldermoor. Whatever you are, you wear his voice the way a thief wears a stolen coat. I am not coming down to talk. I am coming down to end this.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_18_Ysolde_000.wav
+[18/47] Ysolde: 15.20s in 5.83s
+[19/47] Bram: generating... [2. The Stair] "Ysolde, it spoke in your brother's voice. Are you sure ..."
+[94mInstruct:[0m A young man in his early twenties, restless and hot-headed. His voice is energetic and bright, with a youthful edge that hasn't yet been grounded down by experience. He speaks quickly when excited, slower when afraid. Mid-range pitch, slightly breathless.
+[94mText:[0m Ysolde, it spoke in your brother's voice. Are you sure — 
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_19_Bram_000.wav
+[19/47] Bram: 6.00s in 2.38s
+[20/47] Ysolde: generating... [2. The Stair] "I am sure, Bram. I buried him myself. Move on...."
+[94mInstruct:[0m A woman in her thirties, noble-born and resolute. Her voice is clear and steady, with a quiet authority that doesn't need volume to command attention. There is warmth in it, but also iron — the voice of someone who has made a decision and will not unmake it. Mid-range, precise, with a slight formal quality.
+[94mText:[0m I am sure, Bram. I buried him myself. Move on.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_20_Ysolde_000.wav
+[20/47] Ysolde: 4.56s in 1.85s
+[21/47] Narrator: generating... [2. The Stair] "And so they descended, and the stair descended with the..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m And so they descended, and the stair descended with them, and the dark pressed close, and the only light in a hundred miles of stone was the one Ysolde carried in her hands.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_21_Narrator_000.wav
+[21/47] Narrator: 11.60s in 4.48s
+[22/47] Narrator: generating... [3. The Under-River] "The stair ended at a shore that should not have existed..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m The stair ended at a shore that should not have existed. A river ran through the heart of the cliff — broad, black, slow, and utterly silent. No current-sound, no lap of water on stone. It moved like glass being poured, heavy and patient, and where it touched the walls it left a faint phosphorescence, a ghost-light the color of drowned moons. A bridge of pale stone arched over it, but the bridge was broken in the middle, and the two halves hung in the dark like the arms of someone reaching for a hand they will never hold again.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_22_Narrator_000.wav
+[22/47] Narrator: 40.96s in 18.01s
+[23/47] Lyra: generating... [3. The Under-River] "The Drowned Bridge. The map didn't lie — it just didn't..."
+[94mInstruct:[0m A woman in her thirties, a scholar by training. Her voice is calm and precise, with a thoughtful, bookish quality. She speaks carefully, as though each word has been weighed. Warm but measured, mid-range pitch, slightly breathy on emphasized words.
+[94mText:[0m The Drowned Bridge. The map didn't lie — it just didn't warn us that the bridge would be broken. Kaelen, the gap is at least ten feet. The stone is wet. A jump is possible, but not safe.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_23_Lyra_000.wav
+[23/47] Lyra: 14.96s in 6.68s
+[24/47] Dax: generating... [3. The Under-River] "Possible and not safe describes this entire journey, Ly..."
+[94mInstruct:[0m A grizzled man in his fifties, skeptical and dry. His voice is rough and low, with a gravelly texture that comes from years of smoke and shouted orders. He speaks slowly, with a sardonic edge — every sentence carries the weight of someone who has seen too much to be surprised.
+[94mText:[0m Possible and not safe describes this entire journey, Lyra. Bram — you're the youngest, the lightest, and the most reckless. You first.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_24_Dax_000.wav
+[24/47] Dax: 11.28s in 4.40s
+[25/47] Bram: generating... [3. The Under-River] "Dax, when this is over, you and I are going to have a c..."
+[94mInstruct:[0m A young man in his early twenties, restless and hot-headed. His voice is energetic and bright, with a youthful edge that hasn't yet been grounded down by experience. He speaks quickly when excited, slower when afraid. Mid-range pitch, slightly breathless.
+[94mText:[0m Dax, when this is over, you and I are going to have a conversation about the way you volunteer me for things.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_25_Bram_000.wav
+[25/47] Bram: 5.84s in 2.39s
+[26/47] Dax: generating... [3. The Under-River] "I look forward to it, boy. Jump...."
+[94mInstruct:[0m A grizzled man in his fifties, skeptical and dry. His voice is rough and low, with a gravelly texture that comes from years of smoke and shouted orders. He speaks slowly, with a sardonic edge — every sentence carries the weight of someone who has seen too much to be surprised.
+[94mText:[0m I look forward to it, boy. Jump.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_26_Dax_000.wav
+[26/47] Dax: 3.44s in 1.54s
+[27/47] Narrator: generating... [3. The Under-River] "Bram ran. Three strides, a leap, and the dark swallowed..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m Bram ran. Three strides, a leap, and the dark swallowed him for one held breath before his boots struck the far side and he stumbled, caught himself, and turned with a grin that the lantern-light found from across the void.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_27_Narrator_000.wav
+[27/47] Narrator: 15.60s in 5.91s
+[28/47] Bram: generating... [3. The Under-River] "It holds! Sera, you next. You're lighter than me — you'..."
+[94mInstruct:[0m A young man in his early twenties, restless and hot-headed. His voice is energetic and bright, with a youthful edge that hasn't yet been grounded down by experience. He speaks quickly when excited, slower when afraid. Mid-range pitch, slightly breathless.
+[94mText:[0m It holds! Sera, you next. You're lighter than me — you'll barely touch the stone.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_28_Bram_000.wav
+[28/47] Bram: 6.80s in 2.77s
+[29/47] Sera: generating... [3. The Under-River] "Bram, stop grinning. You nearly fell. Ysolde — the lant..."
+[94mInstruct:[0m A young woman, quiet and watchful. Her voice is soft and low, almost a murmur, as if she is accustomed to speaking in places where sound travels dangerously. Clear but hushed, with a tense alertness underneath the calm.
+[94mText:[0m Bram, stop grinning. You nearly fell. Ysolde — the lantern. Can you make the jump with it? If the flame drops into that water, I don't know what happens. I don't want to know.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_29_Sera_000.wav
+[29/47] Sera: 15.44s in 5.80s
+[30/47] Ysolde: generating... [3. The Under-River] "The flame will not drop, Sera. It has been carried thro..."
+[94mInstruct:[0m A woman in her thirties, noble-born and resolute. Her voice is clear and steady, with a quiet authority that doesn't need volume to command attention. There is warmth in it, but also iron — the voice of someone who has made a decision and will not unmake it. Mid-range, precise, with a slight formal quality.
+[94mText:[0m The flame will not drop, Sera. It has been carried through worse than this. Kaelen, help me across. Lyra, Dax — follow us.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_30_Ysolde_000.wav
+[30/47] Ysolde: 10.80s in 4.12s
+[31/47] Narrator: generating... [3. The Under-River] "One by one they crossed, and the river beneath them did..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m One by one they crossed, and the river beneath them did not stir, did not ripple, did not so much as whisper. It simply watched them pass, the way a thing with no eyes and all the time in the world might watch. And on the far side, the stone opened into a hall that no living person had stood in for a thousand years.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_31_Narrator_000.wav
+[31/47] Narrator: 28.88s in 13.01s
+[32/47] Narrator: generating... [4. The Flame Chamber] "The chamber was vast — so vast that the lantern-light c..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m The chamber was vast — so vast that the lantern-light could not find its walls, only the floor: a mirror of black stone so polished that the seven of them walked on their own reflections. Pillars rose into the dark like the trunks of trees in a drowned forest, and between the pillars, in alcoves cut with terrible care, stood figures of stone — hundreds of them, each one different, each one covering its face with its hands. At the far end of the hall, something burned. Not Ysolde's flame. Something older. Something that had been burning since before the sea had a name, a cold blue fire that threw no warmth and cast shadows that pointed the wrong way.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_32_Narrator_000.wav
+[32/47] Narrator: 51.04s in 22.70s
+[33/47] The Hollow: generating... [4. The Flame Chamber] "Welcome home, Ysolde. You brought them all. I knew you ..."
+[94mInstruct:[0m An inhuman voice that echoes as if from deep stone. It is male-ish but wrong — too smooth, too knowing, with a hollow resonance that suggests a vast empty space behind it. Slow, deliberate, almost tender in its menace. The voice of something that remembers being human but no longer is.
+[94mText:[0m Welcome home, Ysolde. You brought them all. I knew you would. Kaelen with his old sword. Lyra with her old map. Dax with his old doubts. Sera with her old ears. And Bram — young Bram, who jumps before he looks. I have been so very alone. Thank you for coming to keep me company.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_33_The Hollow_000.wav
+[33/47] The Hollow: 30.32s in 14.08s
+[34/47] Kaelen: generating... [4. The Flame Chamber] "Bram, hold. Lyra, what is that light?..."
+[94mInstruct:[0m A man in his forties, battle-worn but steady. His voice is firm and authoritative, the voice of someone accustomed to giving orders that others follow without question. Mid-to-low pitch, clipped military precision, no wasted words.
+[94mText:[0m Bram, hold. Lyra, what is that light?
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_34_Kaelen_000.wav
+[34/47] Kaelen: 3.36s in 2.24s
+[35/47] Lyra: generating... [4. The Flame Chamber] "It's the original flame. The one the temple was built t..."
+[94mInstruct:[0m A woman in her thirties, a scholar by training. Her voice is calm and precise, with a thoughtful, bookish quality. She speaks carefully, as though each word has been weighed. Warm but measured, mid-range pitch, slightly breathy on emphasized words.
+[94mText:[0m It's the original flame. The one the temple was built to guard. Kaelen, if Ysolde's lantern touches it — I don't know. The texts say the bearer must choose. She must give her flame to the greater one, or take the greater one into herself. Either way, she will not walk out of here unchanged.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_35_Lyra_000.wav
+[35/47] Lyra: 23.52s in 9.05s
+[36/47] Dax: generating... [4. The Flame Chamber] "Ysolde. You knew this. You knew, and you brought us dow..."
+[94mInstruct:[0m A grizzled man in his fifties, skeptical and dry. His voice is rough and low, with a gravelly texture that comes from years of smoke and shouted orders. He speaks slowly, with a sardonic edge — every sentence carries the weight of someone who has seen too much to be surprised.
+[94mText:[0m Ysolde. You knew this. You knew, and you brought us down here anyway.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_36_Dax_000.wav
+[36/47] Dax: 6.00s in 3.26s
+[37/47] Ysolde: generating... [4. The Flame Chamber] "Yes, Dax. I knew. I did not bring you here to die. I br..."
+[94mInstruct:[0m A woman in her thirties, noble-born and resolute. Her voice is clear and steady, with a quiet authority that doesn't need volume to command attention. There is warmth in it, but also iron — the voice of someone who has made a decision and will not unmake it. Mid-range, precise, with a slight formal quality.
+[94mText:[0m Yes, Dax. I knew. I did not bring you here to die. I brought you here to witness. Someone must remember what happens next, and I cannot carry the story and the flame both. Lyra — you will carry the story. Promise me.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_37_Ysolde_000.wav
+[37/47] Ysolde: 21.36s in 8.75s
+[38/47] Lyra: generating... [4. The Flame Chamber] "Ysolde, no. There has to be another way. The texts — th..."
+[94mInstruct:[0m A woman in her thirties, a scholar by training. Her voice is calm and precise, with a thoughtful, bookish quality. She speaks carefully, as though each word has been weighed. Warm but measured, mid-range pitch, slightly breathy on emphasized words.
+[94mText:[0m Ysolde, no. There has to be another way. The texts — there are always gaps in the texts. Let me read them again. Let me — 
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_38_Lyra_000.wav
+[38/47] Lyra: 97.28s in 46.65s
+[39/47] Ysolde: generating... [4. The Flame Chamber] "Lyra. My friend. There is no time, and there is no othe..."
+[94mInstruct:[0m A woman in her thirties, noble-born and resolute. Her voice is clear and steady, with a quiet authority that doesn't need volume to command attention. There is warmth in it, but also iron — the voice of someone who has made a decision and will not unmake it. Mid-range, precise, with a slight formal quality.
+[94mText:[0m Lyra. My friend. There is no time, and there is no other way, and I have known that since the morning I lit this lantern. Promise me you will remember. All of you. Promise me, and then step back, because what comes next will not be gentle.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_39_Ysolde_000.wav
+[39/47] Ysolde: 17.68s in 8.35s
+[40/47] Bram: generating... [4. The Flame Chamber] "Ysolde... please. There has to be — ..."
+[94mInstruct:[0m A young man in his early twenties, restless and hot-headed. His voice is energetic and bright, with a youthful edge that hasn't yet been grounded down by experience. He speaks quickly when excited, slower when afraid. Mid-range pitch, slightly breathless.
+[94mText:[0m Ysolde... please. There has to be — 
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_40_Bram_000.wav
+[40/47] Bram: 4.56s in 2.35s
+[41/47] Ysolde: generating... [4. The Flame Chamber] "Bram. Hush. You jumped the bridge without hesitating. L..."
+[94mInstruct:[0m A woman in her thirties, noble-born and resolute. Her voice is clear and steady, with a quiet authority that doesn't need volume to command attention. There is warmth in it, but also iron — the voice of someone who has made a decision and will not unmake it. Mid-range, precise, with a slight formal quality.
+[94mText:[0m Bram. Hush. You jumped the bridge without hesitating. Let me do the same. Kaelen — get them back. Now.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_41_Ysolde_000.wav
+[41/47] Ysolde: 9.68s in 4.00s
+[42/47] Narrator: generating... [4. The Flame Chamber] "Kaelen did not argue. He seized Bram by the shoulder an..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m Kaelen did not argue. He seized Bram by the shoulder and pulled, and Dax was already moving, and Sera had Lyra by the wrist, and the five of them fell back toward the pillars as Ysolde walked forward alone, into the blue fire, the small gold flame in her lantern held out before her like a hand extended to a stranger in the dark.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_42_Narrator_000.wav
+[42/47] Narrator: 22.48s in 9.26s
+[43/47] Narrator: generating... [4. The Flame Chamber] "The two flames met. And the mountain, which had held it..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m The two flames met. And the mountain, which had held its breath for a thousand years, remembered how to breathe.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_43_Narrator_000.wav
+[43/47] Narrator: 7.20s in 3.19s
+[44/47] Narrator: generating... [4. The Flame Chamber] "What came after, Lyra wrote down. She wrote it in the b..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m What came after, Lyra wrote down. She wrote it in the back of the map, in a hand that shook, by the light of a flame she would not name. She wrote that the blue fire took Ysolde, and that Ysolde took it in return, and that when the light faded there was a woman standing where no woman could stand, and she was smiling, and she was not entirely Ysolde anymore, and she was not entirely anything else either. She wrote that the stone figures uncovered their faces. She wrote that the river, far behind them, began at last to sing.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_44_Narrator_000.wav
+[44/47] Narrator: 37.92s in 17.76s
+[45/47] Narrator: generating... [4. The Flame Chamber] "And she wrote one line more, in the margin, in a smalle..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m And she wrote one line more, in the margin, in a smaller hand, as though she were afraid even the paper might overhear: 'It was not a sacrifice. It was a bargain. And I think, in the end, she got the better of it.'
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_45_Narrator_000.wav
+[45/47] Narrator: 18.16s in 7.63s
+[46/47] Narrator: generating... [4. The Flame Chamber] "The Company of the Last Light climbed back into the daw..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m The Company of the Last Light climbed back into the dawn a half-hour later, six instead of seven, and the sea was the color of new silver, and the wind had died, and the stair behind them closed like a mouth that had finished speaking. Lyra folded the map. Kaelen did not sheathe his sword for a long while. And Bram — Bram did not speak at all, all the way home, which is how those who knew him best knew that something had truly changed.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_46_Narrator_000.wav
+[46/47] Narrator: 41.44s in 17.11s
+[47/47] Narrator: generating... [4. The Flame Chamber] "So ends the Descent of Ysolde's Light. So begins, perha..."
+[94mInstruct:[0m A mature British male narrator with a deep, resonant voice. He speaks with the measured cadence of a seasoned storyteller — warm but grave, with a weight that suggests he has witnessed the events he describes. Slight rasp, unhurried pace, clear diction.
+[94mText:[0m So ends the Descent of Ysolde's Light. So begins, perhaps, something else.
+[94mVoice:[0m af_heart
+[94mSpeed:[0m 1.0x
+[94mLanguage:[0m en
+✅ Audio successfully generated and saving as: /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/_qwen3_temp/seg_47_Narrator_000.wav
+[47/47] Narrator: 7.44s in 3.70s
+
+======================================================================
+SUMMARY
+======================================================================
+  segments:        47
+  generated:       47/47
+  total audio:     863.68s (14.4 min)
+  total gen time:  377.50s (6.3 min)
+  real-time factor: 2.29x
+  output file:     /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent_qwen3.wav (41456684 bytes, 39.5 MB)
+  log file:        /Users/arie/CascadeProjects/narrator/glm-work/logs/ensemble2_qwen3.log
+DONE

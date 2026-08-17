@@ -1,0 +1,118 @@
+======================================================================
+Ensemble #2 Qwen3 VoiceDesign — 'The Descent of Ysolde's Light'
+2026-08-17 21:43:47
+======================================================================
+[text] base story  -> /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent_qwen3.md (10975 bytes)
+[text] voice input -> /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent_qwen3_input.txt (10152 bytes)
+
+[setup] importing mlx-audio...
+[setup] imports done in 0.3s
+[setup] loading model...
+[setup] model loaded in 3.2s
+[setup] 47 segments to generate
+[ 1/47] Narrator: generating... [1. The Cliffside at Dawn] "The wind came off the Greywater Sea like a living thing..."
+[ 1/47] Narrator: 43.04s in 19.79s
+[ 2/47] Narrator: generating... [1. The Cliffside at Dawn] "Kaelen stood at the stair's edge, his hand on the hilt ..."
+[ 2/47] Narrator: 38.16s in 17.51s
+[ 3/47] Narrator: generating... [1. The Cliffside at Dawn] "They were the Company of the Last Light, and the mounta..."
+[ 3/47] Narrator: 6.56s in 3.50s
+[ 4/47] Kaelen: generating... [1. The Cliffside at Dawn] "Lyra. How far down?..."
+[ 4/47] Kaelen: 2.08s in 0.90s
+[ 5/47] Lyra: generating... [1. The Cliffside at Dawn] "The map says three hundred steps to the river, and then..."
+[ 5/47] Lyra: 14.48s in 5.56s
+[ 6/47] Dax: generating... [1. The Cliffside at Dawn] "A map that ends with a circle and a riddle. That's not ..."
+[ 6/47] Dax: 10.00s in 3.87s
+[ 7/47] Sera: generating... [1. The Cliffside at Dawn] "Dax is right that it's a warning. He's wrong that it ma..."
+[ 7/47] Sera: 12.00s in 4.64s
+[ 8/47] Bram: generating... [1. The Cliffside at Dawn] "Sera, if you've seen something down there, now would be..."
+[ 8/47] Bram: 3.76s in 1.54s
+[ 9/47] Sera: generating... [1. The Cliffside at Dawn] "I haven't seen it, Bram. I've heard it. Last night, in ..."
+[ 9/47] Sera: 11.92s in 4.59s
+[10/47] Ysolde: generating... [1. The Cliffside at Dawn] "Then it knows I'm coming. Good. Let it be afraid. Kaele..."
+[10/47] Ysolde: 10.72s in 4.12s
+[11/47] Kaelen: generating... [1. The Cliffside at Dawn] "You heard her. Dax, you have the rear. Sera, point. Bra..."
+[11/47] Kaelen: 16.56s in 6.46s
+[12/47] Narrator: generating... [2. The Stair] "The stair swallowed them whole. The light of dawn retre..."
+[12/47] Narrator: 38.80s in 17.36s
+[13/47] Narrator: generating... [2. The Stair] "Down and down. The air grew thick and warm, and it tast..."
+[13/47] Narrator: 28.48s in 13.18s
+[14/47] Dax: generating... [2. The Stair] "Kaelen. Stop. Listen...."
+[14/47] Dax: 3.44s in 2.32s
+[15/47] Kaelen: generating... [2. The Stair] "I hear it. Everyone still. Lyra — what is that?..."
+[15/47] Kaelen: 4.48s in 1.80s
+[16/47] Lyra: generating... [2. The Stair] "It's not an echo. An echo repeats. This... answers. It'..."
+[16/47] Lyra: 16.00s in 6.15s
+[17/47] The Hollow: generating... [2. The Stair] "Ysolde. You bring a borrowed flame into my house. You a..."
+[17/47] The Hollow: 12.40s in 4.94s
+[18/47] Ysolde: generating... [2. The Stair] "That is not my brother. My brother died on the field at..."
+[18/47] Ysolde: 15.20s in 5.83s
+[19/47] Bram: generating... [2. The Stair] "Ysolde, it spoke in your brother's voice. Are you sure ..."
+[19/47] Bram: 6.00s in 2.38s
+[20/47] Ysolde: generating... [2. The Stair] "I am sure, Bram. I buried him myself. Move on...."
+[20/47] Ysolde: 4.56s in 1.85s
+[21/47] Narrator: generating... [2. The Stair] "And so they descended, and the stair descended with the..."
+[21/47] Narrator: 11.60s in 4.48s
+[22/47] Narrator: generating... [3. The Under-River] "The stair ended at a shore that should not have existed..."
+[22/47] Narrator: 40.96s in 18.01s
+[23/47] Lyra: generating... [3. The Under-River] "The Drowned Bridge. The map didn't lie — it just didn't..."
+[23/47] Lyra: 14.96s in 6.68s
+[24/47] Dax: generating... [3. The Under-River] "Possible and not safe describes this entire journey, Ly..."
+[24/47] Dax: 11.28s in 4.40s
+[25/47] Bram: generating... [3. The Under-River] "Dax, when this is over, you and I are going to have a c..."
+[25/47] Bram: 5.84s in 2.39s
+[26/47] Dax: generating... [3. The Under-River] "I look forward to it, boy. Jump...."
+[26/47] Dax: 3.44s in 1.54s
+[27/47] Narrator: generating... [3. The Under-River] "Bram ran. Three strides, a leap, and the dark swallowed..."
+[27/47] Narrator: 15.60s in 5.91s
+[28/47] Bram: generating... [3. The Under-River] "It holds! Sera, you next. You're lighter than me — you'..."
+[28/47] Bram: 6.80s in 2.77s
+[29/47] Sera: generating... [3. The Under-River] "Bram, stop grinning. You nearly fell. Ysolde — the lant..."
+[29/47] Sera: 15.44s in 5.80s
+[30/47] Ysolde: generating... [3. The Under-River] "The flame will not drop, Sera. It has been carried thro..."
+[30/47] Ysolde: 10.80s in 4.12s
+[31/47] Narrator: generating... [3. The Under-River] "One by one they crossed, and the river beneath them did..."
+[31/47] Narrator: 28.88s in 13.01s
+[32/47] Narrator: generating... [4. The Flame Chamber] "The chamber was vast — so vast that the lantern-light c..."
+[32/47] Narrator: 51.04s in 22.70s
+[33/47] The Hollow: generating... [4. The Flame Chamber] "Welcome home, Ysolde. You brought them all. I knew you ..."
+[33/47] The Hollow: 30.32s in 14.08s
+[34/47] Kaelen: generating... [4. The Flame Chamber] "Bram, hold. Lyra, what is that light?..."
+[34/47] Kaelen: 3.36s in 2.24s
+[35/47] Lyra: generating... [4. The Flame Chamber] "It's the original flame. The one the temple was built t..."
+[35/47] Lyra: 23.52s in 9.05s
+[36/47] Dax: generating... [4. The Flame Chamber] "Ysolde. You knew this. You knew, and you brought us dow..."
+[36/47] Dax: 6.00s in 3.26s
+[37/47] Ysolde: generating... [4. The Flame Chamber] "Yes, Dax. I knew. I did not bring you here to die. I br..."
+[37/47] Ysolde: 21.36s in 8.75s
+[38/47] Lyra: generating... [4. The Flame Chamber] "Ysolde, no. There has to be another way. The texts — th..."
+[38/47] Lyra: 97.28s in 46.65s
+[39/47] Ysolde: generating... [4. The Flame Chamber] "Lyra. My friend. There is no time, and there is no othe..."
+[39/47] Ysolde: 17.68s in 8.35s
+[40/47] Bram: generating... [4. The Flame Chamber] "Ysolde... please. There has to be — ..."
+[40/47] Bram: 4.56s in 2.35s
+[41/47] Ysolde: generating... [4. The Flame Chamber] "Bram. Hush. You jumped the bridge without hesitating. L..."
+[41/47] Ysolde: 9.68s in 4.00s
+[42/47] Narrator: generating... [4. The Flame Chamber] "Kaelen did not argue. He seized Bram by the shoulder an..."
+[42/47] Narrator: 22.48s in 9.26s
+[43/47] Narrator: generating... [4. The Flame Chamber] "The two flames met. And the mountain, which had held it..."
+[43/47] Narrator: 7.20s in 3.19s
+[44/47] Narrator: generating... [4. The Flame Chamber] "What came after, Lyra wrote down. She wrote it in the b..."
+[44/47] Narrator: 37.92s in 17.76s
+[45/47] Narrator: generating... [4. The Flame Chamber] "And she wrote one line more, in the margin, in a smalle..."
+[45/47] Narrator: 18.16s in 7.63s
+[46/47] Narrator: generating... [4. The Flame Chamber] "The Company of the Last Light climbed back into the daw..."
+[46/47] Narrator: 41.44s in 17.11s
+[47/47] Narrator: generating... [4. The Flame Chamber] "So ends the Descent of Ysolde's Light. So begins, perha..."
+[47/47] Narrator: 7.44s in 3.70s
+
+======================================================================
+SUMMARY
+======================================================================
+  segments:        47
+  generated:       47/47
+  total audio:     863.68s (14.4 min)
+  total gen time:  377.50s (6.3 min)
+  real-time factor: 2.29x
+  output file:     /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent_qwen3.wav (41456684 bytes, 39.5 MB)
+  log file:        /Users/arie/CascadeProjects/narrator/glm-work/logs/ensemble2_qwen3.log
+DONE
