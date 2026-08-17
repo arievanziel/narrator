@@ -39,7 +39,7 @@ research, and the full repository is ~13.9 GB. Can be added later if needed.
 |-------|-------|-----------|-------------|-----------------|-------------|
 | Kokoro (PyTorch) | af_heart | 30.75 | 5.28 | 5.8x | _pending_ |
 | Kokoro (MLX) | af_heart | _pending_ | _pending_ | _pending_ | _pending_ |
-| Qwen3-TTS VoiceDesign | narrator desc | _pending_ | _pending_ | _pending_ | _pending_ |
+| Qwen3-TTS VoiceDesign | narrator desc | 44.80 | 18.55 | 2.4x | _pending_ |
 | Dia-1.6B | [S1] | _pending_ | _pending_ | _pending_ | _pending_ |
 | Higgs Audio V2 | smart voice | _pending_ | _pending_ | _pending_ | _pending_ |
 
@@ -49,7 +49,7 @@ research, and the full repository is ~13.9 GB. Can be added later if needed.
 |-------|-------|-----------|-------------|-----------------|-------------|
 | Kokoro (PyTorch) | af_heart | 26.20 | 3.85 | 6.8x | _pending_ |
 | Kokoro (MLX) | af_heart | _pending_ | _pending_ | _pending_ | _pending_ |
-| Qwen3-TTS VoiceDesign | narrator desc | _pending_ | _pending_ | _pending_ | _pending_ |
+| Qwen3-TTS VoiceDesign | narrator desc | 46.32 | 20.03 | 2.3x | _pending_ |
 | Dia-1.6B | [S1] (native tags) | _pending_ | _pending_ | _pending_ | _pending_ |
 | Higgs Audio V2 | smart voice | _pending_ | _pending_ | _pending_ | _pending_ |
 
@@ -59,7 +59,7 @@ research, and the full repository is ~13.9 GB. Can be added later if needed.
 |-------|--------|-----------|-------------|-----------------|-------------|
 | Kokoro (PyTorch) | af_heart + am_michael | 35.45 | 8.16 | 4.3x | _pending_ |
 | Kokoro (MLX) | af_heart + am_michael | _pending_ | _pending_ | _pending_ | _pending_ |
-| Qwen3-TTS VoiceDesign | S1 desc + S2 desc | _pending_ | _pending_ | _pending_ | _pending_ |
+| Qwen3-TTS VoiceDesign | S1 desc + S2 desc | 46.64 | 19.53 | 2.4x | _pending_ |
 | Dia-1.6B | [S1]+[S2] native | _pending_ | _pending_ | _pending_ | _pending_ |
 | Higgs Audio V2 | smart voice (no cloning) | _pending_ | _pending_ | _pending_ | _pending_ |
 
@@ -69,7 +69,7 @@ research, and the full repository is ~13.9 GB. Can be added later if needed.
 |-------|-------|-----------|-------------|-----------------|-------------|
 | Kokoro (PyTorch) | af_heart | 154.82 | 22.71 | 6.8x | _pending_ |
 | Kokoro (MLX) | af_heart | _pending_ | _pending_ | _pending_ | _pending_ |
-| Qwen3-TTS VoiceDesign | narrator desc | _pending_ | _pending_ | _pending_ | _pending_ |
+| Qwen3-TTS VoiceDesign | narrator desc | 192.00 | 77.50 | 2.5x | _pending_ |
 | Dia-1.6B | [S1] | _pending_ | _pending_ | _pending_ | _pending_ |
 | Higgs Audio V2 | smart voice | _pending_ | _pending_ | _pending_ | _pending_ |
 
@@ -104,17 +104,20 @@ research, and the full repository is ~13.9 GB. Can be added later if needed.
 
 ### Qwen3-TTS VoiceDesign (MLX, 8-bit)
 
-_pending_ — awaiting model download completion
+**What worked:**
+- Natural-language voice descriptions produce distinct, controllable voices
+- S1 (young woman) and S2 (older man) descriptions produced clearly different voices
+- Long-form generation works (192s / 3.2 min of audio in one call with max_tokens=2400)
+- MLX/Metal GPU acceleration — 2.3-2.5x real-time on M1 Max
+- No stitching needed for single-speaker long-form (unlike Kokoro)
 
-**Expected strengths:**
-- Natural-language voice descriptions (key feature for NPC voices)
-- Can describe voice characteristics in words rather than picking presets
-- MLX/Metal GPU acceleration
-
-**Expected concerns:**
-- Larger model (~3.08 GB vs Kokoro's 312 MB)
-- Voice consistency across separate calls needs verification
-- 8-bit quantization may affect quality
+**What didn't work / concerns:**
+- Slower than Kokoro (2.4x vs 5.8x real-time) — ~2.5x slower generation
+- Peak memory 20.89 GB for long-form (vs Kokoro's <1 GB) — significant but within 32 GB
+- Multi-voice requires per-line generation + stitching (no native multi-speaker like Dia)
+- Voice consistency across separate calls needs Arie's listening verification
+- 8-bit quantization quality impact needs listening evaluation
+- The transformers warning ("using qwen3_tts to instantiate a model of type ''") is cosmetic — generation works fine
 
 ### Dia-1.6B (MLX)
 
@@ -155,7 +158,12 @@ All WAV outputs are in `glm-work/outputs/`:
   - `test2a_multi_speaker_single_voice.wav`
   - `test2b_multi_speaker_two_voices.wav`
   - `test3_long_form.wav`
-- `qwen3_voicedesign/` — _pending_
+- `qwen3_voicedesign/` — 5 files, ~15 MB
+  - `smoke_test_000.wav`
+  - `test1_single_speaker_000.wav`
+  - `test2a_multi_speaker_single_voice_000.wav`
+  - `test2b_multi_speaker_two_voices.wav`
+  - `test3_long_form_000.wav`
 - `dia_1_6b/` — _pending_
 - `higgs_audio_v2/` — _pending_
 - `kokoro_mlx/` — _pending_
