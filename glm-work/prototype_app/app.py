@@ -68,7 +68,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <style>
 body { font-family: -apple-system, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; background: #1a1a2e; color: #e0e0e0; }
 h1 { color: #e94560; }
-textarea { width: 100%; height: 200px; background: #16213e; color: #e0e0e0; border: 1px solid #0f3460; border-radius: 4px; padding: 10px; font-family: monospace; }
+textarea { width: 100%%; height: 200px; background: #16213e; color: #e0e0e0; border: 1px solid #0f3460; border-radius: 4px; padding: 10px; font-family: monospace; }
 select, input[type=text] { background: #16213e; color: #e0e0e0; border: 1px solid #0f3460; border-radius: 4px; padding: 8px; margin: 5px 0; }
 button { background: #e94560; color: white; border: none; border-radius: 4px; padding: 10px 20px; cursor: pointer; font-size: 16px; }
 button:hover { background: #c73e54; }
