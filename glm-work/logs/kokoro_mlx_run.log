@@ -1,0 +1,8 @@
+======================================================================
+Kokoro MLX test run — 2026-08-17 19:02:29
+======================================================================
+[setup] model: mlx-community/Kokoro-82M-bf16
+[setup] This is the MLX port of Kokoro for comparison with PyTorch version.
+[setup] imports done in 0.4s
+[setup] loading model...
+Fetching 56 files:   0%|          | 0/56 [00:00<?, ?it/s]Fetching 56 files:   2%|▏         | 1/56 [00:01<01:07,  1.23s/it]Fetching 56 files:   4%|▎         | 2/56 [00:06<03:25,  3.81s/it]Fetching 56 files:   5%|▌         | 3/56 [00:08<02:21,  2.67s/it]Fetching 56 files:   7%|▋         | 4/56 [00:08<01:40,  1.94s/it]Fetching 56 files:   9%|▉         | 5/56 [00:09<01:07,  1.33s/it]Fetching 56 files:  11%|█         | 6/56 [00:09<00:48,  1.04it/s]Fetching 56 files:  12%|█▎        | 7/56 [00:09<00:39,  1.24it/s]Fetching 56 files:  14%|█▍        | 8/56 [00:15<01:49,  2.28s/it]Fetching 56 files:  16%|█▌        | 9/56 [03:25<47:46, 60.99s/it]Fetching 56 files:  18%|█▊        | 10/56 [03:25<32:22, 42.22s/it]Fetching 56 files:  21%|██▏       | 12/56 [03:26<16:34, 22.59s/it]Fetching 56 files:  23%|██▎       | 13/56 [03:26<12:09, 16.97s/it]Fetching 56 files:  25%|██▌       | 14/56 [03:27<08:50, 12.63s/it]Fetching 56 files:  27%|██▋       | 15/56 [03:41<08:55, 13.07s/it]

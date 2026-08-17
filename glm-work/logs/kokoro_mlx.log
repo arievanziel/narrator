@@ -1,0 +1,7 @@
+======================================================================
+Kokoro MLX test run — 2026-08-17 19:02:29
+======================================================================
+[setup] model: mlx-community/Kokoro-82M-bf16
+[setup] This is the MLX port of Kokoro for comparison with PyTorch version.
+[setup] imports done in 0.4s
+[setup] loading model...
