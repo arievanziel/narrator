@@ -89,7 +89,72 @@ For single-speaker-only models (Kokoro, Qwen3-TTS base mode), the multi-speaker 
 
 ## Where I need help from smarter models
 
-*None yet.* I'll add explicit sections here when I hit a wall.
+### 1. Dia2 on Apple Silicon (anticipated, not yet stuck)
+
+**Stuck on:** Dia2 is CUDA-first. The CLI auto-selects CUDA or CPU but has no
+explicit MPS support. On M1 Max, CPU fallback for a 1B+ param transformer will
+likely be very slow (possibly sub-real-time).
+
+**What I'll try first:** `uv run -m dia2.cli --device cpu --dtype bfloat16` with
+the 1B model. If it's <1x real-time, I'll document and stop per spec.
+
+**What I need from a smarter model (only if I get stuck):**
+- Is there a known MPS port or patch for Dia2 as of mid-2026?
+- Has anyone gotten Dia2 running on Apple Silicon via MLX?
+- If CPU is the only path, is there a quantized (q4/q8) Dia2 variant that would
+  be fast enough to be worth testing?
+
+**Cost sensitivity:** Only worth a smarter-model call if the CPU path is too slow
+to even produce test outputs AND Arie wants Dia2 tested badly enough to justify it.
+If Arie is happy with Kokoro + Qwen3-TTS results, skip Dia2 entirely.
+
+### 2. Kokoro input engineering / post-processing (per Arie's feedback)
+
+**Stuck on:** Arie's feedback on Kokoro: "sounds ok, but not good enough, especially
+the pauses and narrator voice vs character voices changes." He suspects this is an
+input-engineering + post-processing problem, not a model-quality problem.
+
+**What I think the issue is:**
+- Pauses: Kokoro's g2p + generate_from_tokens doesn't give fine-grained control
+  over pause length between sentences/paragraphs. The default pacing may be too
+  uniform or too rushed.
+- Voice transitions: in test2b, I stitched per-line generations with hard
+  concatenation (no crossfade, no gap). This creates abrupt speaker changes.
+
+**What I need from a smarter model (if Arie wants me to optimize Kokoro):**
+- Best practices for pause control in Kokoro (does it respect SSML? `<break>` tags?
+  punctuation-driven pacing? silence insertion between chunks?)
+- Audio stitching techniques for multi-voice TTS (crossfade duration, room tone
+  insertion, breath sounds between speakers)
+- Whether a smarter model (Sonnet/Opus) would be better at writing the
+  text-preprocessing layer that feeds Kokoro (e.g. splitting narration into
+  narrator-vs-dialogue segments, inserting pause markers, assigning voices per
+  segment type)
+
+**Cost sensitivity:** This is worth a smarter-model consult IF Arie decides Kokoro
+is the model he wants to use and just needs the pipeline improved. If Qwen3-TTS
+tests significantly better, this becomes moot. Recommend: test Qwen3-TTS first,
+then decide.
+
+### 3. Qwen3-TTS VoiceDesign API (anticipated)
+
+**Stuck on:** Not yet stuck — haven't installed Qwen3-TTS. But the VoiceDesign
+API (natural-language voice description → generated voice) is the key feature for
+Arie's NPC-voice requirement, and its documentation may be sparse or non-obvious.
+
+**What I'll try first:** Follow the official examples
+(`examples/test_model_12hz_voice_design.py`) with `device_map="mps"`,
+`dtype=torch.float16`, `attn_implementation="sdpa"`.
+
+**What I need from a smarter model (only if the API is confusing):**
+- A clean reference implementation of Qwen3-TTS VoiceDesign on MPS
+- Best practices for voice description prompts (what makes a good natural-language
+  voice description? what attributes does the model respond to?)
+- How to maintain voice consistency across multiple generation calls (does the
+  model cache the designed voice? do you re-describe it each time?)
+
+**Cost sensitivity:** Only worth a smarter-model call if the official examples
+don't work out of the box on MPS AND I can't debug it myself within ~30 min.
 
 ### Template for when I get stuck
 

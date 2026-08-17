@@ -127,3 +127,28 @@ enough. Qwen3-TTS (Priority 1, not yet tested) is the stronger candidate for thi
 **GLM is not the judge of audio quality — Arie is.** All 5 `.wav` files are in
 `glm-work/outputs/kokoro/` for Arie to listen to and form his own opinion. Per spec,
 this phase does NOT recommend a final model choice.
+
+## Arie's feedback (2026-08-17)
+
+> Sounds ok, but not good enough, especially the pauses and narrator voice vs
+> character voices changes. But this is perhaps a matter of tweaking the input
+> enough to use the tts more purposefully and combine the output into better
+> overall results. I kind of like the fixed voices, at least for a first version
+> it seems fine. 54 is quite enough.
+
+**GLM's interpretation of this feedback (not Arie's words, my reading):**
+- Quality is acceptable as a baseline but needs improvement in two areas:
+  (a) pause timing/length, and (b) transitions between narrator and character voices.
+- Arie suspects these are input-engineering + post-processing problems, not
+  fundamental model-quality problems — i.e. feeding Kokoro better-structured text
+  (explicit pause markers, per-line voice assignment, SSML-like control) and
+  stitching output more carefully may close the gap.
+- The 54 preset voices are sufficient for a first version. Custom voice design
+  (Qwen3-TTS's strength) is not a hard requirement — it's a nice-to-have.
+- This implies Kokoro may be viable for v1 if the input/post-processing pipeline
+  is engineered well, even if Qwen3-TTS tests better on raw quality.
+
+**Open question for Arie (not yet asked):** would you like me to prototype an
+improved Kokoro pipeline (better pause control, smarter voice assignment per line
+type, cross-fade stitching) as a follow-up after the other models are tested, or
+is the current quality floor too low to bother optimizing?
