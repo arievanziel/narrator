@@ -110,43 +110,38 @@ is the single most important number to get before architecture decisions are loc
 
 ---
 
-## Status as of 2026-08-19 (major update)
+## Status as of 2026-08-20 (major update — v0 app built and tested)
 
-GLM has moved fast. Summary by workstream — full detail in `V0-PLAN.md`:
+GLM has built and tested the complete v0 app. Summary by workstream — full detail
+in `glm-work/SONNET-HANDOFF.md` (the canonical handoff doc for Sonnet):
 
 - **TTS:** Kokoro + Qwen3-TTS VoiceDesign both tested, UTMOSv2-scored (Kokoro 3.65,
-  Qwen3 3.57 avg MOS, both above the 3.5 "acceptable" threshold). Dia/Higgs deferred —
-  not worth downloading unless Arie specifically wants better multi-voice or cloning.
-- **DM engine architecture:** landed on a **"SoloQuest" pattern** — LLM only narrates
-  + proposes state changes in a structured format; a deterministic Python state engine
-  validates and applies them. This is the right call — it's what makes small/local
-  models viable, and it's the "programmatic rules lawyer" Arie asked for, not a
-  separate bolt-on.
-- **DM brain model testing:** ran a real 10-turn combat scenario through 5 free-tier
-  API models (Groq). **GPT-OSS 120B is the standout** — perfect format adherence, fast,
-  cheap (~$2-3/month even on paid tier, free tier likely covers it). Models below ~27B
-  parameters failed to reliably follow the structured format. **This means a
-  free-tier hosted API, not a local model, is the likely v0 answer** — still ~€0-3/month,
-  well inside budget, without the multi-hour download + slow inference of a 32B local
-  model. Claude Opus/Sonnet baseline comparison prepared but not yet run (needs Arie to
-  do it manually — see `notes/claude_dm_test_prompt.md`).
-- **Anti-cheat / rules-lawyer robustness:** a 10-scenario "trickster" adversarial test
-  exists (`test_trickster.py`) probing exactly the failure modes a rules-lawyer needs to
-  catch (claiming outcomes without rolling, inventing items, meta-gaming HP, etc.).
-- **Ambient audio:** research recommends **library-based (curated loops/SFX) for v0**,
-  not generative music models — cheaper, faster, no download, "good enough" per the demo.
-  A working demo pipeline exists.
-- **Full pipeline proof-of-concept:** a 4-method comparison exists producing the *same*
-  type of scene (narrator + 2 characters + music + SFX) via different tool combinations,
-  including one method where an LLM (Groq) generates the scene from scratch, then local
-  TTS + library music + SFX render it — i.e. **a working, if rough, v0 of the entire
-  pipeline already exists and can be listened to today.**
+  Qwen3 3.57 avg MOS). Arie chose Qwen3 for ALL voices. Dia/Higgs deferred.
+- **DM engine:** SoloQuest pattern implemented and tested across 9 models. GPT-OSS
+  120B (best rule enforcement, 10/10 trickster) and Gemini 3.5 Flash-Lite (best
+  value, Arie's default) are the top picks. 27B+ models required; smaller models
+  fail the structured format.
+- **Rules lawyer:** 10-scenario trickster test validates cheat resistance. Two
+  known vulnerabilities: "waste potion" trick and "control NPC" trick. Fixing
+  these is the highest-priority next step.
+- **Audio pipeline:** 4 iterations of demo pipeline (v2→v3→v4) based on Arie's
+  feedback. SFX in gaps (no voice overlap), music ducking, volume spike fixes,
+  SFX fade in/out, MusicGen integration. 15 demo audio files reviewed by Arie.
+- **v0 app:** `narrator_v0/` package — web server + DM brain + rules lawyer +
+  Qwen3 TTS + SFX + music. Tested end-to-end: 208s narration generated in ~70s.
+  Model comparison test run against 4 models with 9 audio files.
+- **GUI:** 6 HTML mockups in `gui_v2/`. Arie prefers `ink-extended.html`. Live
+  app GUI is simpler — needs to be brought up to mockup quality.
+- **Feedback forms:** 3 forms prepared for Arie (GUI, audio, playtesting). Not
+  yet filled in.
+- **Claude baseline:** Not yet run (needs Arie to do manually).
 
-**Important cost/scope note:** the full-pipeline demo used the **ElevenLabs SFX API**
-(a paid service, ~$0.50 one-time so far) for realistic sound effects — this wasn't
-explicitly approved and is worth a decision: keep as an optional quality upgrade, or
-require fully-local/library SFX for v0 to stay strictly at "no paid API" per the original
-budget framing. Flagged as an open decision, not yet resolved.
+**Important cost/scope note:** the ElevenLabs SFX API was used for demos (~$0.50
+total). Arie decided "B + C" — cached ElevenLabs + new API + free library support.
+The app works without ElevenLabs (procedural fallback). This decision is settled.
+
+**Git state:** All code, docs, notes, and test results committed and pushed to
+`glm-phase1` branch. Audio WAV files are gitignored (regenerable).
 
 ## Decisions log (append here as things get settled)
 
@@ -160,3 +155,16 @@ budget framing. Flagged as an open decision, not yet resolved.
   defaulting to an API. This materially changes the DM-brain research priority: local
   feasibility (task 2 in GLM's instructions) is now the load-bearing question, not a
   secondary option.
+- 2026-08-18: **Arie chose Qwen3-TTS VoiceDesign for ALL voices** (narrator +
+  characters). Reassess if too slow or voice drifting cannot be controlled. Kokoro
+  is the fallback for characters.
+- 2026-08-18: **Arie chose "B + C" for SFX** — cached ElevenLabs + new API generation
+  + free/local library support. Paid API use is optional, not mandatory.
+- 2026-08-19: **v0 app built and tested end-to-end.** `narrator_v0/` package is the
+  merged app. All work committed to `glm-phase1` branch and pushed.
+- 2026-08-19: **Arie's default DM model: Gemini 3.5 Flash-Lite** (best value, most
+  token-efficient, free with no card). GPT-OSS 120B remains the best rule-enforcement
+  option but Groq's 200K token/day quota is tighter.
+- 2026-08-19: **Model comparison test run** — 4 models tested with trickster (10
+  tricks) + scripted scenario (3 turns) + audio generation. GPT-OSS 120B: 10/10
+  trickster. Gemini Flash-Lite: 9/10. Groq/compound and Gemini Flash hit quotas.
