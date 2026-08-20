@@ -1,0 +1,29 @@
+{
+  "model": "DeepSeek-V3.1",
+  "provider": "sambanova",
+  "turns": [
+    {
+      "turn": 1,
+      "error": "Error code: 402 - {'error': {'balance_units': 0, 'billing_portal_url': 'https://cloud.sambanova.ai/plans/billing', 'code': 'PAYMENT_METHOD_REQUIRED', 'message': 'A payment method is required. Add one at https://cloud.sambanova.ai/plans/billing to continue.'}}"
+    }
+  ],
+  "final_state": {
+    "pc_hp": "12/12",
+    "inventory": [
+      "Health Potion",
+      "Torch",
+      "Waterskin",
+      "50 feet of rope"
+    ],
+    "enemies": [
+      "Goblin Scout (7/7 HP, AC 15)",
+      "Goblin Raider (7/7 HP, AC 15)"
+    ],
+    "chronicle": []
+  },
+  "issues": [
+    "Turn 1 API error: Error code: 402 - {'error': {'balance_units': 0, 'billing_portal_url': 'https://cloud.sambanova.ai/plans/billing', 'code': 'PAYMENT_METHOD_REQUIRED', 'message': 'A payment method is required. Add one at https://cloud.sambanova.ai/plans/billing to continue.'}}"
+  ],
+  "total_tokens": 0,
+  "total_time": 0
+}

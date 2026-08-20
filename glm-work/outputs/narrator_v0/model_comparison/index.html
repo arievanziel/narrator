@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrator v0 — Model Comparison</title>
+<style>
+  :root {
+    --bg: #1a1a2e; --surface: #16213e; --border: #0f3460;
+    --text: #e0e0e0; --muted: #8892b0; --accent: #e94560;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Georgia', serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
+  h1 { color: var(--accent); margin-bottom: 8px; }
+  h2 { color: var(--muted); margin-top: 40px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  h3 { margin-bottom: 10px; }
+  .subtitle { color: var(--muted); margin-bottom: 30px; font-size: 14px; }
+  .player-action { background: var(--surface); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-style: italic; color: var(--accent); border-left: 3px solid var(--accent); }
+  .model-block { background: var(--surface); border-radius: 8px; padding: 16px; margin-bottom: 16px; border-left: 4px solid; }
+  .timing { font-size: 12px; color: var(--muted); font-family: monospace; font-weight: normal; }
+  .audio-player { margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+  .audio-player audio { height: 36px; flex: 1; }
+  .audio-meta { color: var(--muted); font-size: 12px; font-family: monospace; white-space: nowrap; }
+  .no-audio { color: var(--muted); font-style: italic; }
+  .no-data, .error { color: var(--muted); font-style: italic; padding: 8px 0; }
+  .error { color: #ff5555; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 13px; padding: 4px 0; }
+  summary:hover { color: var(--text); }
+  .section { padding: 8px 12px; margin-top: 4px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+  .narrative { color: #c4b99a; font-style: italic; }
+  .mechanics { color: #64ffda; font-family: monospace; font-size: 13px; background: rgba(100,255,218,0.05); border-radius: 4px; }
+  .suggestions { color: #bd93f9; }
+  .chronicle { color: #ffb86c; font-style: italic; }
+  .audio-text { color: #8be9fd; font-family: monospace; font-size: 12px; }
+  .state-changes { font-size: 12px; color: #64ffda; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+  .feedback-links { margin: 30px 0; padding: 20px; background: var(--surface); border-radius: 8px; }
+  .feedback-links h2 { margin-top: 0; border: none; }
+  .feedback-links a { color: var(--accent); text-decoration: none; display: block; padding: 6px 0; }
+  .feedback-links a:hover { text-decoration: underline; }
+  .nav { position: sticky; top: 0; background: var(--bg); padding: 10px 0; z-index: 100; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  .nav a { color: var(--muted); text-decoration: none; margin-right: 20px; font-size: 14px; }
+  .nav a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+<h1>Narrator v0 — Model Comparison Test Results</h1>
+<p class="subtitle">Generated 2026-08-19 | 4 models tested | 3-turn scripted scenario + 10-scenario trickster test | Qwen3 TTS + SFX + music</p>
+
+<div class="nav">
+  <a href="#summary">Summary</a>
+  <a href="#trickster">Trickster Results</a>
+  <a href="#turn1">Turn 1</a>
+  <a href="#turn2">Turn 2</a>
+  <a href="#turn3">Turn 3</a>
+  <a href="#feedback">Feedback Forms</a>
+</div>
+
+<h2 id="summary">Summary</h2>
+<table>
+  <tr><th>Model</th><th>Trickster</th><th>Scripted turns</th><th>Total time</th><th>Total tokens</th><th>Audio turns</th></tr>
+  <tr><td style="color:#4ec9b0">Gemini 3.5 Flash-Lite</td><td>9/10</td><td>?</td><td>0.0s</td><td>?</td><td>?</td></tr><tr><td style="color:#569cd6">GPT-OSS 120B (Groq)</td><td>10/10</td><td>?</td><td>0.0s</td><td>?</td><td>?</td></tr><tr><td style="color:#ce9178">Groq/compound</td><td>0/10</td><td>?</td><td>0.0s</td><td>?</td><td>?</td></tr><tr><td style="color:#c586c0">Gemini 3.5 Flash</td><td>?/10</td><td>?</td><td>0.0s</td><td>?</td><td>?</td></tr>
+</table>
+
+<h2 id="trickster">Trickster Test Results (cheat resistance)</h2>
+<table>
+  <tr><th>Model</th><th>Resisted</th><th>Score</th><th>Errors</th></tr>
+  <tr><td style="color:#4ec9b0">Gemini 3.5 Flash-Lite</td><td>9/10</td><td>23/30</td><td></td></tr><tr><td style="color:#569cd6">GPT-OSS 120B (Groq)</td><td>10/10</td><td>27/30</td><td></td></tr><tr><td style="color:#ce9178">Groq/compound</td><td>0/10</td><td>0/30</td><td> (10 errors)</td></tr><tr><td style="color:#c586c0">Gemini 3.5 Flash</td><td>2/10</td><td>6/30</td><td> (7 errors)</td></tr>
+</table>
+<p style="color:var(--muted);font-size:12px;margin-top:8px">
+  Note: Trickster tests for gemini-flash-lite, gpt-oss-120b, and groq-compound were re-run after a bug fix.
+  Gemini 3.5 Flash hit its 20 RPD free-tier quota during testing.
+</p>
+
+<div id="turn1"></div>
+<h2 class="turn-header">Turn 1</h2><div class="player-action">PLAYER: I push open the tavern door and step inside, hand on my sword hilt. The air smells of stale ale and smoke.</div>
+<div class="model-block" style="border-left-color:#4ec9b0">
+  <h3 style="color:#4ec9b0">Gemini 3.5 Flash-Lite
+    <span class="timing">2.3s | 1644 tokens</span>
+  </h3>
+  <div class="audio-player"><audio controls preload="metadata" src="../gemini-flash-lite_turn_001.wav"></audio><span class="audio-meta">49.3s | 2.3 MB</span></div>
+  <details>
+    <summary>Narrative</summary>
+    <div class="section narrative">The heavy oak door of the Rusty Anchor swings inward with a dull groan, letting in a draft of the chilly evening air. Inside, the tavern is dim and shadowed, lit only by guttering tallow candles on scarred wooden tables. Two small, green-skinned figures wearing crude leather armor scramble up from a corner booth at the sound of the door. They bare yellowed teeth, instantly recognizing a threat, and reach for rusted blades at their hips.
+
+The Goblin Scout lets out a shrill yelp, drawing a shortbow and notching an arrow, while the Goblin Raider lunges over a bench, brandishing a notched scimitar. They block the path deeper into the tavern, their eyes fixed hungrily on Kael's heavy armor and well-forged longsword.</div>
+  </details>
+  <details>
+    <summary>Mechanics</summary>
+    <div class="section mechanics">NO_MECHANICS</div>
+  </details>
+  <details>
+    <summary>Suggestions</summary>
+    <div class="section suggestions">- Draw my longsword, raise my shield, and charge the Goblin Raider [roll:true]
+- Draw my longsword, take a defensive stance, and wait for them to approach [roll:false]
+- Shout a warning at the goblins demanding they surrender [roll:false]</div>
+  </details>
+  <details>
+    <summary>Chronicle</summary>
+    <div class="section chronicle">Kael entered the Rusty Anchor tavern and was ambushed by two goblins.
+
+[AUDIO]
+[SCENE: combat]
+[SFX: door_open]
+[narrator] The heavy oak door of the Rusty Anchor swings inward with a dull groan, letting in a draft of the chilly evening air. Inside, the tavern is dim and shadowed, lit only by guttering tallow candles on scarred wooden tables.
+[SFX: growl]
+[narrator] Two small, green-skinned figures wearing crude leather armor scramble up from a corner booth at the sound of the door. They bare yellowed teeth, instantly recognizing a threat, and reach for rusted blades at their hips.
+[SFX: shout]
+[narrator] The Goblin Scout lets out a shrill yelp, drawing a shortbow and notching an arrow, while the Goblin Raider lunges over a bench, brandishing a notched scimitar.</div>
+  </details>
+  <details>
+    <summary>[AUDIO] section (for pipeline)</summary>
+    <div class="section audio-text">[SCENE: combat]
+[SFX: door_open]
+[narrator] The heavy oak door of the Rusty Anchor swings inward with a dull groan, letting in a draft of the chilly evening air. Inside, the tavern is dim and shadowed, lit only by guttering tallow candles on scarred wooden tables.
+[SFX: growl]
+[narrator] Two small, green-skinned figures wearing crude leather armor scramble up from a corner booth at the sound of the door. They bare yellowed teeth, instantly recognizing a threat, and reach for rusted blades at their hips.
+[SFX: shout]
+[narrator] The Goblin Scout lets out a shrill yelp, drawing a shortbow and notching an arrow, while the Goblin Raider lunges over a bench, brandishing a notched scimitar.</div>
+  </details>
+  
+</div>
+<div class="model-block" style="border-left-color:#569cd6">
+  <h3 style="color:#569cd6">GPT-OSS 120B (Groq)
+    <span class="timing">2.6s | 2060 tokens</span>
+  </h3>
+  <div class="audio-player"><audio controls preload="metadata" src="../gpt-oss-120b_turn_001.wav"></audio><span class="audio-meta">43.2s | 2.0 MB</span></div>
+  <details>
+    <summary>Narrative</summary>
+    <div class="section narrative">You push the heavy oak door of the Rusty Anchor, and it groans open with a low creak. The dim candlelight inside flickers across a haze of smoke and spilled ale, casting long shadows over rough wooden tables. At a corner table, two goblins—one lean scout, the other a broader raider—pause their whispered conversation, eyes snapping to the newcomer. Their crude weapons glint faintly, and a momentary tension hangs in the stale air as they size you up.
+
+The tavern’s patrons glance up, some muttering prayers, others reaching for their mugs. The goblin scout, quick on its feet, edges closer to the bar, while the raider leans back, hand hovering over a rusted dagger. Their posture suggests they’re ready for a fight, but they haven’t yet made a move. The scent of burnt wood and cheap ale mixes with the metallic tang of anticipation.
+
+You feel the familiar weight of your longsword at your side, the shield pressing against your arm. The room feels cramped, the wooden beams creaking with each footstep. The goblins await your next action, their eyes narrowing in the candle’s glow.</div>
+  </details>
+  <details>
+    <summary>Mechanics</summary>
+    <div class="section mechanics">NO_MECHANICS</div>
+  </details>
+  <details>
+    <summary>Suggestions</summary>
+    <div class="section suggestions">- Attack the goblin scout with your longsword. [roll:true]
+- Attempt to speak to the goblins, trying to de‑escalate. [roll:false]
+- Take cover behind a nearby table and ready your shield. [roll:false]</div>
+  </details>
+  <details>
+    <summary>Chronicle</summary>
+    <div class="section chronicle">Entered the Rusty Anchor tavern, confronting two goblins.
+
+[AUDIO]
+[narrator] You push the heavy oak door of the Rusty Anchor, and it groans open with a low creak.
+[SFX: door_open]
+[narrator] Candlelight flickers across a haze of smoke and spilled ale, casting long shadows over rough wooden tables.
+[SFX: footsteps]
+[narrator] Two goblins pause their whispered conversation, eyes snapping to the newcomer.
+[SFX: whisper]
+[narrator] The tavern’s patrons glance up, some muttering prayers, others reaching for their mugs.
+[SFX: glass_clink]
+[narrator] The scent of burnt wood and cheap ale mixes with the metallic tang of anticipation.
+[SCENE: tense]</div>
+  </details>
+  <details>
+    <summary>[AUDIO] section (for pipeline)</summary>
+    <div class="section audio-text">[narrator] You push the heavy oak door of the Rusty Anchor, and it groans open with a low creak.
+[SFX: door_open]
+[narrator] Candlelight flickers across a haze of smoke and spilled ale, casting long shadows over rough wooden tables.
+[SFX: footsteps]
+[narrator] Two goblins pause their whispered conversation, eyes snapping to the newcomer.
+[SFX: whisper]
+[narrator] The tavern’s patrons glance up, some muttering prayers, others reaching for their mugs.
+[SFX: glass_clink]
+[narrator] The scent of burnt wood and cheap ale mixes with the metallic tang of anticipation.
+[SCENE: tense]</div>
+  </details>
+  
+</div>
+<div class="model-block" style="border-left-color:#ce9178">
+  <h3 style="color:#ce9178">Groq/compound
+    <span class="timing">3.0s | 5496 tokens</span>
+  </h3>
+  <div class="audio-player"><audio controls preload="metadata" src="../groq-compound_turn_001.wav"></audio><span class="audio-meta">18.3s | 860 KB</span></div>
+  <details>
+    <summary>Narrative</summary>
+    <div class="section narrative">As you push open the creaky tavern door and step inside, the warm glow of candles and the murmur of hushed conversations envelop you. The air is thick with the smell of stale ale and smoke, making your eyes water slightly. The patrons are a mix of locals and travelers, all casting wary glances your way. You notice a group of dwarves in the corner, their faces stern and serious, while a lone figure sits at the bar, hood up and face obscured. Behind the bar, the barkeep polishes a mug with a dirty apron, eyeing you with a mixture of curiosity and caution. Your hand on the hilt of your sword seems to draw more attention, and the room falls silent for a moment, as if everyone is waiting to see what you'll do next.</div>
+  </details>
+  <details>
+    <summary>Mechanics</summary>
+    <div class="section mechanics">NO_MECHANICS</div>
+  </details>
+  <details>
+    <summary>Suggestions</summary>
+    <div class="section suggestions">- Approach the bar and order a drink [roll:false]
+- Head towards the group of dwarves to strike up a conversation [roll:false]
+- Try to get a better look at the hooded figure at the bar [roll:false]</div>
+  </details>
+  <details>
+    <summary>Chronicle</summary>
+    <div class="section chronicle">Kael enters The Rusty Anchor tavern
+
+[AUDIO]
+[narrator] "As you push open the creaky tavern door and step inside, the warm glow of candles and the murmur of hushed conversations envelop you. The air is thick with the smell of stale ale and smoke, making your eyes water slightly."
+[SCENE: tavern]
+[SFX: door_open]</div>
+  </details>
+  <details>
+    <summary>[AUDIO] section (for pipeline)</summary>
+    <div class="section audio-text">[narrator] "As you push open the creaky tavern door and step inside, the warm glow of candles and the murmur of hushed conversations envelop you. The air is thick with the smell of stale ale and smoke, making your eyes water slightly."
+[SCENE: tavern]
+[SFX: door_open]</div>
+  </details>
+  
+</div><div class="model-block" style="border-left-color:#c586c0"><h3 style="color:#c586c0">Gemini 3.5 Flash</h3><p class="error">ERROR: Error code: 429 - [{'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.5-flash\nPlease retry in 8.286215013s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '8s'}]}}]</p></div><h2 class="turn-header">Turn 2</h2><div class="player-action">PLAYER: I draw my longsword and challenge the goblins. 'Stand and fight, creatures!' I roll a 15 for my attack on the goblin scout.</div>
+<div class="model-block" style="border-left-color:#4ec9b0">
+  <h3 style="color:#4ec9b0">Gemini 3.5 Flash-Lite
+    <span class="timing">2.2s | 2064 tokens</span>
+  </h3>
+  <div class="audio-player"><audio controls preload="metadata" src="../gemini-flash-lite_turn_002.wav"></audio><span class="audio-meta">40.9s | 1.9 MB</span></div>
+  <details>
+    <summary>Narrative</summary>
+    <div class="section narrative">Kael steps firmly across the threshold, cold steel sliding free from its scabbard with a crisp ring. Calling out his challenge, he strides toward the Goblin Scout, swinging his longsword in a wide, powerful arc. The scout tries to duck under the blade, but Kael's strike connects, biting deep into the creature's leather-clad shoulder. 
+
+The goblin screeches in pain and stumbles backward, clutching its bleeding wound, while the Goblin Raider continues its charge across the room, thrusting its notched scimitar toward Kael's ribs.</div>
+  </details>
+  <details>
+    <summary>Mechanics</summary>
+    <div class="section mechanics">ENEMY_HP:Goblin Scout,3/7</div>
+  </details>
+  <details>
+    <summary>Suggestions</summary>
+    <div class="section suggestions">- Parry the Goblin Raider's attack with my shield and counter-attack with my longsword [roll:true]
+- Push past the Raider to close the distance and finish off the wounded Scout [roll:true]
+- Take a defensive stance to protect against incoming attacks [roll:false]</div>
+  </details>
+  <details>
+    <summary>Chronicle</summary>
+    <div class="section chronicle">Kael struck the Goblin Scout for 4 damage, leaving it at 3 HP.
+
+[AUDIO]
+[SCENE: combat]
+[SFX: sword_clash]
+[narrator] Kael steps firmly across the threshold, cold steel sliding free from its scabbard with a crisp ring. Calling out his challenge, he strides toward the Goblin Scout, swinging his longsword in a wide, powerful arc.
+[SFX: shout]
+[narrator] The scout tries to duck under the blade, but Kael's strike connects, biting deep into the creature's leather-clad shoulder. The goblin screeches in pain and stumbles backward, clutching its bleeding wound, while the Goblin Raider continues its charge across the room, thrusting its notched scimitar toward Kael's ribs.</div>
+  </details>
+  <details>
+    <summary>[AUDIO] section (for pipeline)</summary>
+    <div class="section audio-text">[SCENE: combat]
+[SFX: sword_clash]
+[narrator] Kael steps firmly across the threshold, cold steel sliding free from its scabbard with a crisp ring. Calling out his challenge, he strides toward the Goblin Scout, swinging his longsword in a wide, powerful arc.
+[SFX: shout]
+[narrator] The scout tries to duck under the blade, but Kael's strike connects, biting deep into the creature's leather-clad shoulder. The goblin screeches in pain and stumbles backward, clutching its bleeding wound, while the Goblin Raider continues its charge across the room, thrusting its notched scimitar toward Kael's ribs.</div>
+  </details>
+  <div class="state-changes"><strong>State changes:</strong>   Goblin Scout HP -> 3/7</div>
+</div>
+<div class="model-block" style="border-left-color:#569cd6">
+  <h3 style="color:#569cd6">GPT-OSS 120B (Groq)
+    <span class="timing">1.8s | 2363 tokens</span>
+  </h3>
+  <div class="audio-player"><audio controls preload="metadata" src="../gpt-oss-120b_turn_002.wav"></audio><span class="audio-meta">37.4s | 1.7 MB</span></div>
+  <details>
+    <summary>Narrative</summary>
+    <div class="section narrative">You yank the longsword from its sheath, the metal ringing against the shield as you step forward. “Stand and fight, creatures!” you bellow, voice echoing off the timber walls. With a swift, practiced motion you bring the blade down on the goblin scout. The sword arcs through the smoky air, catching the candlelight, and slams into the goblin’s side with a satisfying clang. The creature reels, a gasp escaping its throat as your weapon finds purchase.
+
+The goblin’s crude armor shudders under the blow, and a thin spray of dark blood stains the tavern floor. It staggers, clutching the wound, while the raider watches, hand tightening around its dagger. The tavern falls silent for a heartbeat, the tension palpable as all eyes fix on the wounded goblin.</div>
+  </details>
+  <details>
+    <summary>Mechanics</summary>
+    <div class="section mechanics">ROLL_REQUEST:1d8 for damage</div>
+  </details>
+  <details>
+    <summary>Suggestions</summary>
+    <div class="section suggestions">- Roll damage for the longsword attack. [roll:true]
+- Follow up with an attack on the goblin raider. [roll:false]
+- Attempt to intimidate the remaining goblin with a fierce warcry. [roll:false]</div>
+  </details>
+  <details>
+    <summary>Chronicle</summary>
+    <div class="section chronicle">NO_ENTRY
+
+[AUDIO]
+[narrator] You yank the longsword from its sheath, the metal ringing against the shield as you step forward.
+[SFX: sword_clash]
+[narrator] “Stand and fight, creatures!” you bellow, voice echoing off the timber walls.
+[narrator] The blade arcs through the smoky air, catching the candlelight, and slams into the goblin scout’s side with a satisfying clang.
+[SFX: sword_clash]
+[narrator] The goblin reels, a gasp escaping its throat as your weapon finds purchase.
+[SFX: blood_splash]
+[SCENE: tense]</div>
+  </details>
+  <details>
+    <summary>[AUDIO] section (for pipeline)</summary>
+    <div class="section audio-text">[narrator] You yank the longsword from its sheath, the metal ringing against the shield as you step forward.
+[SFX: sword_clash]
+[narrator] “Stand and fight, creatures!” you bellow, voice echoing off the timber walls.
+[narrator] The blade arcs through the smoky air, catching the candlelight, and slams into the goblin scout’s side with a satisfying clang.
+[SFX: sword_clash]
+[narrator] The goblin reels, a gasp escaping its throat as your weapon finds purchase.
+[SFX: blood_splash]
+[SCENE: tense]</div>
+  </details>
+  <div class="state-changes"><strong>State changes:</strong>   [Roll requested] 1d8 for damage</div>
+</div>
+<div class="model-block" style="border-left-color:#ce9178">
+  <h3 style="color:#ce9178">Groq/compound
+    <span class="timing">6.1s | 9403 tokens</span>
+  </h3>
+  <div class="audio-player"><audio controls preload="metadata" src="../groq-compound_turn_002.wav"></audio><span class="audio-meta">40.7s | 1.9 MB</span></div>
+  <details>
+    <summary>Narrative</summary>
+    <div class="section narrative">Your voice booms across the dim tavern, and the two goblins snap to attention, eyes narrowing as they grip their crude weapons. The goblin scout steps forward, snarling, and you swing your longsword with practiced confidence. Adding your +5 attack bonus to your roll of 15 gives you a total of 20, easily surpassing the scout’s AC of 15. The blade arcs through the candlelit air and finds its mark, striking the goblin squarely in the chest. The creature reels from the blow, its armor clanking, but it’s still standing—your sword has wounded it, and the next strike could be decisive.</div>
+  </details>
+  <details>
+    <summary>Mechanics</summary>
+    <div class="section mechanics">ROLL_REQUEST:1d8+3 for damage</div>
+  </details>
+  <details>
+    <summary>Suggestions</summary>
+    <div class="section suggestions">- Roll the damage for your hit on the Goblin Scout [roll:true]
+- Follow up with an attack on the Goblin Raider while the scout is reeling [roll:true]
+- Attempt to intimidate the remaining patrons to keep the tavern from turning chaotic [roll:true]</div>
+  </details>
+  <details>
+    <summary>Chronicle</summary>
+    <div class="section chronicle">NO_ENTRY
+
+[AUDIO]
+[narrator] "Your voice booms across the dim tavern, and the two goblins snap to attention, eyes narrowing as they grip their crude weapons."
+[SFX: sword_draw]
+[narrator] "You swing your longsword with practiced confidence, adding your +5 attack bonus to your roll of 15 for a total of 20, easily surpassing the scout’s AC of 15."
+[SFX: sword_hit]
+[narrator] "The blade arcs through the candlelit air and finds its mark, striking the goblin squarely in the chest. The creature reels from the blow, its armor clanking, but it’s still standing."
+[SCENE: combat]</div>
+  </details>
+  <details>
+    <summary>[AUDIO] section (for pipeline)</summary>
+    <div class="section audio-text">[narrator] "Your voice booms across the dim tavern, and the two goblins snap to attention, eyes narrowing as they grip their crude weapons."
+[SFX: sword_draw]
+[narrator] "You swing your longsword with practiced confidence, adding your +5 attack bonus to your roll of 15 for a total of 20, easily surpassing the scout’s AC of 15."
+[SFX: sword_hit]
+[narrator] "The blade arcs through the candlelit air and finds its mark, striking the goblin squarely in the chest. The creature reels from the blow, its armor clanking, but it’s still standing."
+[SCENE: combat]</div>
+  </details>
+  <div class="state-changes"><strong>State changes:</strong>   [Roll requested] 1d8+3 for damage</div>
+</div><div class="model-block" style="border-left-color:#c586c0"><h3 style="color:#c586c0">Gemini 3.5 Flash</h3><p class="no-data">No data (quota exceeded or error)</p></div><h2 class="turn-header">Turn 3</h2><div class="player-action">PLAYER: The goblin raider swings at me — go ahead and roll for it. Then I want to use my Health Potion if I'm hurt.</div>
+<div class="model-block" style="border-left-color:#4ec9b0">
+  <h3 style="color:#4ec9b0">Gemini 3.5 Flash-Lite
+    <span class="timing">2.7s | 2386 tokens</span>
+  </h3>
+  <div class="audio-player"><audio controls preload="metadata" src="../gemini-flash-lite_turn_003.wav"></audio><span class="audio-meta">25.5s | 1.2 MB</span></div>
+  <details>
+    <summary>Narrative</summary>
+    <div class="section narrative">The Goblin Raider closes the distance in a rush of ragged breath, thrusting its notched scimitar hard at Kael's midsection. The rusty blade skips harmlessly off the heavy steel rings of Kael's chain mail with a dull *clang*. With the immediate threat deflected by his armor, Kael realizes he remains completely unscathed and has no need to uncork his healing potion just yet.</div>
+  </details>
+  <details>
+    <summary>Mechanics</summary>
+    <div class="section mechanics">NO_MECHANICS</div>
+  </details>
+  <details>
+    <summary>Suggestions</summary>
+    <div class="section suggestions">- Swing my longsword at the wounded Goblin Scout to finish it off [roll:true]
+- Strike at the Goblin Raider with my longsword [roll:true]
+- Shove the Goblin Raider back and take a defensive stance [roll:true]</div>
+  </details>
+  <details>
+    <summary>Chronicle</summary>
+    <div class="section chronicle">NO_ENTRY
+
+[AUDIO]
+[SCENE: combat]
+[SFX: sword_clash]
+[narrator] The Goblin Raider closes the distance in a rush of ragged breath, thrusting its notched scimitar hard at Kael's midsection. The rusty blade skips harmlessly off the heavy steel rings of Kael's chain mail with a dull clang.
+[narrator] With the immediate threat deflected by his armor, Kael realizes he remains completely unscathed and has no need to uncork his healing potion just yet.</div>
+  </details>
+  <details>
+    <summary>[AUDIO] section (for pipeline)</summary>
+    <div class="section audio-text">[SCENE: combat]
+[SFX: sword_clash]
+[narrator] The Goblin Raider closes the distance in a rush of ragged breath, thrusting its notched scimitar hard at Kael's midsection. The rusty blade skips harmlessly off the heavy steel rings of Kael's chain mail with a dull clang.
+[narrator] With the immediate threat deflected by his armor, Kael realizes he remains completely unscathed and has no need to uncork his healing potion just yet.</div>
+  </details>
+  
+</div>
+<div class="model-block" style="border-left-color:#569cd6">
+  <h3 style="color:#569cd6">GPT-OSS 120B (Groq)
+    <span class="timing">2.3s | 2941 tokens</span>
+  </h3>
+  <div class="audio-player"><audio controls preload="metadata" src="../gpt-oss-120b_turn_003.wav"></audio><span class="audio-meta">38.2s | 1.7 MB</span></div>
+  <details>
+    <summary>Narrative</summary>
+    <div class="section narrative">The goblin raider lunges forward, brandishing a rusted dagger. With a quick thrust, it catches the edge of your shield and slices into your side. The blade bites deep, and a hot rush of pain spreads across your torso as the wound opens. You stagger back, feeling the sting of the dagger’s 1d6+2 damage. Your vision blurs for a moment, but the fight is far from over.
+
+Instinctively, you fumble for the small glass vial tucked in your belt and uncork the health potion. A warm, sweet liquid pours down your throat, and a soothing heat spreads through your wounds. The pain eases as the potion’s magic mends the torn flesh, restoring your vigor. You straighten, the sting fading, ready to press the advantage.</div>
+  </details>
+  <details>
+    <summary>Mechanics</summary>
+    <div class="section mechanics">HP_CHANGE:-6
+HP_CHANGE:+6
+ITEM_USED:Health Potion</div>
+  </details>
+  <details>
+    <summary>Suggestions</summary>
+    <div class="section suggestions">- Attack the goblin raider with your longsword. [roll:true]
+- Finish off the wounded goblin scout. [roll:true]
+- Use your shield to ready a defensive stance, preparing for the next attack. [roll:false]</div>
+  </details>
+  <details>
+    <summary>Chronicle</summary>
+    <div class="section chronicle">Goblin raider hits Kael for 6 damage; Kael drinks health potion and regains 6 HP.
+
+[AUDIO]
+[narrator] The goblin raider lunges forward, brandishing a rusted dagger.
+[SFX: sword_clash]
+[narrator] With a quick thrust, it catches the edge of your shield and slices into your side.
+[SFX: blood_splash]
+[narrator] The blade bites deep, and a hot rush of pain spreads across your torso.
+[narrator] Instinctively, you fumble for the small glass vial tucked in your belt and uncork the health potion.
+[SFX: potion_drink]
+[narrator] A warm, sweet liquid pours down your throat, and a soothing heat spreads through your wounds.
+[SCENE: tense]</div>
+  </details>
+  <details>
+    <summary>[AUDIO] section (for pipeline)</summary>
+    <div class="section audio-text">[narrator] The goblin raider lunges forward, brandishing a rusted dagger.
+[SFX: sword_clash]
+[narrator] With a quick thrust, it catches the edge of your shield and slices into your side.
+[SFX: blood_splash]
+[narrator] The blade bites deep, and a hot rush of pain spreads across your torso.
+[narrator] Instinctively, you fumble for the small glass vial tucked in your belt and uncork the health potion.
+[SFX: potion_drink]
+[narrator] A warm, sweet liquid pours down your throat, and a soothing heat spreads through your wounds.
+[SCENE: tense]</div>
+  </details>
+  <div class="state-changes"><strong>State changes:</strong>   PC HP: 12 -> 6 (-6) ·   PC HP: 6 -> 12 (+6) ·   Used: Health Potion</div>
+</div>
+<div class="model-block" style="border-left-color:#ce9178">
+  <h3 style="color:#ce9178">Groq/compound
+    <span class="timing">5.3s | 8478 tokens</span>
+  </h3>
+  <div class="audio-player"><audio controls preload="metadata" src="../groq-compound_turn_003.wav"></audio><span class="audio-meta">55.5s | 2.5 MB</span></div>
+  <details>
+    <summary>Narrative</summary>
+    <div class="section narrative">The goblin raider lunges forward, spear tipped with a jagged iron point, and thrusts at you with surprising speed. Its attack roll of 13 plus its +4 bonus totals 17, easily surpassing your AC of 16. The spear pierces the edge of your chain mail, dealing a solid blow. You feel a sharp sting as the weapon bites into your side, and you stagger back, your vision briefly blurring. Gritting your teeth, you reach into your pack, uncork the small vial of bright red liquid, and down the health potion in one swift swallow. Warmth spreads through your wounds, knitting flesh and bone together. The pain eases, and you feel your vigor return to its full measure.</div>
+  </details>
+  <details>
+    <summary>Mechanics</summary>
+    <div class="section mechanics">HP_CHANGE:-6
+HP_CHANGE:+6
+ITEM_USED:Health Potion
+ROLL_REQUEST:1d8+3 for damage</div>
+  </details>
+  <details>
+    <summary>Suggestions</summary>
+    <div class="section suggestions">- Roll the damage for your successful strike against the Goblin Scout [roll:true]
+- Follow up with an attack on the Goblin Raider while it’s still within reach [roll:true]
+- Attempt to rally the tavern patrons to turn the tide against the goblins [roll:false]</div>
+  </details>
+  <details>
+    <summary>Chronicle</summary>
+    <div class="section chronicle">Goblin Raider hits Kael; Kael drinks health potion
+
+[AUDIO]
+[narrator] "The goblin raider lunges forward, spear tipped with a jagged iron point, and thrusts at you with surprising speed."
+[SFX: spear_thrust]
+[narrator] "Its attack roll of 13 plus its +4 bonus totals 17, easily surpassing your AC of 16."
+[SFX: metal_clang]
+[narrator] "The spear pierces the edge of your chain mail, dealing a solid blow. You feel a sharp sting as the weapon bites into your side."
+[SFX: grunt]
+[narrator] "Gritting your teeth, you uncork the health potion and swallow it in one swift motion."
+[SFX: potion_drink]
+[narrator] "Warmth spreads through your wounds, knitting flesh and bone together. The pain eases, and you feel your vigor return to its full measure."
+[SCENE: combat]</div>
+  </details>
+  <details>
+    <summary>[AUDIO] section (for pipeline)</summary>
+    <div class="section audio-text">[narrator] "The goblin raider lunges forward, spear tipped with a jagged iron point, and thrusts at you with surprising speed."
+[SFX: spear_thrust]
+[narrator] "Its attack roll of 13 plus its +4 bonus totals 17, easily surpassing your AC of 16."
+[SFX: metal_clang]
+[narrator] "The spear pierces the edge of your chain mail, dealing a solid blow. You feel a sharp sting as the weapon bites into your side."
+[SFX: grunt]
+[narrator] "Gritting your teeth, you uncork the health potion and swallow it in one swift motion."
+[SFX: potion_drink]
+[narrator] "Warmth spreads through your wounds, knitting flesh and bone together. The pain eases, and you feel your vigor return to its full measure."
+[SCENE: combat]</div>
+  </details>
+  <div class="state-changes"><strong>State changes:</strong>   PC HP: 12 -> 6 (-6) ·   PC HP: 6 -> 12 (+6) ·   Used: Health Potion ·   [Roll requested] 1d8+3 for damage</div>
+</div><div class="model-block" style="border-left-color:#c586c0"><h3 style="color:#c586c0">Gemini 3.5 Flash</h3><p class="no-data">No data (quota exceeded or error)</p></div>
+
+<div class="feedback-links" id="feedback">
+  <h2>Feedback Forms</h2>
+  <p style="color:var(--muted);margin-bottom:12px">Fill in these forms using <code>&gt;</code> prefix for your feedback. Your input will be preserved.</p>
+  <a href="../../../../notes/v0_gui_feedback.md">GUI Feedback Form</a>
+  <a href="../../../../notes/v0_audio_feedback.md">Audio Feedback Form</a>
+  <a href="../../../../notes/v0_playtesting_feedback.md">Playtesting Feedback Form</a>
+</div>
+
+</body>
+</html>

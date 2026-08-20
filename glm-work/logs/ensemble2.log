@@ -1,0 +1,71 @@
+======================================================================
+Ensemble #2 — 'The Descent of Ysolde's Light' — 2026-08-17 21:26:16
+======================================================================
+[text] base story  -> /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent.md (10494 bytes)
+[text] voice input -> /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent_input.txt (10266 bytes)
+
+[setup] importing kokoro + torch...
+[setup] torch 2.13.0, MPS available: True
+[setup] building KPipeline(lang_code='a')...
+[setup] pipeline ready in 2.9s
+[setup] 47 segments to generate
+[ 1/47] bm_george (Narrator): 27.12s in 4.60s — [1. The Cliffside at Dawn] "The wind came off the Greywater Sea like a living thing..."
+[ 2/47] bm_george (Narrator): 25.32s in 3.97s — [1. The Cliffside at Dawn] "Kaelen stood at the stair's edge, his hand on the hilt ..."
+[ 3/47] bm_george (Narrator): 6.70s in 1.10s — [1. The Cliffside at Dawn] "They were the Company of the Last Light, and the mounta..."
+[ 4/47] am_michael (Kaelen): 2.27s in 0.72s — [1. The Cliffside at Dawn] "Lyra. How far down?..."
+[ 5/47] af_heart (Lyra): 11.95s in 2.09s — [1. The Cliffside at Dawn] "The map says three hundred steps to the river, and then..."
+[ 6/47] am_onyx (Dax): 7.40s in 1.38s — [1. The Cliffside at Dawn] "A map that ends with a circle and a riddle. That's not ..."
+[ 7/47] af_nova (Sera): 6.72s in 1.29s — [1. The Cliffside at Dawn] "Dax is right that it's a warning. He's wrong that it ma..."
+[ 8/47] am_fenrir (Bram): 3.60s in 0.77s — [1. The Cliffside at Dawn] "Sera, if you've seen something down there, now would be..."
+[ 9/47] af_nova (Sera): 8.25s in 1.31s — [1. The Cliffside at Dawn] "I haven't seen it, Bram. I've heard it. Last night, in ..."
+[10/47] bf_alice (Ysolde): 6.22s in 1.21s — [1. The Cliffside at Dawn] "Then it knows I'm coming. Good. Let it be afraid. Kaele..."
+[11/47] am_michael (Kaelen): 12.88s in 1.91s — [1. The Cliffside at Dawn] "You heard her. Dax, you have the rear. Sera, point. Bra..."
+[12/47] bm_george (Narrator): 34.48s in 5.14s — [2. The Stair] "The stair swallowed them whole. The light of dawn retre..."
+[13/47] bm_george (Narrator): 23.10s in 3.49s — [2. The Stair] "Down and down. The air grew thick and warm, and it tast..."
+[14/47] am_onyx (Dax): 2.35s in 0.45s — [2. The Stair] "Kaelen. Stop. Listen...."
+[15/47] am_michael (Kaelen): 3.88s in 0.66s — [2. The Stair] "I hear it. Everyone still. Lyra — what is that?..."
+[16/47] af_heart (Lyra): 11.32s in 1.76s — [2. The Stair] "It's not an echo. An echo repeats. This... answers. It'..."
+[17/47] am_liam (The Hollow): 7.72s in 1.66s — [2. The Stair] "Ysolde. You bring a borrowed flame into my house. You a..."
+[18/47] bf_alice (Ysolde): 11.82s in 1.82s — [2. The Stair] "That is not my brother. My brother died on the field at..."
+[19/47] am_fenrir (Bram): 3.17s in 0.58s — [2. The Stair] "Ysolde, it spoke in your brother's voice. Are you sure ..."
+[20/47] bf_alice (Ysolde): 3.52s in 0.61s — [2. The Stair] "I am sure, Bram. I buried him myself. Move on...."
+[21/47] bm_george (Narrator): 11.22s in 1.73s — [2. The Stair] "And so they descended, and the stair descended with the..."
+[22/47] bm_george (Narrator): 33.12s in 5.22s — [3. The Under-River] "The stair ended at a shore that should not have existed..."
+[23/47] af_heart (Lyra): 11.50s in 1.74s — [3. The Under-River] "The Drowned Bridge. The map didn't lie — it just didn't..."
+[24/47] am_onyx (Dax): 7.83s in 1.34s — [3. The Under-River] "Possible and not safe describes this entire journey, Ly..."
+[25/47] am_fenrir (Bram): 6.70s in 1.08s — [3. The Under-River] "Dax, when this is over, you and I are going to have a c..."
+[26/47] am_onyx (Dax): 2.67s in 0.48s — [3. The Under-River] "I look forward to it, boy. Jump...."
+[27/47] bm_george (Narrator): 14.20s in 2.11s — [3. The Under-River] "Bram ran. Three strides, a leap, and the dark swallowed..."
+[28/47] am_fenrir (Bram): 4.50s in 0.70s — [3. The Under-River] "It holds! Sera, you next. You're lighter than me — you'..."
+[29/47] af_nova (Sera): 9.15s in 1.47s — [3. The Under-River] "Bram, stop grinning. You nearly fell. Ysolde — the lant..."
+[30/47] bf_alice (Ysolde): 7.28s in 1.23s — [3. The Under-River] "The flame will not drop, Sera. It has been carried thro..."
+[31/47] bm_george (Narrator): 19.65s in 3.05s — [3. The Under-River] "One by one they crossed, and the river beneath them did..."
+[32/47] bm_george (Narrator): 37.10s in 5.74s — [4. The Flame Chamber] "The chamber was vast — so vast that the lantern-light c..."
+[33/47] am_liam (The Hollow): 13.75s in 2.18s — [4. The Flame Chamber] "Welcome home, Ysolde. You brought them all. I knew you ..."
+[34/47] am_michael (Kaelen): 3.45s in 0.60s — [4. The Flame Chamber] "Bram, hold. Lyra, what is that light?..."
+[35/47] af_heart (Lyra): 17.55s in 2.75s — [4. The Flame Chamber] "It's the original flame. The one the temple was built t..."
+[36/47] am_onyx (Dax): 4.28s in 0.69s — [4. The Flame Chamber] "Ysolde. You knew this. You knew, and you brought us dow..."
+[37/47] bf_alice (Ysolde): 12.20s in 1.83s — [4. The Flame Chamber] "Yes, Dax. I knew. I did not bring you here to die. I br..."
+[38/47] af_heart (Lyra): 7.67s in 1.28s — [4. The Flame Chamber] "Ysolde, no. There has to be another way. The texts — th..."
+[39/47] bf_alice (Ysolde): 13.47s in 2.06s — [4. The Flame Chamber] "Lyra. My friend. There is no time, and there is no othe..."
+[40/47] am_fenrir (Bram): 2.35s in 0.45s — [4. The Flame Chamber] "Ysolde... please. There has to be — ..."
+[41/47] bf_alice (Ysolde): 6.10s in 1.02s — [4. The Flame Chamber] "Bram. Hush. You jumped the bridge without hesitating. L..."
+[42/47] bm_george (Narrator): 21.05s in 3.33s — [4. The Flame Chamber] "Kaelen did not argue. He seized Bram by the shoulder an..."
+[43/47] bm_george (Narrator): 7.33s in 1.23s — [4. The Flame Chamber] "The two flames met. And the mountain, which had held it..."
+[44/47] bm_george (Narrator): 30.25s in 4.56s — [4. The Flame Chamber] "What came after, Lyra wrote down. She wrote it in the b..."
+[45/47] bm_george (Narrator): 13.80s in 2.09s — [4. The Flame Chamber] "And she wrote one line more, in the margin, in a smalle..."
+[46/47] bm_george (Narrator): 24.75s in 4.21s — [4. The Flame Chamber] "The Company of the Last Light climbed back into the daw..."
+[47/47] bm_george (Narrator): 5.72s in 0.96s — [4. The Flame Chamber] "So ends the Descent of Ysolde's Light. So begins, perha..."
+
+======================================================================
+SUMMARY
+======================================================================
+  segments:        47
+  total audio:     568.5s (9.5 min)
+  total gen time:  91.7s (1.5 min)
+  overall speed:   6.2x real-time
+  wav file:        /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent.wav (27286844 bytes)
+  base story:      /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent.md
+  voice input:     /Users/arie/CascadeProjects/narrator/glm-work/outputs/voice_catalog/ensemble2_the_descent_input.txt
+  log:             /Users/arie/CascadeProjects/narrator/glm-work/logs/ensemble2.log
+DONE

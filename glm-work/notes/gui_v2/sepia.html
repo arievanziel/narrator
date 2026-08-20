@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrator — Sepia</title>
+<style>
+  :root {
+    --paper: #f4ecd8;
+    --paper-deep: #ede5d0;
+    --ink: #2b2118;
+    --ink-soft: #5c4a3a;
+    --ink-faded: #8a7a66;
+    --sienna: #8b3a1d;
+    --sienna-soft: #a44a2a;
+    --border: #d8cebc;
+    --gold: #b8860b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'EB Garamond', 'Iowan Old Style', 'Palatino', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.72;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  #app {
+    max-width: 38rem;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 2.5rem 1.5rem 5rem;
+    position: relative;
+  }
+
+  /* Chrome — auto-hiding. Tap the top area to show. */
+  .chrome {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: var(--paper-deep);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-family: -apple-system, sans-serif;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+    z-index: 50;
+  }
+  .chrome.show { transform: translateY(0); }
+  .chrome .title { font-weight: 600; letter-spacing: 0.5px; color: var(--sienna); }
+  .chrome .meta { font-size: 11px; color: var(--ink-faded); }
+  .chrome .hp { display: flex; align-items: center; gap: 6px; }
+  .chrome .hp-bar { width: 60px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .chrome .hp-fill { height: 100%; background: var(--sienna); width: 100%; }
+  .chrome .icon-btn { background: none; border: none; color: var(--ink-soft); cursor: pointer; font-size: 16px; padding: 4px; }
+
+  /* Tap zone to reveal chrome */
+  .tap-zone {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 40px;
+    z-index: 40;
+  }
+
+  /* Story text — book-like */
+  .story { padding-top: 1rem; }
+  .chapter-head {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .chapter-eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink-faded);
+    margin-bottom: 0.5rem;
+    font-family: -apple-system, sans-serif;
+  }
+  .chapter-title {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    font-style: italic;
+  }
+
+  .passage { margin-bottom: 1.8rem; }
+  .passage p {
+    text-align: justify;
+    hyphens: auto;
+    margin-bottom: 1.2rem;
+    hanging-punctuation: first;
+  }
+  .passage p:first-child::first-letter {
+    font-size: 3.2em;
+    float: left;
+    line-height: 0.85;
+    padding: 0.05em 0.08em 0 0;
+    color: var(--sienna);
+    font-weight: 600;
+  }
+  .speaker {
+    font-family: -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--sienna);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .speaker.narrator { color: var(--ink-faded); font-style: normal; }
+  .dialogue { font-style: italic; }
+  .cue { color: var(--ink-faded); font-style: italic; font-size: 15px; }
+
+  .turn-divider {
+    text-align: center;
+    margin: 2.5rem 0;
+    color: var(--ink-faded);
+    font-size: 12px;
+    letter-spacing: 4px;
+    font-family: -apple-system, sans-serif;
+  }
+  .turn-divider::before, .turn-divider::after {
+    content: "";
+    display: inline-block;
+    width: 40px;
+    height: 1px;
+    background: var(--border);
+    vertical-align: middle;
+    margin: 0 12px;
+  }
+  .you-said {
+    text-align: center;
+    font-style: italic;
+    color: var(--ink-faded);
+    font-size: 14px;
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  /* Audio — thin line at bottom edge, Kindle-style */
+  .audio-line {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--border);
+    z-index: 30;
+  }
+  .audio-fill {
+    height: 100%;
+    background: var(--sienna);
+    width: 0%;
+    transition: width 0.5s linear;
+  }
+  .audio-line.playing .audio-fill {
+    background: linear-gradient(90deg, var(--sienna), var(--gold));
+  }
+
+  /* Choices — understated, book-like */
+  .choices-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .choices-prompt {
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 15px;
+    margin-bottom: 1.2rem;
+    text-align: center;
+  }
+  .choices { display: flex; flex-direction: column; gap: 0.6rem; }
+  .choice {
+    background: none;
+    border: none;
+    border-left: 2px solid var(--border);
+    color: var(--ink);
+    padding: 0.6rem 1rem;
+    font-family: inherit;
+    font-size: 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s, padding-left 0.2s;
+    line-height: 1.5;
+  }
+  .choice:hover, .choice:active {
+    border-left-color: var(--sienna);
+    padding-left: 1.3rem;
+    color: var(--sienna-soft);
+  }
+  .choice .letter {
+    font-family: -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--sienna);
+    margin-right: 0.6rem;
+  }
+  .choice:disabled { opacity: 0.35; cursor: wait; }
+
+  .text-input {
+    margin-top: 1.2rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  .text-input input {
+    flex: 1;
+    background: var(--paper-deep);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 0.7rem 1rem;
+    font-family: inherit;
+    font-size: 16px;
+    border-radius: 2px;
+    outline: none;
+  }
+  .text-input input:focus { border-color: var(--sienna); }
+  .text-input input::placeholder { color: var(--ink-faded); font-style: italic; }
+  .text-input button {
+    background: var(--sienna);
+    color: var(--paper);
+    border: none;
+    padding: 0.7rem 1.5rem;
+    font-family: -apple-system, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+  }
+  .text-input button:active { background: var(--sienna-soft); }
+  .text-input button:disabled { opacity: 0.35; cursor: wait; }
+
+  /* Generating indicator — subtle */
+  .generating {
+    text-align: center;
+    color: var(--ink-faded);
+    font-style: italic;
+    font-size: 14px;
+    margin: 1.5rem 0;
+    display: none;
+  }
+  .generating.show { display: block; }
+  .generating .dots::after {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    text-align: left;
+    animation: dots 1.5s steps(4) infinite;
+  }
+  @keyframes dots {
+    0% { content: ""; } 25% { content: "·"; } 50% { content: "··"; } 75% { content: "···"; } 100% { content: ""; }
+  }
+</style>
+</head>
+<body>
+  <div class="tap-zone" onclick="toggleChrome()"></div>
+  <div class="chrome" id="chrome">
+    <div>
+      <span class="title">The Marsh at Quill's Hollow</span>
+      <span class="meta"> · Turn 4</span>
+    </div>
+    <div class="hp">
+      <span>HP</span>
+      <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
+      <span id="hpText">12/12</span>
+    </div>
+    <button class="icon-btn" onclick="alert('Settings: model, voice, speed — not wired in mockup')">⚙</button>
+  </div>
+
+  <div id="app">
+    <div class="story" id="story">
+      <div class="chapter-head">
+        <div class="chapter-eyebrow">Chapter One</div>
+        <div class="chapter-title">The Marsh at Quill's Hollow</div>
+      </div>
+
+      <div class="passage">
+        <p><span class="speaker narrator">Narrator</span>The marsh had a memory, Mireth knew, longer than any living thing in Quill's Hollow cared to admit. She had grown up on its edge — close enough that the smell of peat and black water lived in the walls of her mother's house, close enough that the lantern in the window each night was not decoration but defense.</p>
+      </div>
+
+      <div class="turn-divider">TURN THREE</div>
+
+      <div class="passage">
+        <p><span class="speaker">Mireth</span><span class="dialogue">"You're not from Quill's Hollow,"</span> she said — not a question.</p>
+        <p><span class="speaker">The Stranger</span><span class="dialogue">"No,"</span> he said, and the word came out like something he had to carry.</p>
+      </div>
+
+      <div class="turn-divider">TURN FOUR</div>
+
+      <div class="passage" id="current">
+        <p><span class="speaker narrator">Narrator</span>She did not invite him in. She did not turn him away. She set the net down, opened the door the rest of the way, and stepped back — and that, in the marsh, was as much an invitation as anyone ever gave. He crossed the lamplight border like a man walking into deep water, and the door closed behind him, and the reeds outside stayed perfectly, impossibly still.</p>
+        <p><span class="speaker">Mireth</span><span class="cue">(whispering)</span> <span class="dialogue">"Hold still. This will sting."</span></p>
+      </div>
+    </div>
+
+    <div class="generating" id="genIndicator">
+      The marsh stirs<span class="dots"></span>
+    </div>
+
+    <div class="choices-section" id="choicesSection">
+      <div class="choices-prompt">What does Mireth do?</div>
+      <div class="choices">
+        <button class="choice" onclick="pick(this)"><span class="letter">A</span>Press him for his name before treating the wounds.</button>
+        <button class="choice" onclick="pick(this)"><span class="letter">B</span>Work in silence — the marsh teaches that questions can wait.</button>
+        <button class="choice" onclick="pick(this)"><span class="letter">C</span>Check the door. The reeds were still. That's wrong.</button>
+      </div>
+      <div class="text-input">
+        <input type="text" id="customInput" placeholder="Or speak your own mind…" onkeypress="if(event.key==='Enter')submitCustom()">
+        <button onclick="submitCustom()" id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="audio-line playing" id="audioLine"><div class="audio-fill" id="audioFill"></div></div>
+
+<script>
+let turn = 4;
+let chromeVisible = false;
+let audioPos = 0;
+
+function toggleChrome() {
+  chromeVisible = !chromeVisible;
+  document.getElementById('chrome').classList.toggle('show', chromeVisible);
+}
+
+const responses = [
+  { speaker: 'Narrator', narrator: true, text: 'She set the needle to the worst of the wounds at his ribs. He did not flinch. Outside, the reeds began to move again — slowly, deliberately, as if something out there had decided it was done waiting.' },
+  { speaker: 'Mireth', narrator: false, cue: '(quietly, not looking up)', dialogue: true, text: '"I\'ve seen this kind of wound once before. The man who had it didn\'t live through the night. You will, if you do exactly what I tell you."' },
+  { speaker: 'The Stranger', narrator: false, dialogue: true, text: '"I\'ve had worse," he said. It was a lie, and they both knew it, and the marsh knew it too.' },
+  { speaker: 'Narrator', narrator: true, text: 'The lamp guttered. Thunder again, closer now, and with it the smell of rain on peat — the marsh\'s oldest warning. Mireth did not look toward the door. She looked at the stranger\'s hands, and at what his hands were not doing, and that was the third wrong thing.' },
+  { speaker: 'Narrator', narrator: true, text: 'Somewhere beyond the reeds, something breathed. Not the wind. Not an animal. Something that had learned to breathe like both, and was now learning to breathe like neither.' },
+];
+let respIdx = 0;
+
+function pick(btn) {
+  document.querySelectorAll('.choice').forEach(c => c.disabled = true);
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('customInput').disabled = true;
+  const action = btn.textContent.replace(/^[A-C]\s*/, '').trim();
+  generateTurn(action);
+}
+
+function submitCustom() {
+  const input = document.getElementById('customInput');
+  if (!input.value.trim()) return;
+  const action = input.value.trim();
+  input.value = '';
+  document.querySelectorAll('.choice').forEach(c => c.disabled = true);
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('customInput').disabled = true;
+  generateTurn(action);
+}
+
+function generateTurn(action) {
+  const gen = document.getElementById('genIndicator');
+  gen.classList.add('show');
+  audioPos = 0;
+
+  setTimeout(() => {
+    gen.classList.remove('show');
+    turn += 1;
+    const r = responses[respIdx % responses.length];
+    respIdx++;
+
+    const story = document.getElementById('story');
+
+    const youSaid = document.createElement('div');
+    youSaid.className = 'you-said';
+    youSaid.textContent = `— you: ${action.slice(0,50)}${action.length>50?'…':''} —`;
+    story.appendChild(youSaid);
+
+    const divider = document.createElement('div');
+    divider.className = 'turn-divider';
+    divider.textContent = `TURN ${turn}`;
+    story.appendChild(divider);
+
+    const passage = document.createElement('div');
+    passage.className = 'passage';
+    const p = document.createElement('p');
+    const sp = document.createElement('span');
+    sp.className = 'speaker' + (r.narrator ? ' narrator' : '');
+    sp.textContent = r.speaker;
+    p.appendChild(sp);
+    if (r.cue) {
+      const cue = document.createElement('span');
+      cue.className = 'cue';
+      cue.textContent = r.cue + ' ';
+      p.appendChild(cue);
+    }
+    if (r.dialogue) {
+      const d = document.createElement('span');
+      d.className = 'dialogue';
+      d.textContent = r.text;
+      p.appendChild(d);
+    } else {
+      p.appendChild(document.createTextNode(r.text));
+    }
+    passage.appendChild(p);
+    story.appendChild(passage);
+
+    passage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    document.querySelectorAll('.choice').forEach(c => { c.disabled = false; c.style.borderLeftColor = ''; });
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('customInput').disabled = false;
+  }, 2000);
+}
+
+// Audio progress simulation
+setInterval(() => {
+  audioPos += 0.8;
+  if (audioPos > 100) audioPos = 0;
+  document.getElementById('audioFill').style.width = audioPos + '%';
+}, 500);
+</script>
+</body>
+</html>

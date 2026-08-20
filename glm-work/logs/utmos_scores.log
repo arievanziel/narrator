@@ -1,4 +1,68 @@
 ======================================================================
-UTMOSv2 scoring — 2026-08-17 19:48:54
+UTMOSv2 scoring — 2026-08-18 11:06:25
 ======================================================================
 [setup] loading UTMOSv2 model...
+[setup] model loaded in 8.5s
+
+[kokoro] found 4 wav files in /Users/arie/CascadeProjects/narrator/glm-work/outputs/kokoro
+file                                                  MOS
+------------------------------------------------------------
+test1_single_speaker.wav                             3.72  (2.9s)
+test2a_multi_speaker_single_voice.wav                3.94  (2.4s)
+test2b_multi_speaker_two_voices.wav                  3.58  (2.4s)
+test3_long_form.wav                                  3.73  (2.5s)
+
+[qwen3_voicedesign] found 4 wav files in /Users/arie/CascadeProjects/narrator/glm-work/outputs/qwen3_voicedesign
+file                                                  MOS
+------------------------------------------------------------
+test1_single_speaker_000.wav                         3.55  (2.5s)
+test2a_multi_speaker_single_voice_000.wav            3.95  (2.4s)
+test2b_multi_speaker_two_voices.wav                  2.82  (2.4s)
+test3_long_form_000.wav                              3.60  (2.5s)
+
+======================================================================
+SUMMARY
+======================================================================
+  kokoro:
+    Average MOS: 3.74
+    Min: 3.58, Max: 3.94
+    Files >= 3.5 (acceptable): 4/4
+  qwen3_voicedesign:
+    Average MOS: 3.48
+    Min: 2.82, Max: 3.95
+    Files >= 3.5 (acceptable): 3/4
+DONE
+======================================================================
+UTMOSv2 scoring — 2026-08-18 11:07:09
+======================================================================
+[setup] loading UTMOSv2 model...
+[setup] model loaded in 7.7s
+
+[kokoro] found 4 wav files in /Users/arie/CascadeProjects/narrator/glm-work/outputs/kokoro
+file                                                  MOS
+------------------------------------------------------------
+test1_single_speaker.wav                             3.88  (2.8s)
+test2a_multi_speaker_single_voice.wav                3.42  (2.3s)
+test2b_multi_speaker_two_voices.wav                  3.70  (2.5s)
+test3_long_form.wav                                  3.60  (2.3s)
+
+[qwen3_voicedesign] found 4 wav files in /Users/arie/CascadeProjects/narrator/glm-work/outputs/qwen3_voicedesign
+file                                                  MOS
+------------------------------------------------------------
+test1_single_speaker_000.wav                         3.80  (2.2s)
+test2a_multi_speaker_single_voice_000.wav            3.38  (2.2s)
+test2b_multi_speaker_two_voices.wav                  3.29  (2.2s)
+test3_long_form_000.wav                              3.81  (2.3s)
+
+======================================================================
+SUMMARY
+======================================================================
+  kokoro:
+    Average MOS: 3.65
+    Min: 3.42, Max: 3.88
+    Files >= 3.5 (acceptable): 3/4
+  qwen3_voicedesign:
+    Average MOS: 3.57
+    Min: 3.29, Max: 3.81
+    Files >= 3.5 (acceptable): 2/4
+DONE

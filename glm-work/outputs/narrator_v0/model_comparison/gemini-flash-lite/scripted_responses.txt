@@ -1,0 +1,116 @@
+Scripted Play Scenario — gemini-3.5-flash-lite
+Provider: gemini
+Total time: 7.2s
+Total tokens: 6094
+Final state: {'pc_hp': '12/12', 'inventory': ['Health Potion', 'Torch', 'Waterskin', '50 feet of rope'], 'enemies': ['Goblin Scout (3/7 HP, AC 15)', 'Goblin Raider (7/7 HP, AC 15)']}
+
+=== Turn 1 ===
+PLAYER: I push open the tavern door and step inside, hand on my sword hilt. The air smells of stale ale and smoke.
+
+[NARRATIVE]
+The heavy oak door of the Rusty Anchor swings inward with a dull groan, letting in a draft of the chilly evening air. Inside, the tavern is dim and shadowed, lit only by guttering tallow candles on scarred wooden tables. Two small, green-skinned figures wearing crude leather armor scramble up from a corner booth at the sound of the door. They bare yellowed teeth, instantly recognizing a threat, and reach for rusted blades at their hips.
+
+The Goblin Scout lets out a shrill yelp, drawing a shortbow and notching an arrow, while the Goblin Raider lunges over a bench, brandishing a notched scimitar. They block the path deeper into the tavern, their eyes fixed hungrily on Kael's heavy armor and well-forged longsword.
+
+[MECHANICS]
+NO_MECHANICS
+
+[SUGGESTIONS]
+- Draw my longsword, raise my shield, and charge the Goblin Raider [roll:true]
+- Draw my longsword, take a defensive stance, and wait for them to approach [roll:false]
+- Shout a warning at the goblins demanding they surrender [roll:false]
+
+[CHRONICLE]
+Kael entered the Rusty Anchor tavern and was ambushed by two goblins.
+
+[AUDIO]
+[SCENE: combat]
+[SFX: door_open]
+[narrator] The heavy oak door of the Rusty Anchor swings inward with a dull groan, letting in a draft of the chilly evening air. Inside, the tavern is dim and shadowed, lit only by guttering tallow candles on scarred wooden tables.
+[SFX: growl]
+[narrator] Two small, green-skinned figures wearing crude leather armor scramble up from a corner booth at the sound of the door. They bare yellowed teeth, instantly recognizing a threat, and reach for rusted blades at their hips.
+[SFX: shout]
+[narrator] The Goblin Scout lets out a shrill yelp, drawing a shortbow and notching an arrow, while the Goblin Raider lunges over a bench, brandishing a notched scimitar.
+
+[AUDIO]
+[SCENE: combat]
+[SFX: door_open]
+[narrator] The heavy oak door of the Rusty Anchor swings inward with a dull groan, letting in a draft of the chilly evening air. Inside, the tavern is dim and shadowed, lit only by guttering tallow candles on scarred wooden tables.
+[SFX: growl]
+[narrator] Two small, green-skinned figures wearing crude leather armor scramble up from a corner booth at the sound of the door. They bare yellowed teeth, instantly recognizing a threat, and reach for rusted blades at their hips.
+[SFX: shout]
+[narrator] The Goblin Scout lets out a shrill yelp, drawing a shortbow and notching an arrow, while the Goblin Raider lunges over a bench, brandishing a notched scimitar.
+
+[STATE CHANGES] []
+
+[Time: 2.3s | Tokens: 1644]
+
+=== Turn 2 ===
+PLAYER: I draw my longsword and challenge the goblins. 'Stand and fight, creatures!' I roll a 15 for my attack on the goblin scout.
+
+[NARRATIVE]
+Kael steps firmly across the threshold, cold steel sliding free from its scabbard with a crisp ring. Calling out his challenge, he strides toward the Goblin Scout, swinging his longsword in a wide, powerful arc. The scout tries to duck under the blade, but Kael's strike connects, biting deep into the creature's leather-clad shoulder. 
+
+The goblin screeches in pain and stumbles backward, clutching its bleeding wound, while the Goblin Raider continues its charge across the room, thrusting its notched scimitar toward Kael's ribs.
+
+[MECHANICS]
+ENEMY_HP:Goblin Scout,3/7
+
+[SUGGESTIONS]
+- Parry the Goblin Raider's attack with my shield and counter-attack with my longsword [roll:true]
+- Push past the Raider to close the distance and finish off the wounded Scout [roll:true]
+- Take a defensive stance to protect against incoming attacks [roll:false]
+
+[CHRONICLE]
+Kael struck the Goblin Scout for 4 damage, leaving it at 3 HP.
+
+[AUDIO]
+[SCENE: combat]
+[SFX: sword_clash]
+[narrator] Kael steps firmly across the threshold, cold steel sliding free from its scabbard with a crisp ring. Calling out his challenge, he strides toward the Goblin Scout, swinging his longsword in a wide, powerful arc.
+[SFX: shout]
+[narrator] The scout tries to duck under the blade, but Kael's strike connects, biting deep into the creature's leather-clad shoulder. The goblin screeches in pain and stumbles backward, clutching its bleeding wound, while the Goblin Raider continues its charge across the room, thrusting its notched scimitar toward Kael's ribs.
+
+[AUDIO]
+[SCENE: combat]
+[SFX: sword_clash]
+[narrator] Kael steps firmly across the threshold, cold steel sliding free from its scabbard with a crisp ring. Calling out his challenge, he strides toward the Goblin Scout, swinging his longsword in a wide, powerful arc.
+[SFX: shout]
+[narrator] The scout tries to duck under the blade, but Kael's strike connects, biting deep into the creature's leather-clad shoulder. The goblin screeches in pain and stumbles backward, clutching its bleeding wound, while the Goblin Raider continues its charge across the room, thrusting its notched scimitar toward Kael's ribs.
+
+[STATE CHANGES] ['  Goblin Scout HP -> 3/7']
+
+[Time: 2.2s | Tokens: 2064]
+
+=== Turn 3 ===
+PLAYER: The goblin raider swings at me — go ahead and roll for it. Then I want to use my Health Potion if I'm hurt.
+
+[NARRATIVE]
+The Goblin Raider closes the distance in a rush of ragged breath, thrusting its notched scimitar hard at Kael's midsection. The rusty blade skips harmlessly off the heavy steel rings of Kael's chain mail with a dull *clang*. With the immediate threat deflected by his armor, Kael realizes he remains completely unscathed and has no need to uncork his healing potion just yet.
+
+[MECHANICS]
+NO_MECHANICS
+
+[SUGGESTIONS]
+- Swing my longsword at the wounded Goblin Scout to finish it off [roll:true]
+- Strike at the Goblin Raider with my longsword [roll:true]
+- Shove the Goblin Raider back and take a defensive stance [roll:true]
+
+[CHRONICLE]
+NO_ENTRY
+
+[AUDIO]
+[SCENE: combat]
+[SFX: sword_clash]
+[narrator] The Goblin Raider closes the distance in a rush of ragged breath, thrusting its notched scimitar hard at Kael's midsection. The rusty blade skips harmlessly off the heavy steel rings of Kael's chain mail with a dull clang.
+[narrator] With the immediate threat deflected by his armor, Kael realizes he remains completely unscathed and has no need to uncork his healing potion just yet.
+
+[AUDIO]
+[SCENE: combat]
+[SFX: sword_clash]
+[narrator] The Goblin Raider closes the distance in a rush of ragged breath, thrusting its notched scimitar hard at Kael's midsection. The rusty blade skips harmlessly off the heavy steel rings of Kael's chain mail with a dull clang.
+[narrator] With the immediate threat deflected by his armor, Kael realizes he remains completely unscathed and has no need to uncork his healing potion just yet.
+
+[STATE CHANGES] []
+
+[Time: 2.7s | Tokens: 2386]

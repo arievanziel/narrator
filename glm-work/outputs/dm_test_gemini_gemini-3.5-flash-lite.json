@@ -1,0 +1,206 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "turns": [
+    {
+      "turn": 1,
+      "player_input": "I push open the tavern door and step inside, hand on my sword hilt.",
+      "narrative": "The heavy oak door of the Rusty Anchor groans on its rusted hinges as you shove it open, stepping into the dim, smoke-hazed interior of the tavern. The scent of spilled ale, unwashed bodies, and roasting meat hangs thick in the air. Two green-skinned goblins, huddled over a splintered table near the hearth, snap their heads toward you with snarling grins. They scramble to their feet, crude rusted daggers flashing in the flickering candle. The goblin scout knocks a stool over in his haste, while ",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Draw your longsword fully and charge the Goblin Scout to strike first [roll:true]\n- Shout a challenge to draw their attention away from the rest of the tavern [roll:false]\n- Hold your ground with your shield raised defensively and wait for them to approach [roll:true]",
+      "chronicle": "Kael entered the Rusty Anchor tavern and confronted two hostile goblins.",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 29.1,
+      "tokens": {
+        "prompt_tokens": 888,
+        "completion_tokens": 245,
+        "total_tokens": 1133
+      }
+    },
+    {
+      "turn": 2,
+      "player_input": "I draw my longsword and attack the nearest goblin. I rolled a 14 on my attack roll.",
+      "narrative": "You stride forward past the fallen stool, your longsword clearing the scabbard with a crisp hiss of steel. Closing the distance to the Goblin Scout, you step inside its guard and thrust your blade toward its leather-clad chest. The goblin frantically jerks its rusted dagger up to parry, but your momentum carries the steel past its guard. Before the strike can land fully, the goblin throws its body sideways, barely absorbing only a glancing blow that draws dark blood but leaves it snarling and de",
+      "mechanics": "ROLL_REQUEST:1d8+3 for longsword damage\nENEMY_HP:Goblin Scout,4/7",
+      "suggestions": "- Roll your damage for the longsword attack [roll:true]\n- Push the wounded goblin into the hearth while drawing your shield up [roll:true]\n- Shift your stance to cover yourself against both goblins simultaneously [roll:false]",
+      "chronicle": "Kael attacked the Goblin Scout, landing a glancing blow with his longsword.",
+      "state_changes": [
+        "  [Roll requested] 1d8+3 for longsword damage",
+        "  Goblin Scout HP -> 4/7"
+      ],
+      "issues": [],
+      "elapsed": 4.66,
+      "tokens": {
+        "prompt_tokens": 1156,
+        "completion_tokens": 221,
+        "total_tokens": 1377
+      }
+    },
+    {
+      "turn": 3,
+      "player_input": "I use my bonus action to look around for other threats. I rolled a 12 for Perception.",
+      "narrative": "You sweep your gaze across the dimly lit tavern while keeping your blade leveled at the wounded scout. Smoke curls lazily from the hearth, obscuring the corners of the room. Aside from the two goblins circling you with bared teeth, the tables are overturned and empty. Whoever else was drinking here must have fled or hidden when the chaos started. The goblin scout seizes the moment of distraction, lunging forward with its rusted dagger in a vicious jab aimed at your thigh.",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Roll your pending damage for the longsword attack against the Goblin Scout [roll:true]\n- Parry the incoming dagger strike with your shield [roll:true]\n- Step back to create distance between yourself and both goblins [roll:false]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 1.82,
+      "tokens": {
+        "prompt_tokens": 1421,
+        "completion_tokens": 182,
+        "total_tokens": 1603
+      }
+    },
+    {
+      "turn": 4,
+      "player_input": "The goblin scout swings at me \u2014 go ahead and roll for it, then I'll respond.",
+      "narrative": "The goblin scout darts forward, its rusted dagger flashing in the dim candlelight as it lunges at your thigh. Your chain mail absorbs the brunt of the rusted steel, but the force of the blow still manages to bite through to your flesh, sending a sharp jolt of pain up your leg. You grit your teeth as the creature screeches in triumph, leaping back just out of your immediate reach.",
+      "mechanics": "HP_CHANGE:-4\nROLL_REQUEST:1d8+3 for longsword damage",
+      "suggestions": "- Roll your pending longsword damage to strike back at the Goblin Scout [roll:true]\n- Attack the Goblin Raider instead with your longsword [roll:true]\n- Use your Second Wind feature to recover some hit points [roll:false]",
+      "chronicle": "The Goblin Scout slashed Kael for 4 damage.",
+      "state_changes": [
+        "  PC HP: 12 -> 8 (-4)",
+        "  [Roll requested] 1d8+3 for longsword damage"
+      ],
+      "issues": [],
+      "elapsed": 1.76,
+      "tokens": {
+        "prompt_tokens": 1604,
+        "completion_tokens": 189,
+        "total_tokens": 1793
+      }
+    },
+    {
+      "turn": 5,
+      "player_input": "I attack the goblin raider. I rolled a 19 on my attack roll.",
+      "narrative": "You pivot away from the wounded scout, your boots pivoting on the ale-soaked floorboards as you bring your longsword around in a sweeping arc toward the Goblin Raider. The raider tries to bring its shortbow up to deflect the blow, but you are too fast. Your blade shears through the taut bowstring and bites deep into the raider's shoulder, sending a spray of dark blood across the hearth. The raider gasps, stumbling backward against a wooden pillar with a look of pure shock on its greenish face.",
+      "mechanics": "ROLL_REQUEST:1d8+3 for longsword damage against Goblin Raider\nENEMY_HP:Goblin Raider,2/7",
+      "suggestions": "- Roll your damage for the longsword attack against the Goblin Raider [roll:true]\n- Use your bonus action to trigger Second Wind and heal yourself [roll:false]\n- Shove the wounded Goblin Raider to the floor with your shield [roll:true]",
+      "chronicle": "Kael struck the Goblin Raider with his longsword for a heavy blow.",
+      "state_changes": [
+        "  [Roll requested] 1d8+3 for longsword damage against Goblin Raider",
+        "  Goblin Raider HP -> 2/7"
+      ],
+      "issues": [],
+      "elapsed": 1.68,
+      "tokens": {
+        "prompt_tokens": 1827,
+        "completion_tokens": 232,
+        "total_tokens": 2059
+      }
+    },
+    {
+      "turn": 6,
+      "player_input": "I roll damage for my longsword: 1d8+3 = I got a 5, so 8 damage total.",
+      "narrative": "Your blade bites deep into the goblin raider's chest with a sickening crunch. The creature lets out a sharp, gurgling gasp as the full force of the strike hits home, collapsing heavily against the wooden pillar before sliding bonelessly to the floorboards. It twitches once and goes entirely still, dark blood pooling around its crude boots. The remaining goblin scout lets out a terrified shriek at the sudden demise of its companion, dropping its rusted dagger with a clatter and stumbling backward",
+      "mechanics": "ENEMY_DEAD:Goblin Raider\nENEMY_HP:Goblin Scout,4/7",
+      "suggestions": "- Pursue the fleeing Goblin Scout and strike it down before it escapes [roll:true]\n- Shout a demand for answers from the terrified Goblin Scout [roll:false]\n- Search the fallen Goblin Raider's pockets while keeping an eye on the scout [roll:true]",
+      "chronicle": "Kael killed the Goblin Raider with his longsword.",
+      "state_changes": [
+        "  Goblin Raider marked DEAD",
+        "  Goblin Scout HP -> 4/7"
+      ],
+      "issues": [],
+      "elapsed": 2.3,
+      "tokens": {
+        "prompt_tokens": 2097,
+        "completion_tokens": 218,
+        "total_tokens": 2315
+      }
+    },
+    {
+      "turn": 7,
+      "player_input": "I'm hurt. I drink my Health Potion as my action this turn.",
+      "narrative": "You quickly unstopper the vial of crimson liquid hanging at your belt, keeping a wary eye on the cowering goblin scout. You down the bitter, herbal draught in a single fluid motion. A surge of sudden, cooling warmth spreads through your chest, knitting together the torn flesh of your thigh and easing the dull ache in your muscles. The remaining goblin takes advantage of your momentary distraction to scramble toward the tavern's back exit, throwing a terrified glance over its shoulder.",
+      "mechanics": "HP_CHANGE:+4\nITEM_USED:Health Potion",
+      "suggestions": "- Dash after the fleeing Goblin Scout to cut off its escape [roll:true]\n- Throw your handaxe or draw a secondary weapon to hurl at the fleeing scout [roll:true]\n- Let the goblin run and search the dead Goblin Raider instead [roll:false]",
+      "chronicle": "Kael drank a Health Potion, restoring his hit points.",
+      "state_changes": [
+        "  PC HP: 8 -> 12 (+4)",
+        "  Used: Health Potion"
+      ],
+      "issues": [],
+      "elapsed": 1.82,
+      "tokens": {
+        "prompt_tokens": 2328,
+        "completion_tokens": 205,
+        "total_tokens": 2533
+      }
+    },
+    {
+      "turn": 8,
+      "player_input": "I try to intimidate the surviving goblin into surrendering. I rolled a 10 on Intimidation.",
+      "narrative": "You take a menacing step forward, blood dripping from your longsword, and bark a harsh demand for the goblin to surrender. The goblin scout freezes with its hand on the back door latch, its yellow eyes wide with terror. It looks from your bloodied blade to the unmoving body of its companion. However, your gruff shout seems to crack rather than terrify; the goblin lets out a frantic, high-pitched squeak, throws the door wide open, and bolts out into the darkening evening street, vanishing into th",
+      "mechanics": "ENEMY_DEAD:Goblin Scout\nITEM_GAINED:Crude Rusted Dagger",
+      "suggestions": "- Chase the fleeing goblin out into the street [roll:true]\n- Search the dead Goblin Raider's pockets for loot [roll:false]\n- Secure the tavern doors and examine the room more closely [roll:false]",
+      "chronicle": "The surviving Goblin Scout fled into the night after Kael intimidated it.",
+      "state_changes": [
+        "  Goblin Scout marked DEAD",
+        "  Gained: Crude Rusted Dagger"
+      ],
+      "issues": [],
+      "elapsed": 2.25,
+      "tokens": {
+        "prompt_tokens": 2547,
+        "completion_tokens": 216,
+        "total_tokens": 2763
+      }
+    },
+    {
+      "turn": 9,
+      "player_input": "If the goblin surrenders, I tie it up with my rope and question it about why it attacked.",
+      "narrative": "You realize a split second too late that your attempt to intimidate the creature only spurred its flight, and it has already vanished into the dark alleyways outside. The heavy wooden back door swings loosely on its hinges, letting in a draft of cold evening air. Silence settles back over the smoke-hazed interior of the Rusty Anchor, broken only by the crackle of the hearth fire and the slow drip of blood from your longsword. Both goblins lie motionless on the splintered floorboards, leaving you",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Search the bodies of the fallen goblins for anything of value [roll:false]\n- Step outside through the back door to see which way the surviving goblin went [roll:true]\n- Barricade the tavern doors and take a short rest [roll:false]",
+      "chronicle": "Kael secured the tavern interior after the surviving goblin escaped.",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 2.19,
+      "tokens": {
+        "prompt_tokens": 2801,
+        "completion_tokens": 207,
+        "total_tokens": 3008
+      }
+    },
+    {
+      "turn": 10,
+      "player_input": "I search the bodies of the dead goblins for anything useful.",
+      "narrative": "You kneel beside the two fallen goblin bodies, ignoring the smell of stale ale and blood. Prying open their tattered, foul-smelling leather jerkins, you sort through their crude pouches. On the first goblin, you find a small, greasy pouch containing a few tarnished copper pieces. On the second goblin, tucked beneath a stained belt, is a strange, folded scrap of parchment marked with crude charcoal scrawls that look like a simple map of the town district.",
+      "mechanics": "ITEM_GAINED:Handful of copper coins (12 cp)\nITEM_GAINED:Scratched town map",
+      "suggestions": "- Examine the scratched town map closely [roll:false]\n- Step outside the tavern to investigate the street [roll:true]\n- Barricade the front doors and rest inside the tavern [roll:false]",
+      "chronicle": "Kael searched the dead goblins and found 12 copper coins and a scratched town map.",
+      "state_changes": [
+        "  Gained: Handful of copper coins (12 cp)",
+        "  Gained: Scratched town map"
+      ],
+      "issues": [],
+      "elapsed": 1.8,
+      "tokens": {
+        "prompt_tokens": 3007,
+        "completion_tokens": 215,
+        "total_tokens": 3222
+      }
+    }
+  ],
+  "final_state": {
+    "pc_hp": "12/12",
+    "inventory": [
+      "Torch",
+      "Waterskin",
+      "50 feet of rope",
+      "Crude Rusted Dagger",
+      "Handful of copper coins (12 cp)",
+      "Scratched town map"
+    ],
+    "enemies": [
+      "Goblin Scout (0/7 HP, AC 15 [DEAD])",
+      "Goblin Raider (0/7 HP, AC 15 [DEAD])"
+    ],
+    "chronicle": []
+  },
+  "issues": [],
+  "total_tokens": 21806,
+  "total_time": 49.378209352493286
+}

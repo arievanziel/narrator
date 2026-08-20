@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrator — Midnight</title>
+<style>
+  :root {
+    --night: #14110d;
+    --night-soft: #1c1814;
+    --night-card: #221e18;
+    --candle: #e8dcc8;
+    --candle-soft: #c4b8a0;
+    --candle-dim: #8a8070;
+    --amber: #d4a574;
+    --amber-bright: #e8b87a;
+    --ember: #c97b4a;
+    --rule: #332e26;
+    --glow: rgba(212, 165, 116, 0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--night);
+    color: var(--candle);
+    font-family: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino', Georgia, serif;
+    font-size: 19px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Subtle warm radial glow — like lamplight from above */
+  body::before {
+    content: "";
+    position: fixed;
+    top: -20%; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, var(--glow), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  #app {
+    max-width: 36rem;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 3rem 1.5rem 6rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Chrome — slides down from top, warm dark */
+  .chrome {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: var(--night-soft);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.7rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--candle-dim);
+    font-family: 'Inter', -apple-system, sans-serif;
+    transform: translateY(-100%);
+    transition: transform 0.35s ease;
+    z-index: 50;
+  }
+  .chrome.show { transform: translateY(0); }
+  .chrome .title { color: var(--amber); font-weight: 500; letter-spacing: 0.3px; font-size: 13px; }
+  .chrome .meta { color: var(--candle-dim); font-size: 11px; }
+  .chrome .hp-group { display: flex; align-items: center; gap: 8px; }
+  .chrome .hp-bar { width: 50px; height: 3px; background: var(--rule); border-radius: 2px; overflow: hidden; }
+  .chrome .hp-fill { height: 100%; background: var(--ember); width: 100%; }
+  .chrome .icon-btn { background: none; border: 1px solid var(--rule); color: var(--candle-dim); cursor: pointer; font-size: 14px; padding: 3px 8px; border-radius: 4px; }
+  .tap-zone { position: fixed; top: 0; left: 0; right: 0; height: 35px; z-index: 40; }
+
+  /* Story */
+  .story { }
+  .chapter-head {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .chapter-eyebrow {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.8rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+  }
+  .chapter-title {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--candle);
+    font-style: italic;
+  }
+  .chapter-ornament {
+    color: var(--amber);
+    font-size: 14px;
+    margin-top: 0.8rem;
+    letter-spacing: 8px;
+  }
+
+  .passage { margin-bottom: 2rem; }
+  .passage p {
+    margin-bottom: 1.3rem;
+  }
+  .passage p:first-child::first-letter {
+    font-size: 2.8em;
+    float: left;
+    line-height: 0.9;
+    padding: 0.05em 0.1em 0 0;
+    color: var(--amber);
+    font-weight: 500;
+  }
+  .speaker {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--amber);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .speaker.narrator { display: none; }
+  .dialogue { font-style: italic; color: var(--candle-soft); }
+  .cue { color: var(--candle-dim); font-style: italic; font-size: 16px; }
+
+  .turn-divider {
+    text-align: center;
+    margin: 2.8rem 0;
+    color: var(--candle-dim);
+    font-size: 11px;
+    letter-spacing: 3px;
+    font-family: 'Inter', sans-serif;
+  }
+  .turn-divider .ornament { color: var(--amber); margin: 0 8px; }
+  .you-said {
+    text-align: center;
+    font-style: italic;
+    color: var(--candle-dim);
+    font-size: 14px;
+    margin: 1.8rem 0 0.3rem;
+  }
+
+  /* Audio — amber glow line at bottom */
+  .audio-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--rule);
+    z-index: 30;
+  }
+  .audio-bar .fill {
+    height: 100%;
+    background: var(--amber);
+    width: 0%;
+    box-shadow: 0 0 8px var(--amber-bright);
+    transition: width 0.5s linear;
+  }
+  .audio-bar.paused .fill { box-shadow: none; background: var(--candle-dim); }
+
+  /* Choices — warm cards with subtle glow */
+  .choices-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+  }
+  .choices-prompt {
+    font-style: italic;
+    color: var(--candle-soft);
+    font-size: 16px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .choices { display: flex; flex-direction: column; gap: 0.7rem; }
+  .choice {
+    background: var(--night-card);
+    border: 1px solid var(--rule);
+    color: var(--candle);
+    padding: 0.9rem 1.2rem;
+    font-family: inherit;
+    font-size: 17px;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .choice:hover {
+    border-color: var(--amber);
+    background: var(--night-soft);
+    box-shadow: 0 0 12px var(--glow);
+  }
+  .choice:active { transform: scale(0.99); }
+  .choice .letter {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--amber);
+    margin-right: 0.7rem;
+    letter-spacing: 1px;
+  }
+  .choice:disabled { opacity: 0.3; cursor: wait; }
+
+  .text-input {
+    margin-top: 1.2rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  .text-input input {
+    flex: 1;
+    background: var(--night-card);
+    border: 1px solid var(--rule);
+    color: var(--candle);
+    padding: 0.8rem 1rem;
+    font-family: inherit;
+    font-size: 17px;
+    border-radius: 6px;
+    outline: none;
+  }
+  .text-input input:focus { border-color: var(--amber); box-shadow: 0 0 8px var(--glow); }
+  .text-input input::placeholder { color: var(--candle-dim); font-style: italic; }
+  .text-input button {
+    background: var(--amber);
+    color: var(--night);
+    border: none;
+    padding: 0.8rem 1.4rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+  }
+  .text-input button:active { background: var(--amber-bright); }
+  .text-input button:disabled { opacity: 0.3; cursor: wait; }
+
+  .generating {
+    text-align: center;
+    color: var(--candle-dim);
+    font-style: italic;
+    font-size: 15px;
+    margin: 2rem 0;
+    display: none;
+  }
+  .generating.show { display: block; }
+  .generating .ember {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ember);
+    margin: 0 2px;
+    animation: flicker 1.2s ease-in-out infinite;
+  }
+  .generating .ember:nth-child(2) { animation-delay: 0.2s; }
+  .generating .ember:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes flicker {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.3); box-shadow: 0 0 6px var(--ember); }
+  }
+</style>
+</head>
+<body>
+  <div class="tap-zone" onclick="document.getElementById('chrome').classList.toggle('show')"></div>
+  <div class="chrome" id="chrome">
+    <div>
+      <span class="title">The Marsh at Quill's Hollow</span>
+      <span class="meta"> · Turn 4</span>
+    </div>
+    <div class="hp-group">
+      <span>12/12</span>
+      <div class="hp-bar"><div class="hp-fill"></div></div>
+    </div>
+    <button class="icon-btn" onclick="alert('Settings — not wired in mockup')">⚙</button>
+  </div>
+
+  <div id="app">
+    <div class="story" id="story">
+      <div class="chapter-head">
+        <div class="chapter-eyebrow">Chapter One</div>
+        <div class="chapter-title">The Marsh at Quill's Hollow</div>
+        <div class="chapter-ornament">✦ ✦ ✦</div>
+      </div>
+
+      <div class="passage">
+        <p>The marsh had a memory, Mireth knew, longer than any living thing in Quill's Hollow cared to admit. She had grown up on its edge — close enough that the smell of peat and black water lived in the walls of her mother's house, close enough that the lantern in the window each night was not decoration but defense.</p>
+      </div>
+
+      <div class="turn-divider"><span class="ornament">✦</span> TURN THREE <span class="ornament">✦</span></div>
+
+      <div class="passage">
+        <p><span class="speaker">Mireth</span><span class="dialogue">"You're not from Quill's Hollow,"</span> she said — not a question.</p>
+        <p><span class="speaker">The Stranger</span><span class="dialogue">"No,"</span> he said, and the word came out like something he had to carry.</p>
+      </div>
+
+      <div class="turn-divider"><span class="ornament">✦</span> TURN FOUR <span class="ornament">✦</span></div>
+
+      <div class="passage">
+        <p>She did not invite him in. She did not turn him away. She set the net down, opened the door the rest of the way, and stepped back — and that, in the marsh, was as much an invitation as anyone ever gave. He crossed the lamplight border like a man walking into deep water, and the door closed behind him, and the reeds outside stayed perfectly, impossibly still.</p>
+        <p><span class="speaker">Mireth</span><span class="cue">(whispering)</span> <span class="dialogue">"Hold still. This will sting."</span></p>
+      </div>
+    </div>
+
+    <div class="generating" id="genIndicator">
+      the marsh stirs
+      <span class="ember"></span><span class="ember"></span><span class="ember"></span>
+    </div>
+
+    <div class="choices-section" id="choicesSection">
+      <div class="choices-prompt">What does Mireth do?</div>
+      <div class="choices">
+        <button class="choice" onclick="pick(this)"><span class="letter">A</span>Press him for his name before treating the wounds.</button>
+        <button class="choice" onclick="pick(this)"><span class="letter">B</span>Work in silence — the marsh teaches that questions can wait.</button>
+        <button class="choice" onclick="pick(this)"><span class="letter">C</span>Check the door. The reeds were still. That's wrong.</button>
+      </div>
+      <div class="text-input">
+        <input type="text" id="customInput" placeholder="Or speak your own mind…" onkeypress="if(event.key==='Enter')submitCustom()">
+        <button onclick="submitCustom()" id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="audio-bar" id="audioBar"><div class="fill" id="audioFill"></div></div>
+
+<script>
+let turn = 4;
+let audioPos = 0;
+const responses = [
+  { speaker: '', narrator: true, text: 'She set the needle to the worst of the wounds at his ribs. He did not flinch. Outside, the reeds began to move again — slowly, deliberately, as if something out there had decided it was done waiting.' },
+  { speaker: 'Mireth', narrator: false, cue: '(quietly, not looking up)', dialogue: true, text: '"I\'ve seen this kind of wound once before. The man who had it didn\'t live through the night. You will, if you do exactly what I tell you."' },
+  { speaker: 'The Stranger', narrator: false, dialogue: true, text: '"I\'ve had worse," he said. It was a lie, and they both knew it, and the marsh knew it too.' },
+  { speaker: '', narrator: true, text: 'The lamp guttered. Thunder again, closer now, and with it the smell of rain on peat — the marsh\'s oldest warning. Mireth did not look toward the door. She looked at the stranger\'s hands, and at what his hands were not doing, and that was the third wrong thing.' },
+  { speaker: '', narrator: true, text: 'Somewhere beyond the reeds, something breathed. Not the wind. Not an animal. Something that had learned to breathe like both, and was now learning to breathe like neither.' },
+];
+let respIdx = 0;
+
+function pick(btn) {
+  document.querySelectorAll('.choice').forEach(c => c.disabled = true);
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('customInput').disabled = true;
+  const action = btn.textContent.replace(/^[A-C]\s*/, '').trim();
+  generateTurn(action);
+}
+
+function submitCustom() {
+  const input = document.getElementById('customInput');
+  if (!input.value.trim()) return;
+  const action = input.value.trim();
+  input.value = '';
+  document.querySelectorAll('.choice').forEach(c => c.disabled = true);
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('customInput').disabled = true;
+  generateTurn(action);
+}
+
+function generateTurn(action) {
+  document.getElementById('genIndicator').classList.add('show');
+  audioPos = 0;
+  setTimeout(() => {
+    document.getElementById('genIndicator').classList.remove('show');
+    turn += 1;
+    const r = responses[respIdx % responses.length];
+    respIdx++;
+    const story = document.getElementById('story');
+
+    const youSaid = document.createElement('div');
+    youSaid.className = 'you-said';
+    youSaid.textContent = `— you: ${action.slice(0,50)}${action.length>50?'…':''} —`;
+    story.appendChild(youSaid);
+
+    const div = document.createElement('div');
+    div.className = 'turn-divider';
+    div.innerHTML = `<span class="ornament">✦</span> TURN ${turn} <span class="ornament">✦</span>`;
+    story.appendChild(div);
+
+    const passage = document.createElement('div');
+    passage.className = 'passage';
+    const p = document.createElement('p');
+    if (r.speaker) {
+      const sp = document.createElement('span');
+      sp.className = 'speaker' + (r.narrator ? ' narrator' : '');
+      sp.textContent = r.speaker;
+      p.appendChild(sp);
+    }
+    if (r.cue) {
+      const cue = document.createElement('span');
+      cue.className = 'cue';
+      cue.textContent = r.cue + ' ';
+      p.appendChild(cue);
+    }
+    if (r.dialogue) {
+      const d = document.createElement('span');
+      d.className = 'dialogue';
+      d.textContent = r.text;
+      p.appendChild(d);
+    } else {
+      p.appendChild(document.createTextNode(r.text));
+    }
+    passage.appendChild(p);
+    story.appendChild(passage);
+    passage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    document.querySelectorAll('.choice').forEach(c => c.disabled = false);
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('customInput').disabled = false;
+  }, 2000);
+}
+
+setInterval(() => {
+  audioPos += 0.7;
+  if (audioPos > 100) audioPos = 0;
+  document.getElementById('audioFill').style.width = audioPos + '%';
+}, 500);
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+The fire crackles in the corner of the Rusty Harp, casting a golden glow over the wooden beams. Eira, a scar‑topped warrior with a grin as sharp as her blade, leans back in her chair, while Arin, a lute‑slung bard whose voice could coax a smile from a stone statue, swirls his mug of ale. The tavern hums with the clatter of plates, the low murmur of travelers, and the occasional burst of raucous laughter.
+
+[SFX: tavern_ambience]
+
+Arin plucks a single, off‑key note and declares, “To the end of the road and the beginning of the next tavern!” He raises his mug.
+
+[SFX: mug_clinking]
+
+[Eira] "If the road ends in a dragon’s lair, I hope it serves ale."
+[Arin] "Then we’ll have the hottest happy hour in the realm!"
+
+A nearby table erupts in laughter, and a grizzled dwarf leans over, whispering, “Heard the old keep on the hill is haunted by a ghost that steals socks. Good luck finding your feet there.” Eira chuckles, shaking her head at the absurd rumor.
+
+[SFX: laughter]
+
+The tavern door swings open with a gust of night wind, drawing the eyes of every patron. A hooded stranger steps inside, his cloak dusted with travel. He glides to their table, laying a weather‑worn map atop the ale.
+
+[SFX: door_opening]
+
+[Stranger] "Forgive the intrusion. I couldn't help noticing two seasoned adventurers nursing their victories."
+[Eira] "We’re just finishing a quest. What’s your business?"
+[Stranger] "Name’s Riven. This map leads to the Sunken Vault beneath the Whispering Woods—a relic said to grant its holder a voice that can command the wind itself."
+[Arin] "A voice for me? Finally, a chance to hit the high notes without breaking a string!"
+
+Riven lifts his hood just enough to reveal keen green eyes. "I’ll share the treasure if you retrieve it for me. The vault is guarded, but I have a key—if you can get past the guardians, the reward is yours."
+
+[Eira] "And what’s in it for you?"
+[Stranger] "Let’s just say I have a personal score to settle with the vault’s keeper."
+
+Arin leans in, eyes sparkling. “Well, when do we start? I’ve got a new ballad already forming in my head.”
+
+The map spreads, inked routes curling like serpents. The firelight flickers, casting dancing shadows as the trio leans over the promise of danger, treasure, and a tale that will soon be sung across every hearth.

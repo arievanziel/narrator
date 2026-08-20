@@ -52,6 +52,8 @@ Hard constraints (from `docs/SPEC.md`):
 
 ## Current status
 
+### Phase 1 core testing
+
 - [x] Branch `glm-phase1` created.
 - [x] `glm-work/` folder structure created (`test_scripts/`, `outputs/`, `logs/`,
       `notes/`).
@@ -68,12 +70,9 @@ Hard constraints (from `docs/SPEC.md`):
 - [x] spacy `en_core_web_sm` model installed manually (workaround for 429 rate limit).
 - [x] Kokoro model weights downloaded (~312 MB, cached in ~/.cache/huggingface).
 - [x] Smoke test passed (4.6s audio, 1.1x real-time).
-- [x] All 3 Phase 1 test scripts run through Kokoro (5-7x real-time on CPU).
-- [x] 5 output `.wav` files saved to `glm-work/outputs/kokoro/` (~12 MB total).
-- [x] Kokoro notes written up at `glm-work/notes/kokoro_notes.md`.
-- [x] Arie listened to Kokoro outputs and gave feedback (see `notes/kokoro_notes.md`).
-      Key points: "not good enough", weak pauses, unconvincing narrator/character
-      voice changes. Fixed preset voices acceptable for v1; 54 voices sufficient.
+- [x] **Kokoro (PyTorch): COMPLETE.** All 3 Phase 1 test scripts run (5-7x real-time
+      on CPU). 5 output `.wav` files in `glm-work/outputs/kokoro/` (~12 MB).
+      Notes at `glm-work/notes/kokoro_notes.md`. Arie's feedback logged.
 - [x] Market research written: `glm-work/MARKET_RESEARCH.md` (Task 0 from Sonnet).
 - [x] Pipeline design reference written: `glm-work/notes/pipeline_design_reference.md`
       (key patterns from multivoice and TTS-Story for pause/emotion/voice handling).
@@ -87,19 +86,88 @@ Hard constraints (from `docs/SPEC.md`):
 - [x] Prototype web app written: `glm-work/prototype_app/app.py`
       (paste → generate → listen, supports all 3 model types).
 - [x] UTMOSv2 installed for objective quality scoring (MOS 1-5 prediction).
-- [~] **Qwen3-TTS VoiceDesign 8bit model downloading** (~3.07 GB total):
-      - Main model: 2.39 GB (downloading via curl with resume)
-      - Speech tokenizer: 682 MB (downloading via curl with resume)
-      - Config files: downloaded
-      - Download path: `glm-work/models/qwen3_voicedesign_8bit/` (local, not HF cache)
-      - Speed: ~1 MB/s on 5G, ~50 min remaining
-- [~] **UTMOSv2 model downloading** (~800 MB, at 30%, ~16 min remaining)
-- [ ] Run Qwen3-TTS VoiceDesign through all 3 test scripts (after download completes).
-- [ ] Score all Kokoro outputs with UTMOSv2 (after UTMOSv2 model downloads).
+- [x] **Qwen3-TTS VoiceDesign 8bit: COMPLETE.** Model downloaded to
+      `glm-work/models/qwen3_voicedesign_8bit/` (~3.07 GB). All 3 test scripts run.
+      Results: 2.3-2.5x real-time, peak memory ~21GB for long-form, distinct S1/S2
+      voices confirmed. RESULTS.md updated with full data. Outputs in
+      `glm-work/outputs/qwen3_voicedesign/` (5 WAV files).
+      Bug fixed: MODEL path changed from HF repo ID to local path (Sonnet catch).
+      Bug fixed: _000 suffix handling + max_tokens=2400 for long-form.
+- [~] **UTMOSv2 scoring: IN PROGRESS.** Model file was corrupted (truncated at
+      523 MB / 818 MB expected). Re-downloading fresh. Once complete, will score
+      all Kokoro + Qwen3 outputs and update RESULTS.md.
 - [ ] Test Dia-1.6B via mlx-audio (3.22 GB download, original Dia not Dia2).
+      **Awaiting Arie's approval for download.**
 - [ ] Test Higgs Audio V2 via mlx-audio (q6 4.75 GB or q8 6.18 GB).
+      **Awaiting Arie's approval for download.**
 - [ ] Test Kokoro MLX for speed comparison with PyTorch version.
 - [ ] `RESULTS.md` writeup (per spec: comparison table, do NOT recommend a final model).
+
+### Parallel tasks (Task A/B/C from PARALLEL-TASKS.md)
+
+- [x] **Task A — Voice catalog: COMPLETE.** `run_voice_catalog.py` generates samples
+      for all 28 English Kokoro voices (20 American + 8 British). 56 individual WAVs
+      (narration + dialogue per voice) + 1 ensemble story "The Last Lantern" (30
+      segments, all 28 voices). HTML preview page at
+      `outputs/voice_catalog/index.html`. Notes at `notes/voice_catalog.md`.
+- [x] **Ensemble story #2 — "The Descent of Ysolde's Light": COMPLETE.**
+      `run_ensemble2.py` generates an epic 47-segment story with a fixed cast of
+      7 characters + 1 narrator, 4 locations, name-calling in dialogue, dramatic
+      narration. Both Kokoro and Qwen3 versions generated. Files:
+      `outputs/voice_catalog/ensemble2_the_descent.{md,wav}` (Kokoro, 9.5 min) and
+      `outputs/voice_catalog/ensemble2_the_descent_qwen3.{md,wav}` (Qwen3, ~20 min).
+- [x] **Task B (redirected) — play_test.py + GUI mockup: COMPLETE.**
+      `play_test.py` for direct streaming playback. `notes/gui_mockup.html` —
+      interactive HTML mockup of the narrator app UI with simulated story flow
+      (Arie has been iterating on this).
+- [x] **Task C — Input parser: COMPLETE.** `narrator_parser.py` — model-agnostic
+      text preprocessing that parses speaker tags, emotion cues, and pause markers
+      into Segment objects. `test_parser.py` — 41/41 tests passing.
+      (Arie made small fixes: multiple-space collapse, dialogue detection for
+      mixed narrator attribution, prefix spacing in format_segments.)
+- [x] **Cleanup: `narrator_parser.py.bak` deleted** (stray backup file, per Sonnet).
+
+### DM-engine research workstreams (per Sonnet's 2026-08-17 scope expansion)
+
+- [x] **Research Task 3 — Ambient audio/music: COMPLETE (expanded with API options).**
+      `notes/audio_ambience_research.md` surveys three approaches:
+      (a) self-hosted generative models (MusicGen, AudioGen, Stable Audio Open,
+      AudioLDM2) — sizes, M1 Max feasibility, licensing; (b) library/loop-based
+      (Tabletop Audio, OpenGameArt, Ivan Duch, Classic Campaign pack, Sonniss GDC);
+      (c) **audio generation APIs** (ElevenLabs SFX/Music, Google Lyria, Stable Audio
+      API, Suno, Udio, Replicate) — pricing, quality, licensing, fit for ambient/SFX.
+      **Recommendation: hybrid — free CC0/CC-BY library tracks for ambient beds +
+      ElevenLabs SFX API for custom one-off stings.** API path is strictly better
+      than self-hosted generative for our use case (no download, no MPS risk,
+      commercial license, ~$1-5 one-time for a full generated library cached forever).
+      Arie's feedback on v1 demo: synthesized beds "sound like white noise, not
+      ambience" — v2 demo uses real library tracks instead.
+- [x] **Ambience demo v1: COMPLETE but Arie rejected.** `make_ambience_demo.py`
+      synthesized 3 procedural ambient beds (tavern, forest, tense-marsh) with
+      numpy/scipy. Arie: "they all sound like white noise or just background noise,
+      not ambience or specific story related sounds. Not feasible."
+- [x] **Ambience demo v2: COMPLETE — real library tracks.** `make_ambience_demo_v2.py`
+      layers 3 actual royalty-free music tracks from OpenGameArt (CC0 + CC-BY) under
+      existing Kokoro narration with side-chain ducking. Tracks downloaded (~10 MB,
+      not model downloads): "The Old Tower Inn" (CC0, tavern), "RPG Ambient 4 The
+      Dark Woods" (CC-BY, tense strings — matches the marsh narration), "Loopable
+      Dungeon Ambience" (CC0, wind + drips). Outputs: `v2_dark_woods.wav`,
+      `v2_dungeon.wav`, `v2_tavern.wav` in `outputs/ambience_demo/`.
+- [ ] **Research Task 1 — AI-DM competitor architecture:** NOT STARTED this session.
+- [ ] **Research Task 2 — Local LLM feasibility for DM duty:** NOT STARTED this session.
+- [ ] **Research Task 4 — Read CAMPAIGN-CONFIG-DRAFT.md as lens for Task 1:** NOT STARTED.
+
+### Downloads flagged for Arie / download assistant (NOT downloaded this session)
+
+Per instructions, no large downloads without asking. To hands-on test the generative
+ambience path later, one of these would be needed (recommend NOT downloading yet —
+library path is clearly better for v1, and the demo lets Arie hear the concept free):
+
+| Model | Size | Why | Risk |
+|---|---|---|---|
+| `facebook/audiogen-medium` | ~3.6 GB | Test generative ambience/SFX | CC-BY-NC; ~0.3-0.4x realtime on M1 Max |
+| `stabilityai/stable-audio-open-small` | ~1.5 GB | Most-permissive generative option | **M1/M2 MPS accuracy issues reported** |
+| `facebook/musicgen-small` | ~1.2 GB | Test generative music stings | CC-BY-NC; lowest quality variant |
 
 ## Test scripts
 
@@ -159,7 +227,7 @@ is the model he wants to use and just needs the pipeline improved. If Qwen3-TTS
 tests significantly better, this becomes moot. Recommend: test Qwen3-TTS first,
 then decide.
 
-### 3. Qwen3-TTS VoiceDesign API (RESOLVED — mlx-audio path found)
+### 3. Qwen3-TTS VoiceDesign API (RESOLVED — tested and working)
 
 **Finding:** mlx-audio 0.4.8 supports Qwen3-TTS VoiceDesign natively via the
 `instruct` parameter in `generate_audio()`. The model type is detected from config
@@ -167,26 +235,27 @@ then decide.
 language voice description. No PyTorch/MPS debugging needed — MLX/Metal handles
 acceleration.
 
-**Model chosen:** `mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit` (3.08 GB)
-— best quality-to-size ratio for Arie's 5G connection.
+**Model used:** `mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit` (3.08 GB),
+downloaded manually via curl to `glm-work/models/qwen3_voicedesign_8bit/` (local
+path, not HF cache — avoids re-download due to mlx-audio's get_model_path() only
+treating strings starting with `.`, `/`, or `~` as local paths).
 
-**API confirmed working (from source inspection):**
+**API confirmed working:**
 ```python
 from mlx_audio.tts import load_model
 from mlx_audio.tts.generate import generate_audio
-model = load_model("mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit")
-generate_audio(text="...", model=model, instruct="A calm, warm female narrator...", lang_code="en")
+model = load_model("models/qwen3_voicedesign_8bit")  # local path
+generate_audio(text="...", model=model, instruct="A calm, warm female narrator...",
+               lang_code="en", max_tokens=2400)  # 2400 for long-form
 ```
 
-**What I still need to verify (after download completes):**
-- Voice consistency across multiple calls (does the same description produce the
-  same voice?)
-- Quality of multi-voice stitching (S1/S2 with different descriptions)
-- Real-time factor on M1 Max with 8-bit quantization
-
-**Cost sensitivity:** No smarter-model call needed unless the MLX path fails
-unexpectedly. Per Sonnet's instruction, fall back to PyTorch/MPS only if MLX
-fails and I can't debug it within ~30 min.
+**Results (in RESULTS.md):**
+- Real-time factor: 2.3-2.5x (slower than Kokoro's 5-7x but usable)
+- Peak memory: ~21 GB for long-form (fits in 32 GB)
+- S1/S2 voice descriptions produce clearly different voices
+- Long-form: 192s audio in one call with max_tokens=2400
+- Output files have _000 suffix (handled in script)
+- Also generated ensemble story #2 with Qwen3 voices (~20 min audio)
 
 ### Template for when I get stuck
 
@@ -207,3 +276,122 @@ fails and I can't debug it within ~30 min.
 - Arie's docs (`docs/`, `README.md`) and any other LLM's working folders are
   **off-limits** for editing. Read them, don't write them.
 - All my outputs (audio, logs, notes) stay under `glm-work/`.
+
+---
+
+## Narrator v0 — Merged App (2026-08-19)
+
+**Status: BUILT and tested end-to-end. Ready for Arie's real play session.**
+
+Per Sonnet's instructions (`sonnet-work/INSTRUCTIONS-FOR-GLM.md` update 2026-08-19)
+and `docs/V0-PLAN.md`, I merged the proven pieces into a single working app:
+
+```
+Player types action → DM brain (LLM) → rules lawyer validates →
+narration pipeline (Qwen3 TTS + SFX + music) → audio plays in browser →
+player sees suggestions, types next action
+```
+
+### Files created
+
+| File | Purpose |
+|------|---------|
+| `narrator_v0/__init__.py` | Package init |
+| `narrator_v0/config.py` | All config: paths, voices, music, SFX, DM brain settings |
+| `narrator_v0/cast.json` | Character → voice description mappings (editable by Arie) |
+| `narrator_v0/dm_engine.py` | GameState + rules lawyer + extended system prompt with [AUDIO] section |
+| `narrator_v0/audio_pipeline.py` | Qwen3 TTS + SFX placement + music ducking → mixed WAV |
+| `narrator_v0/app.py` | Web server with audio generation + playback |
+| `narrator_v0/run_trickster.py` | Standing adversarial test (10 cheating attempts) |
+
+### What it does
+
+1. **DM brain**: Gemini 3.5 Flash-Lite (Arie's pick, best value) via Google AI Studio
+   free tier. Auto-detects provider from model name. Also supports Groq, SambaNova,
+   Cerebras, OpenRouter.
+2. **Rules lawyer**: deterministic Python state engine from `test_api_dm.py` —
+   validates all [MECHANICS] tags against actual game state. Catches cheating.
+3. **Extended system prompt**: adds a 5th section `[AUDIO]` to the DM response —
+   structured data for the narration pipeline:
+   - `[narrator] text` → narrator TTS
+   - `[CharName] "dialogue"` → character TTS
+   - `[SFX: key]` → sound effect
+   - `[SCENE: mood]` → music track selection
+4. **Audio pipeline**: Qwen3 VoiceDesign for ALL voices (per Arie's feedback:
+   "if we can run everything fast enough on qwen3, it is preferrable"). Imports
+   proven audio functions from `produce_demos_v2.py` (strip silence, SFX in gaps
+   with no voice overlap, music ducking with narrator vs character volume).
+5. **SFX**: cached ElevenLabs + new API calls + procedural fallback. Per Arie's
+   decision: "B + C" (cached + new API + free library support).
+6. **Music**: 9 CC0/CC-BY tracks mapped to scene moods (combat, tense, horror,
+   mystery, exploration, tavern, emotional, victory). Different volume during
+   narrator vs character dialogue (per Arie's audiobook research request).
+7. **Web GUI**: extends `serve_dm_web.py` with audio playback bar. Audio generates
+   in background thread; browser polls for status and shows player when ready.
+   Autoplay toggle, dice roller, suggestion buttons, live state sidebar.
+
+### How to run
+
+```bash
+cd glm-work
+source .venv/bin/activate
+
+# With audio (default — loads Qwen3 model on first turn):
+python -m narrator_v0.app --model gemini-3.5-flash-lite
+python -m narrator_v0.app --model openai/gpt-oss-120b --provider groq
+
+# Text-only mode (for quick testing without TTS):
+python -m narrator_v0.app --no-audio
+
+# Run trickster adversarial test:
+python -m narrator_v0.run_trickster --model gemini-3.5-flash-lite --save
+```
+
+Then open `http://localhost:5000` (or whichever port you set).
+
+**Note:** Port 5000 conflicts with macOS AirPlay Receiver. Use `--port 5102`
+or similar.
+
+### Test results (2026-08-19)
+
+- **Text-only mode**: DM brain + rules lawyer + web GUI all working. Gemini 3.5
+  Flash-Lite generates all 5 sections including [AUDIO].
+- **Full audio mode**: End-to-end pipeline tested. A combat turn produced 208s
+  of narration (10MB WAV) with Qwen3 TTS + SFX + music. Generation took ~70s
+  (~3x real-time factor, matching Qwen3's expected performance).
+- **Mock audio test**: A short 4-segment [AUDIO] section produced 16.4s of audio
+  in 14.9s (0.9x RTF). SFX placed in gaps, no voice overlap. Music ducking
+  working with narrator vs character volume difference.
+- **Trickster test**: `run_trickster.py` imports the proven 10-scenario suite
+  from `test_trickster.py` and runs it against the v0 system prompt. Ready to
+  run before a real play session.
+
+### Decisions made (per Arie's input)
+
+- **SFX**: Cached ElevenLabs + new API calls + free library support (Arie: "B + C")
+- **TTS**: Qwen3 VoiceDesign for all voices (Arie: "C if possible for live
+  generation, if it proves too slow or no fix for drifting voices, we can
+  reassess later")
+- **Audio generation**: Live per-turn (Arie: "live generation, if it proves too
+  slow or breaks immersion, we'll reassess")
+- **DM brain**: Gemini 3.5 Flash-Lite (Arie's default in serve_dm_web.py)
+- **Port**: Avoid 5000 (macOS AirPlay conflict)
+
+### Known limitations / next steps
+
+1. **Audio generation time**: ~70s for a long turn (208s audio). This may break
+   immersion for fast back-and-forth turns. Arie will assess during real play.
+2. **Qwen3 voice drifting**: Arie flagged concern about voice drifting over
+   time. Not yet addressed — needs research into reference audio / voice cloning
+   with Qwen3.
+3. **Music transitions within a turn**: Currently uses one track per turn based
+   on [SCENE: mood]. Multi-track transitions within a turn (like
+   `produce_demos_v2.py` does) not yet implemented for live play.
+4. **Cast management**: New NPCs get a default voice based on gender detection.
+   Arie can edit `cast.json` to add specific voices. No automatic LLM-based
+   voice assignment yet.
+5. **No campaign save/load**: State is in-memory only. A page refresh starts a
+   new game. Adding save/load is a natural next step.
+6. **Trickster test not yet run against v0 prompt**: The script is ready but
+   hasn't been executed with the v0 system prompt (which adds [AUDIO]). Run it
+   before a real play session.

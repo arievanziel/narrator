@@ -1,0 +1,47 @@
+{
+  "model": "gemini-3.7-flash",
+  "provider": "gemini",
+  "turns": [
+    {
+      "turn": 1,
+      "player_input": "I push open the tavern door and step inside, hand on my sword hilt.",
+      "narrative": "The heavy oak door of The Rusty Anchor groans on rusted hinges as you push it open. Inside, the tavern is in disarray. Overturned benches and shattered clay mugs litter the floorboards, and the sour stench of spilled ale mingles with the smoke of guttering tallow candles.\n\nBehind the bar counter, a wiry goblin scout freezes with its hands buried in the tavern keep's coin lockbox. A second goblin, bulkier and clad in mismatched scrap leather, stands atop a table, kicking aside broken bottles. At ",
+      "mechanics": "ROLL_REQUEST:1d20+1 for Initiative",
+      "suggestions": "- Draw your longsword and charge the Goblin Raider [roll:true]\n- Shout a thunderous challenge to intimidate them into hesitating [roll:true]\n- Raise your shield in the doorway to hold a defensive choke point [roll:false]",
+      "chronicle": "Kael entered The Rusty Anchor and confronted two looting goblins.",
+      "state_changes": [
+        "  [Roll requested] 1d20+1 for Initiative"
+      ],
+      "issues": [],
+      "elapsed": 81.47,
+      "tokens": {
+        "prompt_tokens": 888,
+        "completion_tokens": 291,
+        "total_tokens": 1854
+      }
+    },
+    {
+      "turn": 2,
+      "error": "Error code: 503 - [{'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}]"
+    }
+  ],
+  "final_state": {
+    "pc_hp": "12/12",
+    "inventory": [
+      "Health Potion",
+      "Torch",
+      "Waterskin",
+      "50 feet of rope"
+    ],
+    "enemies": [
+      "Goblin Scout (7/7 HP, AC 15)",
+      "Goblin Raider (7/7 HP, AC 15)"
+    ],
+    "chronicle": []
+  },
+  "issues": [
+    "Turn 2 API error: Error code: 503 - [{'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}]"
+  ],
+  "total_tokens": 1854,
+  "total_time": 81.46856498718262
+}

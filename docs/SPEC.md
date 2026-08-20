@@ -22,10 +22,18 @@ Any voice layer has to be a separate TTS component.
 
 ## Current status
 
+**2026-08-17 update:** the project scope has expanded beyond TTS testing — see
+`docs/PROJECT-ROADMAP.md` (maintained by Sonnet) for the full current picture. Phase 1
+TTS testing (below) continues, but the actual bottleneck is now the **DM engine**: the
+app needs to run the DM itself (world/character/inventory tracking, dice, NPCs), not
+just narrate text Arie pastes in from a separate Claude chat. This supersedes the
+"Input source" constraint below, which described the old, narrower scope.
+
 We are in **Phase 1** (see `docs/PHASE_1_TESTING.md`): setting up local testing of
 several candidate TTS models on Arie's M1 Max, before any commitment to building an
 actual app. No app should be built until Arie reviews Phase 1 results and picks a
-direction.
+direction. TTS Phase 1 continues in parallel with the new DM-engine research — it is
+no longer the only current-phase task, but it isn't abandoned either.
 
 ## Long-term vision (context, not a current-phase task)
 
@@ -44,14 +52,20 @@ commercial features now — that would be premature.
   — treat it as non-negotiable unless Arie says otherwise directly to you.
 - **Budget:** ideally free or near-free (self-hosted). Paid cloud GPU rental for heavier
   models is a possible fallback but should be treated as a real ongoing cost to flag, not
-  a default.
+  a default. **This applies to the DM-engine model choice too** (confirmed 2026-08-17):
+  Arie wants to stay near the original ~€10/month total, which pushes hard toward a
+  local/offline LLM for the DM brain rather than a paid API (Claude/GPT-5), unless local
+  models prove clearly not good enough for DMing quality — see `docs/PROJECT-ROADMAP.md`.
 - **Hardware:** primary dev/runtime target is Arie's MacBook M1 Max (Apple Silicon, no
   CUDA). Assume no Nvidia GPU is available locally. Devin has full access to this machine.
 - **Volume:** target usage is potentially heavy — up to ~3 hours/day of narration. Model
   choice and architecture should keep this realistic, not just work for short demo clips.
-- **Input source:** narration text comes from a Claude conversation, pasted in manually by
-  Arie (copy from chat, paste into the tool). No live API integration with Claude is in
-  scope right now — assume manual paste as the input method unless Arie asks for more.
+- **Input source (SUPERSEDED 2026-08-17 — see `docs/PROJECT-ROADMAP.md`):** originally,
+  narration text came from a separate Claude conversation, pasted in manually. Arie has
+  since expanded scope: the app itself should run the DM (generate narration, track
+  world/character/inventory state, take the player's typed input each turn), not just
+  read aloud externally-authored text. Manual paste is no longer the assumed long-term
+  input method — kept here for history, not as current guidance.
 - **Multi-voice is required, not optional.** Arie wants distinct voices per NPC, not just
   a single narrator voice. Weight this into model evaluation in Phase 1 — note explicitly
   for each model whether/how well it supports multiple distinct, consistent voices in one

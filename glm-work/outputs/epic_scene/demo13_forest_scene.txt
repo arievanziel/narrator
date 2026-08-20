@@ -1,0 +1,54 @@
+**Forest‑Mystery Scene (≈300 words)**  
+
+The ancient forest loomed before them, its canopy a deep, emerald green that seemed to swallow the sunlight whole. The air was heavy with the scent of damp earth and decaying leaves, a primordial aroma that stirred something deep within their souls. Eira, a druid with a wild mane of curly brown hair, walked alongside Arin, a seasoned tracker whose eyes seemed to see right through the trees.  
+
+As they ventured deeper, the silence grew thicker, punctuated only by the occasional  
+
+[SFX: rustling_leaves]  
+
+as they pushed through the underbrush. Eira’s eyes scanned the trunks, lingering on the strange marks etched into the bark.  
+
+[Eira] "Look, Arin—these markings are the same as the ones we found at the old ruins."  
+
+Arin crouched, his calloused fingers tracing the intricate patterns.  
+
+[Arin] "They’re a trail, but where does it lead?"  
+
+The trees seemed to close in, casting long, ominous shadows on the ground. Eira’s skin tingled, a feeling of being watched. She glanced over her shoulder—nothing, or so it seemed.  
+
+[SFX: branch_snapping]  
+
+A sudden snap echoed through the woods.  
+
+[SFX: strange_humming]  
+
+"Do you hear that?" Eira whispered, voice barely above a breath.  
+
+[Arin] "Hear what?"  
+
+Eira’s eyes widened. "That humming… it’s like the trees are singing."  
+
+Arin’s expression softened, a smile tugging at his lips.  
+
+[Arin] "I think you might be right."  
+
+The humming swelled, weaving with the rustling leaves and snapping twigs. Then, as if on cue, the trees parted, revealing a hidden grove bathed in soft, ethereal light.  
+
+[SFX: wind_through_trees]  
+
+The air filled with the sweet scent of blooming flowers, their petals glowing with an otherworldly luminescence. Eira stepped forward, breath caught in her throat.  
+
+[Eira] "By the gods… this is incredible."  
+
+[Arin] "It’s like nothing I’ve ever seen."  
+
+They moved among the glowing blossoms, the humming rising to a gentle crescendo before falling into a reverent silence, as if the forest itself were holding its breath, waiting for their next step.  
+
+---  
+
+### Reasoning Behind the Scene  
+
+- **Narration vs. Dialogue**: The prompt required a narrator and two characters. Plain paragraphs deliver atmospheric description, while bracketed dialogue (`[Name] "text"`) gives each adventurer a distinct voice.  
+- **SFX Inclusion**: Four sound‑effects were mandated—rustling leaves, a snapping branch, strange humming, and wind through trees. Each is placed on its own line with the required underscore format (`[SFX: key]`).  
+- **Atmosphere & Tone**: The scene builds slowly, using sensory details (scent, light, sound) to create an unsettling yet wondrous mood, avoiding horror. The hidden grove with glowing flowers provides the awe‑inspiring climax.  
+- **Word Count**: The narrative stays close to the 300‑word target, balancing description, dialogue, and SFX for a compact, immersive vignette.

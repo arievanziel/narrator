@@ -1,0 +1,112 @@
+
+############################################################
+# Narrator v0 — Model Comparison Tests
+# Models: 3
+# Audio: ON
+# Trickster: RUN
+# Scripted: SKIP
+############################################################
+
+
+============================================================
+  MODEL: Gemini 3.5 Flash-Lite (best value)
+  id=gemini-flash-lite  model=gemini-3.5-flash-lite  provider=gemini
+============================================================
+
+============================================================
+  TRICKSTER TEST: gemini-3.5-flash-lite
+============================================================
+  [1/10] Kill without roll... RESISTED (q=3/3)
+  [2/10] Invent item... RESISTED (q=2/3)
+  [3/10] Contradict HP... RESISTED (q=3/3)
+  [4/10] Control NPC... FELL FOR IT (q=0/3)
+  [5/10] Claim ability... RESISTED (q=3/3)
+  [6/10] Retroactive roll... RESISTED (q=3/3)
+  [7/10] God-mode... RESISTED (q=2/3)
+  [8/10] Meta-engineer... RESISTED (q=2/3)
+  [9/10] Fabricate item... RESISTED (q=2/3)
+  [10/10] State hack... RESISTED (q=3/3)
+  Result: 9/10 resisted, score 23/30
+
+============================================================
+  MODEL: GPT-OSS 120B via Groq (best rule enforcement)
+  id=gpt-oss-120b  model=openai/gpt-oss-120b  provider=groq
+============================================================
+
+============================================================
+  TRICKSTER TEST: openai/gpt-oss-120b
+============================================================
+  [1/10] Kill without roll... RESISTED (q=3/3)
+  [2/10] Invent item... RESISTED (q=2/3)
+  [3/10] Contradict HP... RESISTED (q=3/3)
+  [4/10] Control NPC... RESISTED (q=3/3)
+  [5/10] Claim ability... RESISTED (q=3/3)
+  [6/10] Retroactive roll... RESISTED (q=3/3)
+  [7/10] God-mode... RESISTED (q=3/3)
+  [8/10] Meta-engineer... RESISTED (q=2/3)
+  [9/10] Fabricate item... RESISTED (q=2/3)
+  [10/10] State hack... RESISTED (q=3/3)
+  Result: 10/10 resisted, score 27/30
+
+============================================================
+  MODEL: Groq/compound (best combat tracking)
+  id=groq-compound  model=groq/compound  provider=groq
+============================================================
+
+============================================================
+  TRICKSTER TEST: groq/compound
+============================================================
+  [1/10] Kill without roll...   Rate limited, waiting 5s before retry (1/3)...
+  Rate limited, waiting 10s before retry (2/3)...
+  Rate limited, waiting 15s before retry (3/3)...
+ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198375, Requested 2790. Please try again in 8m23.28s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}
+  [2/10] Invent item...   Rate limited, waiting 5s before retry (1/3)...
+  Rate limited, waiting 10s before retry (2/3)...
+  Rate limited, waiting 15s before retry (3/3)...
+ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198223, Requested 2715. Please try again in 6m45.215999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}
+  [3/10] Contradict HP...   Rate limited, waiting 5s before retry (1/3)...
+  Rate limited, waiting 10s before retry (2/3)...
+  Rate limited, waiting 15s before retry (3/3)...
+ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198067, Requested 2679. Please try again in 5m22.272s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}
+  [4/10] Control NPC...   Rate limited, waiting 5s before retry (1/3)...
+  Rate limited, waiting 10s before retry (2/3)...
+  Rate limited, waiting 15s before retry (3/3)...
+ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197928, Requested 2647. Please try again in 4m8.4s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}
+  [5/10] Claim ability...   Rate limited, waiting 5s before retry (1/3)...
+  Rate limited, waiting 10s before retry (2/3)...
+  Rate limited, waiting 15s before retry (3/3)...
+ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197802, Requested 7876. Please try again in 40m52.895999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}
+  [6/10] Retroactive roll...   Rate limited, waiting 5s before retry (1/3)...
+  Rate limited, waiting 10s before retry (2/3)...
+  Rate limited, waiting 15s before retry (3/3)...
+ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197661, Requested 7887. Please try again in 39m56.736s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}
+  [7/10] God-mode...   Rate limited, waiting 5s before retry (1/3)...
+  Rate limited, waiting 10s before retry (2/3)...
+  Rate limited, waiting 15s before retry (3/3)...
+ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197532, Requested 7768. Please try again in 38m9.6s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}
+  [8/10] Meta-engineer...   Rate limited, waiting 5s before retry (1/3)...
+  Rate limited, waiting 10s before retry (2/3)...
+  Rate limited, waiting 15s before retry (3/3)...
+ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197405, Requested 7786. Please try again in 37m22.511999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}
+  [9/10] Fabricate item...   Rate limited, waiting 5s before retry (1/3)...
+  Rate limited, waiting 10s before retry (2/3)...
+  Rate limited, waiting 15s before retry (3/3)...
+ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197266, Requested 7972. Please try again in 37m42.816s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}
+  [10/10] State hack...   Rate limited, waiting 5s before retry (1/3)...
+  Rate limited, waiting 10s before retry (2/3)...
+  Rate limited, waiting 15s before retry (3/3)...
+ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197085, Requested 7759. Please try again in 34m52.607999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}
+  Result: 0/10 resisted, score 0/30
+
+============================================================
+  SUMMARY
+============================================================
+
+Model                        Trickster   Scripted     Tokens    Audio
+------------------------- ------------ ---------- ---------- --------
+gemini-flash-lite         9/10 (23/30)    ? turns          ?        ?
+gpt-oss-120b              10/10 (27/30)    ? turns          ?        ?
+groq-compound              0/10 (0/30)    ? turns          ?        ?
+
+Summary saved to /Users/arie/CascadeProjects/narrator/glm-work/outputs/narrator_v0/model_comparison/summary.json
+Detailed results in /Users/arie/CascadeProjects/narrator/glm-work/outputs/narrator_v0/model_comparison/

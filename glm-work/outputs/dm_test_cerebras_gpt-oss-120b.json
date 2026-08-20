@@ -1,0 +1,29 @@
+{
+  "model": "gpt-oss-120b",
+  "provider": "cerebras",
+  "turns": [
+    {
+      "turn": 1,
+      "error": "Error code: 402 - {'message': 'Payment required to access this resource. Visit your billing tab.', 'type': 'payment_required_error', 'param': 'quota', 'code': 'payment_required'}"
+    }
+  ],
+  "final_state": {
+    "pc_hp": "12/12",
+    "inventory": [
+      "Health Potion",
+      "Torch",
+      "Waterskin",
+      "50 feet of rope"
+    ],
+    "enemies": [
+      "Goblin Scout (7/7 HP, AC 15)",
+      "Goblin Raider (7/7 HP, AC 15)"
+    ],
+    "chronicle": []
+  },
+  "issues": [
+    "Turn 1 API error: Error code: 402 - {'message': 'Payment required to access this resource. Visit your billing tab.', 'type': 'payment_required_error', 'param': 'quota', 'code': 'payment_required'}"
+  ],
+  "total_tokens": 0,
+  "total_time": 0
+}

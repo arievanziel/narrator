@@ -37,9 +37,9 @@ research, and the full repository is ~13.9 GB. Can be added later if needed.
 
 | Model | Voice | Audio (s) | Gen time (s) | Real-time factor | UTMOSv2 MOS |
 |-------|-------|-----------|-------------|-----------------|-------------|
-| Kokoro (PyTorch) | af_heart | 30.75 | 5.28 | 5.8x | _pending_ |
+| Kokoro (PyTorch) | af_heart | 30.75 | 5.28 | 5.8x | 3.88 |
 | Kokoro (MLX) | af_heart | _pending_ | _pending_ | _pending_ | _pending_ |
-| Qwen3-TTS VoiceDesign | narrator desc | 44.80 | 18.55 | 2.4x | _pending_ |
+| Qwen3-TTS VoiceDesign | narrator desc | 44.80 | 18.55 | 2.4x | 3.80 |
 | Dia-1.6B | [S1] | _pending_ | _pending_ | _pending_ | _pending_ |
 | Higgs Audio V2 | smart voice | _pending_ | _pending_ | _pending_ | _pending_ |
 
@@ -47,9 +47,9 @@ research, and the full repository is ~13.9 GB. Can be added later if needed.
 
 | Model | Voice | Audio (s) | Gen time (s) | Real-time factor | UTMOSv2 MOS |
 |-------|-------|-----------|-------------|-----------------|-------------|
-| Kokoro (PyTorch) | af_heart | 26.20 | 3.85 | 6.8x | _pending_ |
+| Kokoro (PyTorch) | af_heart | 26.20 | 3.85 | 6.8x | 3.42 |
 | Kokoro (MLX) | af_heart | _pending_ | _pending_ | _pending_ | _pending_ |
-| Qwen3-TTS VoiceDesign | narrator desc | 46.32 | 20.03 | 2.3x | _pending_ |
+| Qwen3-TTS VoiceDesign | narrator desc | 46.32 | 20.03 | 2.3x | 3.38 |
 | Dia-1.6B | [S1] (native tags) | _pending_ | _pending_ | _pending_ | _pending_ |
 | Higgs Audio V2 | smart voice | _pending_ | _pending_ | _pending_ | _pending_ |
 
@@ -57,9 +57,9 @@ research, and the full repository is ~13.9 GB. Can be added later if needed.
 
 | Model | Voices | Audio (s) | Gen time (s) | Real-time factor | UTMOSv2 MOS |
 |-------|--------|-----------|-------------|-----------------|-------------|
-| Kokoro (PyTorch) | af_heart + am_michael | 35.45 | 8.16 | 4.3x | _pending_ |
+| Kokoro (PyTorch) | af_heart + am_michael | 35.45 | 8.16 | 4.3x | 3.70 |
 | Kokoro (MLX) | af_heart + am_michael | _pending_ | _pending_ | _pending_ | _pending_ |
-| Qwen3-TTS VoiceDesign | S1 desc + S2 desc | 46.64 | 19.53 | 2.4x | _pending_ |
+| Qwen3-TTS VoiceDesign | S1 desc + S2 desc | 46.64 | 19.53 | 2.4x | 3.29 |
 | Dia-1.6B | [S1]+[S2] native | _pending_ | _pending_ | _pending_ | _pending_ |
 | Higgs Audio V2 | smart voice (no cloning) | _pending_ | _pending_ | _pending_ | _pending_ |
 
@@ -67,9 +67,9 @@ research, and the full repository is ~13.9 GB. Can be added later if needed.
 
 | Model | Voice | Audio (s) | Gen time (s) | Real-time factor | UTMOSv2 MOS |
 |-------|-------|-----------|-------------|-----------------|-------------|
-| Kokoro (PyTorch) | af_heart | 154.82 | 22.71 | 6.8x | _pending_ |
+| Kokoro (PyTorch) | af_heart | 154.82 | 22.71 | 6.8x | 3.60 |
 | Kokoro (MLX) | af_heart | _pending_ | _pending_ | _pending_ | _pending_ |
-| Qwen3-TTS VoiceDesign | narrator desc | 192.00 | 77.50 | 2.5x | _pending_ |
+| Qwen3-TTS VoiceDesign | narrator desc | 192.00 | 77.50 | 2.5x | 3.81 |
 | Dia-1.6B | [S1] | _pending_ | _pending_ | _pending_ | _pending_ |
 | Higgs Audio V2 | smart voice | _pending_ | _pending_ | _pending_ | _pending_ |
 
@@ -175,7 +175,27 @@ All WAV outputs are in `glm-work/outputs/`:
 UTMOSv2 predicts a Mean Opinion Score (MOS) from 1.0 to 5.0 for synthetic speech
 naturalness. The multivoice project uses 3.5 as the "acceptable" threshold.
 
-_pending_ — UTMOSv2 model downloading, will score all outputs once ready.
+Scored 2026-08-18. UTMOSv2 model: `fold0_s42_best_model.pth` (818 MB), run on CPU.
+
+| Model | Test 1 (single) | Test 2a (multi, 1 voice) | Test 2b (multi, 2 voices) | Test 3 (long form) | Average |
+|-------|:---:|:---:|:---:|:---:|:---:|
+| Kokoro (PyTorch) | 3.88 | 3.42 | 3.70 | 3.60 | 3.65 |
+| Qwen3-TTS VoiceDesign | 3.80 | 3.38 | 3.29 | 3.81 | 3.57 |
+
+**Observations:**
+- Both models score in the 3.3-3.9 range — above the multivoice project's 3.5 "acceptable"
+  threshold for most tests, but not dramatically.
+- Kokoro scores slightly higher on average (3.65 vs 3.57), driven by the single-speaker
+  test (3.88). This is surprising given Kokoro is 40x smaller — UTMOSv2 may favor the
+  clearer, more "standard TTS" sound of Kokoro over Qwen3's more expressive but less
+  conventional prosody.
+- Qwen3's lowest score (3.29) is the multi-speaker two-voice test — the stitched
+  S1/S2 segments may create artifacts that UTMOSv2 penalizes.
+- Qwen3's long-form score (3.81) is its highest, suggesting the model maintains quality
+  over longer passages.
+- **Caveat:** UTMOSv2 measures naturalness, not expressiveness or voice distinctness.
+  Arie's subjective listening is the real quality bar — these scores are a complement,
+  not a substitute.
 
 ---
 

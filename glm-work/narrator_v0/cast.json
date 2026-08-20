@@ -1,0 +1,10 @@
+{
+  "_comment": "Character voice assignments for Narrator v0. Edit this file to add/modify character voices. Each entry maps a character name (as it appears in [Name] dialogue tags) to a Qwen3 VoiceDesign description. New NPCs not in this file get a default voice based on gender detection.",
+  "narrator": "A skilled storyteller with a warm, measured voice. Speaks at a steady pace with clear enunciation and subtle emotional inflection. Like a professional audiobook narrator — engaging but not theatrical, letting the words carry the weight.",
+  "Kael": "A grizzled veteran warrior with a deep, gravelly voice. Speaks in short, clipped sentences. Battle-hardened and world-weary, but not without warmth.",
+  "Lyra": "A young mage with a bright, curious voice. Slightly higher pitch, speaking with eager intelligence. Quick to excitement when discussing magic or lore.",
+  "_defaults": {
+    "male": "A male character voice, natural and conversational. Not reading text aloud — speaking as the character in the moment. Adapts tone to the situation.",
+    "female": "A female character voice, natural and conversational. Not reading text aloud — speaking as the character in the moment. Adapts tone to the situation."
+  }
+}

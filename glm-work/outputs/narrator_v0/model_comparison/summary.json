@@ -1,0 +1,32 @@
+{
+  "gemini-flash-lite": {
+    "label": "Gemini 3.5 Flash-Lite (best value)",
+    "model": "gemini-3.5-flash-lite",
+    "provider": "gemini",
+    "trickster": {
+      "resisted": 9,
+      "score": 23,
+      "errors": 0
+    }
+  },
+  "gpt-oss-120b": {
+    "label": "GPT-OSS 120B via Groq (best rule enforcement)",
+    "model": "openai/gpt-oss-120b",
+    "provider": "groq",
+    "trickster": {
+      "resisted": 10,
+      "score": 27,
+      "errors": 0
+    }
+  },
+  "groq-compound": {
+    "label": "Groq/compound (best combat tracking)",
+    "model": "groq/compound",
+    "provider": "groq",
+    "trickster": {
+      "resisted": 0,
+      "score": 0,
+      "errors": 10
+    }
+  }
+}

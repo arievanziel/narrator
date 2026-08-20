@@ -1,0 +1,66 @@
+{
+  "model": "groq/compound",
+  "provider": "groq",
+  "turns": [
+    {
+      "turn": 1,
+      "player_input": "I push open the tavern door and step inside, hand on my sword hilt. The air smells of stale ale and smoke.",
+      "narrative": "As you push open the creaky tavern door and step inside, the warm glow of candles and the murmur of hushed conversations envelop you. The air is thick with the smell of stale ale and smoke, making your eyes water slightly. The patrons are a mix of locals and travelers, all casting wary glances your way. You notice a group of dwarves in the corner, their faces stern and serious, while a lone figure sits at the bar, hood up and face obscured. Behind the bar, the barkeep polishes a mug with a dirty apron, eyeing you with a mixture of curiosity and caution. Your hand on the hilt of your sword seems to draw more attention, and the room falls silent for a moment, as if everyone is waiting to see what you'll do next.",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Approach the bar and order a drink [roll:false]\n- Head towards the group of dwarves to strike up a conversation [roll:false]\n- Try to get a better look at the hooded figure at the bar [roll:false]",
+      "chronicle": "Kael enters The Rusty Anchor tavern\n\n[AUDIO]\n[narrator] \"As you push open the creaky tavern door and step inside, the warm glow of candles and the murmur of hushed conversations envelop you. The air is thick with the smell of stale ale and smoke, making your eyes water slightly.\"\n[SCENE: tavern]\n[SFX: door_open]",
+      "audio_text": "[narrator] \"As you push open the creaky tavern door and step inside, the warm glow of candles and the murmur of hushed conversations envelop you. The air is thick with the smell of stale ale and smoke, making your eyes water slightly.\"\n[SCENE: tavern]\n[SFX: door_open]",
+      "state_changes": [],
+      "elapsed": 3.01,
+      "tokens": 5496,
+      "audio_path": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/narrator_v0/groq-compound_turn_001.wav"
+    },
+    {
+      "turn": 2,
+      "player_input": "I draw my longsword and challenge the goblins. 'Stand and fight, creatures!' I roll a 15 for my attack on the goblin scout.",
+      "narrative": "Your voice booms across the dim tavern, and the two goblins snap to attention, eyes narrowing as they grip their crude weapons. The goblin scout steps forward, snarling, and you swing your longsword with practiced confidence. Adding your +5 attack bonus to your roll of 15 gives you a total of 20, easily surpassing the scout\u2019s AC of 15. The blade arcs through the candlelit air and finds its mark, striking the goblin squarely in the chest. The creature reels from the blow, its armor clanking, but it\u2019s still standing\u2014your sword has wounded it, and the next strike could be decisive.",
+      "mechanics": "ROLL_REQUEST:1d8+3 for damage",
+      "suggestions": "- Roll the damage for your hit on the Goblin Scout [roll:true]\n- Follow up with an attack on the Goblin Raider while the scout is reeling [roll:true]\n- Attempt to intimidate the remaining patrons to keep the tavern from turning chaotic [roll:true]",
+      "chronicle": "NO_ENTRY\n\n[AUDIO]\n[narrator] \"Your voice booms across the dim tavern, and the two goblins snap to attention, eyes narrowing as they grip their crude weapons.\"\n[SFX: sword_draw]\n[narrator] \"You swing your longsword with practiced confidence, adding your +5 attack bonus to your roll of 15 for a total of 20, easily surpassing the scout\u2019s AC of 15.\"\n[SFX: sword_hit]\n[narrator] \"The blade arcs through the candlelit air and finds its mark, striking the goblin squarely in the chest. The creature reels from the blow, its armor clanking, but it\u2019s still standing.\"\n[SCENE: combat]",
+      "audio_text": "[narrator] \"Your voice booms across the dim tavern, and the two goblins snap to attention, eyes narrowing as they grip their crude weapons.\"\n[SFX: sword_draw]\n[narrator] \"You swing your longsword with practiced confidence, adding your +5 attack bonus to your roll of 15 for a total of 20, easily surpassing the scout\u2019s AC of 15.\"\n[SFX: sword_hit]\n[narrator] \"The blade arcs through the candlelit air and finds its mark, striking the goblin squarely in the chest. The creature reels from the blow, its armor clanking, but it\u2019s still standing.\"\n[SCENE: combat]",
+      "state_changes": [
+        "  [Roll requested] 1d8+3 for damage"
+      ],
+      "elapsed": 6.13,
+      "tokens": 9403,
+      "audio_path": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/narrator_v0/groq-compound_turn_002.wav"
+    },
+    {
+      "turn": 3,
+      "player_input": "The goblin raider swings at me \u2014 go ahead and roll for it. Then I want to use my Health Potion if I'm hurt.",
+      "narrative": "The goblin raider lunges forward, spear tipped with a jagged iron point, and thrusts at you with surprising speed. Its attack roll of 13 plus its +4 bonus totals 17, easily surpassing your AC of 16. The spear pierces the edge of your chain mail, dealing a solid blow. You feel a sharp sting as the weapon bites into your side, and you stagger back, your vision briefly blurring. Gritting your teeth, you reach into your pack, uncork the small vial of bright red liquid, and down the health potion in one swift swallow. Warmth spreads through your wounds, knitting flesh and bone together. The pain eases, and you feel your vigor return to its full measure.",
+      "mechanics": "HP_CHANGE:-6\nHP_CHANGE:+6\nITEM_USED:Health Potion\nROLL_REQUEST:1d8+3 for damage",
+      "suggestions": "- Roll the damage for your successful strike against the Goblin Scout [roll:true]\n- Follow up with an attack on the Goblin Raider while it\u2019s still within reach [roll:true]\n- Attempt to rally the tavern patrons to turn the tide against the goblins [roll:false]",
+      "chronicle": "Goblin Raider hits Kael; Kael drinks health potion\n\n[AUDIO]\n[narrator] \"The goblin raider lunges forward, spear tipped with a jagged iron point, and thrusts at you with surprising speed.\"\n[SFX: spear_thrust]\n[narrator] \"Its attack roll of 13 plus its +4 bonus totals 17, easily surpassing your AC of 16.\"\n[SFX: metal_clang]\n[narrator] \"The spear pierces the edge of your chain mail, dealing a solid blow. You feel a sharp sting as the weapon bites into your side.\"\n[SFX: grunt]\n[narrator] \"Gritting your teeth, you uncork the health potion and swallow it in one swift motion.\"\n[SFX: potion_drink]\n[narrator] \"Warmth spreads through your wounds, knitting flesh and bone together. The pain eases, and you feel your vigor return to its full measure.\"\n[SCENE: combat]",
+      "audio_text": "[narrator] \"The goblin raider lunges forward, spear tipped with a jagged iron point, and thrusts at you with surprising speed.\"\n[SFX: spear_thrust]\n[narrator] \"Its attack roll of 13 plus its +4 bonus totals 17, easily surpassing your AC of 16.\"\n[SFX: metal_clang]\n[narrator] \"The spear pierces the edge of your chain mail, dealing a solid blow. You feel a sharp sting as the weapon bites into your side.\"\n[SFX: grunt]\n[narrator] \"Gritting your teeth, you uncork the health potion and swallow it in one swift motion.\"\n[SFX: potion_drink]\n[narrator] \"Warmth spreads through your wounds, knitting flesh and bone together. The pain eases, and you feel your vigor return to its full measure.\"\n[SCENE: combat]",
+      "state_changes": [
+        "  PC HP: 12 -> 6 (-6)",
+        "  PC HP: 6 -> 12 (+6)",
+        "  Used: Health Potion",
+        "  [Roll requested] 1d8+3 for damage"
+      ],
+      "elapsed": 5.31,
+      "tokens": 8478,
+      "audio_path": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/narrator_v0/groq-compound_turn_003.wav"
+    }
+  ],
+  "total_tokens": 23377,
+  "total_time": 14.448991298675537,
+  "final_state": {
+    "pc_hp": "12/12",
+    "inventory": [
+      "Torch",
+      "Waterskin",
+      "50 feet of rope"
+    ],
+    "enemies": [
+      "Goblin Scout (7/7 HP, AC 15)",
+      "Goblin Raider (7/7 HP, AC 15)"
+    ]
+  }
+}

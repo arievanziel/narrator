@@ -1,0 +1,31 @@
+The sun bled red behind the shattered stone arches, and the river below roared with the thunder of an oncoming tide of steel. On the narrow bridge, Commander **Thrain** and Paladin **Eira** stood shoulder‑to‑shoulder, their breaths ragged, their armor dented, the world beyond a sea of foes—one hundred to one.
+
+[SFX: war_horn_blast]
+
+[Thrain] "Warriors of the realm! Hear me! This bridge is the spine of our homeland. If it falls, the darkness will spill into every village, every hearth! Stand with me! Let our shields be the wall that no enemy can breach! For honor, for kin, for the future!"
+
+Eira lifted her gleaming holy symbol, and a pulse of radiant light surged outward, searing the ranks of the oncoming horde.
+
+[Eira] "By the Light, we shall not be broken! Hold fast, and let our courage blaze brighter than their steel!"
+
+The first wave crashed against them, a thunderous surge of iron and blood.
+
+[SFX: shield_wall_impact]
+
+Thrain’s sword sang, cleaving a path through the front line. He turned, eyes blazing, and shouted a final rally.
+
+[Thrain] "Now! Strike as one! Let them feel the fury of a people who will never yield!"
+
+Eira thrust her blessed blade forward, a column of holy fire erupting from the point of impact.
+
+[SFX: heroic_strike]
+
+The enemy commander fell, his banner snapping in the wind. The remaining soldiers faltered, their momentum shattered. With a guttural roar, Thrain and Eira pressed the advantage, driving the invaders back step by step until the bridge was littered with the fallen.
+
+[SFX: victory_cheer]
+
+When the last enemy fled, the bridge stood, scarred but unbroken. Eira slumped, a deep wound gaping in her side, her breath shallow. Thrain knelt beside her, his hand trembling.
+
+[Thrain] "We held it, Eira. The bridge lives because of you."
+
+[Eira] "Then the Light lives with us." Her eyes closed, and a soft halo of light faded into the dusk. Thrain rose alone, the echo of the cheering crowd ringing in his ears—a hard‑won victory, paid for with the greatest sacrifice.

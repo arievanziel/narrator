@@ -1,0 +1,144 @@
+Scripted Play Scenario — openai/gpt-oss-120b
+Provider: groq
+Total time: 6.7s
+Total tokens: 7364
+Final state: {'pc_hp': '12/12', 'inventory': ['Torch', 'Waterskin', '50 feet of rope'], 'enemies': ['Goblin Scout (7/7 HP, AC 15)', 'Goblin Raider (7/7 HP, AC 15)']}
+
+=== Turn 1 ===
+PLAYER: I push open the tavern door and step inside, hand on my sword hilt. The air smells of stale ale and smoke.
+
+[NARRATIVE]
+You push the heavy oak door of the Rusty Anchor, and it groans open with a low creak. The dim candlelight inside flickers across a haze of smoke and spilled ale, casting long shadows over rough wooden tables. At a corner table, two goblins—one lean scout, the other a broader raider—pause their whispered conversation, eyes snapping to the newcomer. Their crude weapons glint faintly, and a momentary tension hangs in the stale air as they size you up.
+
+The tavern’s patrons glance up, some muttering prayers, others reaching for their mugs. The goblin scout, quick on its feet, edges closer to the bar, while the raider leans back, hand hovering over a rusted dagger. Their posture suggests they’re ready for a fight, but they haven’t yet made a move. The scent of burnt wood and cheap ale mixes with the metallic tang of anticipation.
+
+You feel the familiar weight of your longsword at your side, the shield pressing against your arm. The room feels cramped, the wooden beams creaking with each footstep. The goblins await your next action, their eyes narrowing in the candle’s glow.
+
+[MECHANICS]
+NO_MECHANICS
+
+[SUGGESTIONS]
+- Attack the goblin scout with your longsword. [roll:true]
+- Attempt to speak to the goblins, trying to de‑escalate. [roll:false]
+- Take cover behind a nearby table and ready your shield. [roll:false]
+
+[CHRONICLE]
+Entered the Rusty Anchor tavern, confronting two goblins.
+
+[AUDIO]
+[narrator] You push the heavy oak door of the Rusty Anchor, and it groans open with a low creak.
+[SFX: door_open]
+[narrator] Candlelight flickers across a haze of smoke and spilled ale, casting long shadows over rough wooden tables.
+[SFX: footsteps]
+[narrator] Two goblins pause their whispered conversation, eyes snapping to the newcomer.
+[SFX: whisper]
+[narrator] The tavern’s patrons glance up, some muttering prayers, others reaching for their mugs.
+[SFX: glass_clink]
+[narrator] The scent of burnt wood and cheap ale mixes with the metallic tang of anticipation.
+[SCENE: tense]
+
+[AUDIO]
+[narrator] You push the heavy oak door of the Rusty Anchor, and it groans open with a low creak.
+[SFX: door_open]
+[narrator] Candlelight flickers across a haze of smoke and spilled ale, casting long shadows over rough wooden tables.
+[SFX: footsteps]
+[narrator] Two goblins pause their whispered conversation, eyes snapping to the newcomer.
+[SFX: whisper]
+[narrator] The tavern’s patrons glance up, some muttering prayers, others reaching for their mugs.
+[SFX: glass_clink]
+[narrator] The scent of burnt wood and cheap ale mixes with the metallic tang of anticipation.
+[SCENE: tense]
+
+[STATE CHANGES] []
+
+[Time: 2.6s | Tokens: 2060]
+
+=== Turn 2 ===
+PLAYER: I draw my longsword and challenge the goblins. 'Stand and fight, creatures!' I roll a 15 for my attack on the goblin scout.
+
+[NARRATIVE]
+You yank the longsword from its sheath, the metal ringing against the shield as you step forward. “Stand and fight, creatures!” you bellow, voice echoing off the timber walls. With a swift, practiced motion you bring the blade down on the goblin scout. The sword arcs through the smoky air, catching the candlelight, and slams into the goblin’s side with a satisfying clang. The creature reels, a gasp escaping its throat as your weapon finds purchase.
+
+The goblin’s crude armor shudders under the blow, and a thin spray of dark blood stains the tavern floor. It staggers, clutching the wound, while the raider watches, hand tightening around its dagger. The tavern falls silent for a heartbeat, the tension palpable as all eyes fix on the wounded goblin.
+
+[MECHANICS]
+ROLL_REQUEST:1d8 for damage
+
+[SUGGESTIONS]
+- Roll damage for the longsword attack. [roll:true]
+- Follow up with an attack on the goblin raider. [roll:false]
+- Attempt to intimidate the remaining goblin with a fierce warcry. [roll:false]
+
+[CHRONICLE]
+NO_ENTRY
+
+[AUDIO]
+[narrator] You yank the longsword from its sheath, the metal ringing against the shield as you step forward.
+[SFX: sword_clash]
+[narrator] “Stand and fight, creatures!” you bellow, voice echoing off the timber walls.
+[narrator] The blade arcs through the smoky air, catching the candlelight, and slams into the goblin scout’s side with a satisfying clang.
+[SFX: sword_clash]
+[narrator] The goblin reels, a gasp escaping its throat as your weapon finds purchase.
+[SFX: blood_splash]
+[SCENE: tense]
+
+[AUDIO]
+[narrator] You yank the longsword from its sheath, the metal ringing against the shield as you step forward.
+[SFX: sword_clash]
+[narrator] “Stand and fight, creatures!” you bellow, voice echoing off the timber walls.
+[narrator] The blade arcs through the smoky air, catching the candlelight, and slams into the goblin scout’s side with a satisfying clang.
+[SFX: sword_clash]
+[narrator] The goblin reels, a gasp escaping its throat as your weapon finds purchase.
+[SFX: blood_splash]
+[SCENE: tense]
+
+[STATE CHANGES] ['  [Roll requested] 1d8 for damage']
+
+[Time: 1.8s | Tokens: 2363]
+
+=== Turn 3 ===
+PLAYER: The goblin raider swings at me — go ahead and roll for it. Then I want to use my Health Potion if I'm hurt.
+
+[NARRATIVE]
+The goblin raider lunges forward, brandishing a rusted dagger. With a quick thrust, it catches the edge of your shield and slices into your side. The blade bites deep, and a hot rush of pain spreads across your torso as the wound opens. You stagger back, feeling the sting of the dagger’s 1d6+2 damage. Your vision blurs for a moment, but the fight is far from over.
+
+Instinctively, you fumble for the small glass vial tucked in your belt and uncork the health potion. A warm, sweet liquid pours down your throat, and a soothing heat spreads through your wounds. The pain eases as the potion’s magic mends the torn flesh, restoring your vigor. You straighten, the sting fading, ready to press the advantage.
+
+[MECHANICS]
+HP_CHANGE:-6
+HP_CHANGE:+6
+ITEM_USED:Health Potion
+
+[SUGGESTIONS]
+- Attack the goblin raider with your longsword. [roll:true]
+- Finish off the wounded goblin scout. [roll:true]
+- Use your shield to ready a defensive stance, preparing for the next attack. [roll:false]
+
+[CHRONICLE]
+Goblin raider hits Kael for 6 damage; Kael drinks health potion and regains 6 HP.
+
+[AUDIO]
+[narrator] The goblin raider lunges forward, brandishing a rusted dagger.
+[SFX: sword_clash]
+[narrator] With a quick thrust, it catches the edge of your shield and slices into your side.
+[SFX: blood_splash]
+[narrator] The blade bites deep, and a hot rush of pain spreads across your torso.
+[narrator] Instinctively, you fumble for the small glass vial tucked in your belt and uncork the health potion.
+[SFX: potion_drink]
+[narrator] A warm, sweet liquid pours down your throat, and a soothing heat spreads through your wounds.
+[SCENE: tense]
+
+[AUDIO]
+[narrator] The goblin raider lunges forward, brandishing a rusted dagger.
+[SFX: sword_clash]
+[narrator] With a quick thrust, it catches the edge of your shield and slices into your side.
+[SFX: blood_splash]
+[narrator] The blade bites deep, and a hot rush of pain spreads across your torso.
+[narrator] Instinctively, you fumble for the small glass vial tucked in your belt and uncork the health potion.
+[SFX: potion_drink]
+[narrator] A warm, sweet liquid pours down your throat, and a soothing heat spreads through your wounds.
+[SCENE: tense]
+
+[STATE CHANGES] ['  PC HP: 12 -> 6 (-6)', '  PC HP: 6 -> 12 (+6)', '  Used: Health Potion']
+
+[Time: 2.3s | Tokens: 2941]

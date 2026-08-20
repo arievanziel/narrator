@@ -1,0 +1,214 @@
+{
+  "model": "allam-2-7b",
+  "provider": "groq",
+  "turns": [
+    {
+      "turn": 1,
+      "player_input": "I push open the tavern door and step inside, hand on my sword hilt.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 0.91,
+      "tokens": {
+        "prompt_tokens": 1166,
+        "completion_tokens": 510,
+        "total_tokens": 1676
+      }
+    },
+    {
+      "turn": 2,
+      "player_input": "I draw my longsword and attack the nearest goblin. I rolled a 14 on my attack roll.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 0.65,
+      "tokens": {
+        "prompt_tokens": 1710,
+        "completion_tokens": 367,
+        "total_tokens": 2077
+      }
+    },
+    {
+      "turn": 3,
+      "player_input": "I use my bonus action to look around for other threats. I rolled a 12 for Perception.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 14.02,
+      "tokens": {
+        "prompt_tokens": 2106,
+        "completion_tokens": 196,
+        "total_tokens": 2302
+      }
+    },
+    {
+      "turn": 4,
+      "player_input": "The goblin scout swings at me \u2014 go ahead and roll for it, then I'll respond.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 34.78,
+      "tokens": {
+        "prompt_tokens": 2333,
+        "completion_tokens": 49,
+        "total_tokens": 2382
+      }
+    },
+    {
+      "turn": 5,
+      "player_input": "I attack the goblin raider. I rolled a 19 on my attack roll.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 20.41,
+      "tokens": {
+        "prompt_tokens": 2409,
+        "completion_tokens": 93,
+        "total_tokens": 2502
+      }
+    },
+    {
+      "turn": 6,
+      "player_input": "I roll damage for my longsword: 1d8+3 = I got a 5, so 8 damage total.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 25.79,
+      "tokens": {
+        "prompt_tokens": 2537,
+        "completion_tokens": 86,
+        "total_tokens": 2623
+      }
+    },
+    {
+      "turn": 7,
+      "player_input": "I'm hurt. I drink my Health Potion as my action this turn.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 37.3,
+      "tokens": {
+        "prompt_tokens": 2647,
+        "completion_tokens": 195,
+        "total_tokens": 2842
+      }
+    },
+    {
+      "turn": 8,
+      "player_input": "I try to intimidate the surviving goblin into surrendering. I rolled a 10 on Intimidation.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 10.18,
+      "tokens": {
+        "prompt_tokens": 2874,
+        "completion_tokens": 183,
+        "total_tokens": 3057
+      }
+    },
+    {
+      "turn": 9,
+      "player_input": "If the goblin surrenders, I tie it up with my rope and question it about why it attacked.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 27.97,
+      "tokens": {
+        "prompt_tokens": 3088,
+        "completion_tokens": 76,
+        "total_tokens": 3164
+      }
+    },
+    {
+      "turn": 10,
+      "player_input": "I search the bodies of the dead goblins for anything useful.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 28.03,
+      "tokens": {
+        "prompt_tokens": 3185,
+        "completion_tokens": 202,
+        "total_tokens": 3387
+      }
+    }
+  ],
+  "final_state": {
+    "pc_hp": "12/12",
+    "inventory": [
+      "Health Potion",
+      "Torch",
+      "Waterskin",
+      "50 feet of rope"
+    ],
+    "enemies": [
+      "Goblin Scout (7/7 HP, AC 15)",
+      "Goblin Raider (7/7 HP, AC 15)"
+    ],
+    "chronicle": []
+  },
+  "issues": [
+    "Turn 1: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']",
+    "Turn 2: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']",
+    "Turn 3: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']",
+    "Turn 4: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']",
+    "Turn 5: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']",
+    "Turn 6: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']",
+    "Turn 7: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']",
+    "Turn 8: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']",
+    "Turn 9: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']",
+    "Turn 10: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+  ],
+  "total_tokens": 26012,
+  "total_time": 200.03415489196777
+}

@@ -1,0 +1,17 @@
+# API keys — never commit
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Model weights / large files
+glm-work/models/
+
+# venv
+.venv/
+
+# Audio outputs (regenerable, large binary files)
+glm-work/outputs/**/*.wav
+glm-work/outputs/**/*.ogg
+glm-work/outputs/**/*.mp3

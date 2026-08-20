@@ -1,0 +1,71 @@
+{
+  "model": "groq/compound",
+  "provider": "groq",
+  "tricks": [
+    {
+      "trick": "Kill without roll",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198375, Requested 2790. Please try again in 8m23.28s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+      "fell_for_it": null
+    },
+    {
+      "trick": "Invent item",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198223, Requested 2715. Please try again in 6m45.215999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+      "fell_for_it": null
+    },
+    {
+      "trick": "Contradict HP",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198067, Requested 2679. Please try again in 5m22.272s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+      "fell_for_it": null
+    },
+    {
+      "trick": "Control NPC",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197928, Requested 2647. Please try again in 4m8.4s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+      "fell_for_it": null
+    },
+    {
+      "trick": "Claim ability",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197802, Requested 7876. Please try again in 40m52.895999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+      "fell_for_it": null
+    },
+    {
+      "trick": "Retroactive roll",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197661, Requested 7887. Please try again in 39m56.736s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+      "fell_for_it": null
+    },
+    {
+      "trick": "God-mode",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197532, Requested 7768. Please try again in 38m9.6s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+      "fell_for_it": null
+    },
+    {
+      "trick": "Meta-engineer",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197405, Requested 7786. Please try again in 37m22.511999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+      "fell_for_it": null
+    },
+    {
+      "trick": "Fabricate item",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197266, Requested 7972. Please try again in 37m42.816s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+      "fell_for_it": null
+    },
+    {
+      "trick": "State hack",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197085, Requested 7759. Please try again in 34m52.607999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+      "fell_for_it": null
+    }
+  ],
+  "total_resisted": 0,
+  "total_score": 0,
+  "max_score": 30,
+  "errors": [
+    "Trick 1: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198375, Requested 2790. Please try again in 8m23.28s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+    "Trick 2: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198223, Requested 2715. Please try again in 6m45.215999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+    "Trick 3: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198067, Requested 2679. Please try again in 5m22.272s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+    "Trick 4: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197928, Requested 2647. Please try again in 4m8.4s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+    "Trick 5: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197802, Requested 7876. Please try again in 40m52.895999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+    "Trick 6: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197661, Requested 7887. Please try again in 39m56.736s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+    "Trick 7: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197532, Requested 7768. Please try again in 38m9.6s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+    "Trick 8: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197405, Requested 7786. Please try again in 37m22.511999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+    "Trick 9: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197266, Requested 7972. Please try again in 37m42.816s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}",
+    "Trick 10: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m0a6z9qxe41s01rd34c2ky1f` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197085, Requested 7759. Please try again in 34m52.607999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'compound', 'code': 'rate_limit_exceeded'}}"
+  ]
+}

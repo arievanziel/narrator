@@ -1,0 +1,207 @@
+{
+  "model": "gemini-3.6-flash",
+  "provider": "gemini",
+  "turns": [
+    {
+      "turn": 1,
+      "player_input": "I push open the tavern door and step inside, hand on my sword hilt.",
+      "narrative": "The heavy oak door of The Rusty Anchor groans on rusted hinges as you step across the threshold. Inside, the tavern is bathed in flickering, amber candlelight. Overturned stools and shattered ale mugs litter the sawdust floor, smelling faintly of sour brew and old iron. The quiet hum of an evening tavern is nowhere to be found\u2014only the quiet scraping of scavengers.\n\nNear the overturned bar, a squat Goblin Raider is aggressively prying at a locked wooden till with a rusted dagger. On a high table",
+      "mechanics": "ROLL_REQUEST:1d20+1 for Initiative",
+      "suggestions": "- Roll Initiative and draw your longsword to face the goblins head-on. [roll:true]\n- Attempt to roar an intimidating battle cry to rattle them before combat begins. [roll:true]\n- Duck behind the thick oak doorframe for cover as combat starts. [roll:false]",
+      "chronicle": "Kael entered The Rusty Anchor tavern and stumbled upon a Goblin Scout and Raider ransacking the common room.",
+      "state_changes": [
+        "  [Roll requested] 1d20+1 for Initiative"
+      ],
+      "issues": [],
+      "elapsed": 58.0,
+      "tokens": {
+        "prompt_tokens": 888,
+        "completion_tokens": 329,
+        "total_tokens": 1940
+      }
+    },
+    {
+      "turn": 2,
+      "player_input": "I draw my longsword and attack the nearest goblin. I rolled a 14 on my attack roll.",
+      "narrative": "With a rasp of steel on scabbard, you draw your longsword in one fluid motion and close the distance to the nearest enemy, the Goblin Raider by the till. \n\nAdding your proficiency and strength to the swing, your total attack comes out to a 19\u2014easily beating the creature's armor class of 15. The raider snarls and raises its rusted dagger to parry, but your blade slides past its hasty defense, cutting through crude leather scrap armor.\n\nThe Scout on the table shrieks in alarm, drawing its bowstrin",
+      "mechanics": "ROLL_REQUEST:1d8+3 for longsword damage",
+      "suggestions": "- Roll 1d8+3 slashing damage for your longsword strike. [roll:true]\n- Use your bonus action to attempt a shove against the raider after your strike. [roll:true]\n- Keep your shield raised high to prepare for the scout's arrow. [roll:false]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [
+        "  [Roll requested] 1d8+3 for longsword damage"
+      ],
+      "issues": [],
+      "elapsed": 96.62,
+      "tokens": {
+        "prompt_tokens": 1248,
+        "completion_tokens": 235,
+        "total_tokens": 2884
+      }
+    },
+    {
+      "turn": 3,
+      "player_input": "I use my bonus action to look around for other threats. I rolled a 12 for Perception.",
+      "narrative": "As your blade connects with the Goblin Raider, you quickly glance around the shadowy corners of the tavern to make sure no other foes are waiting in ambush. Your quick survey confirms that the shadows hold no additional attackers\u2014only the raider in front of you and the scout crouched on the table are present in the common room.\n\nYour focus snaps instantly back to the melee at hand. Your longsword has bypassed the raider's crude parry and is currently slicing through its leather scrap armor. \n\nNo",
+      "mechanics": "ROLL_REQUEST:1d8+3 for longsword damage",
+      "suggestions": "- Roll 1d8+3 slashing damage for your longsword attack against the Goblin Raider. [roll:true]\n- Prepare to angle your shield against the Scout's incoming bowshot after your strike lands. [roll:false]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [
+        "  [Roll requested] 1d8+3 for longsword damage"
+      ],
+      "issues": [],
+      "elapsed": 27.4,
+      "tokens": {
+        "prompt_tokens": 1508,
+        "completion_tokens": 219,
+        "total_tokens": 2627
+      }
+    },
+    {
+      "turn": 4,
+      "player_input": "The goblin scout swings at me \u2014 go ahead and roll for it, then I'll respond.",
+      "narrative": "The Goblin Scout on the table takes advantage of your moment of distraction. Screeching a battle cry, it looses a crude, black-fletched arrow straight at your chest. The arrow whizzes through the dim tavern light and bites firmly into your shoulder just above the chain mail collar, dealing 4 piercing damage before snapping off.\n\nMeanwhile, the Goblin Raider in front of you winces beneath the force of your longsword blow, its crude armor holding back only part of the strike. The blade has cleaved",
+      "mechanics": "HP_CHANGE:-4\nROLL_REQUEST:1d8+3 for longsword damage",
+      "suggestions": "- Roll 1d8+3 slashing damage for your longsword hit against the Goblin Raider. [roll:true]\n- Use your Second Wind feature as a bonus action to regain 1d10+1 HP. [roll:true]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [
+        "  PC HP: 12 -> 8 (-4)",
+        "  [Roll requested] 1d8+3 for longsword damage"
+      ],
+      "issues": [],
+      "elapsed": 69.14,
+      "tokens": {
+        "prompt_tokens": 1749,
+        "completion_tokens": 273,
+        "total_tokens": 3627
+      }
+    },
+    {
+      "turn": 5,
+      "player_input": "I attack the goblin raider. I rolled a 19 on my attack roll.",
+      "narrative": "Ignoring the sting of the arrow lodged in your shoulder, you drive forward with grim determination. Your longsword flashes through the flickering amber candlelight in a swift, practiced arc, easily bypassing the Goblin Raider's desperate attempt to parry with its rusted dagger.\n\nThe edge of your blade strikes true against the raider's chest, slicing through its crude leather armor with a wet tearing sound. The creature shrieks in pain as it stumbles backward, slamming hard against the wood of th",
+      "mechanics": "ROLL_REQUEST:1d8+3 for longsword damage",
+      "suggestions": "- Roll 1d8+3 slashing damage to see if your attack defeats the Goblin Raider. [roll:true]\n- Use your Second Wind feature as a bonus action to recover lost health (1d10+1 HP). [roll:true]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [
+        "  [Roll requested] 1d8+3 for longsword damage"
+      ],
+      "issues": [],
+      "elapsed": 50.22,
+      "tokens": {
+        "prompt_tokens": 2047,
+        "completion_tokens": 242,
+        "total_tokens": 3095
+      }
+    },
+    {
+      "turn": 6,
+      "player_input": "I roll damage for my longsword: 1d8+3 = I got a 5, so 8 damage total.",
+      "narrative": "Your longsword cleaves cleanly through the raider's crude leather armor. The force of the eight-damage blow drives the blade deep into the creature's chest. With a choked gasp, the Goblin Raider collapses onto the sawdust floor, its rusted dagger clattering harmlessly against the stone hearth. It twitches once and lies still beside the overturned bar.\n\nOn top of the nearby table, the Goblin Scout lets out a furious, high-pitched screech at the death of its comrade. Its yellow eyes burn with desp",
+      "mechanics": "ENEMY_HP:Goblin Raider,0/7\nENEMY_DEAD:Goblin Raider",
+      "suggestions": "- Charge forward and swing your longsword at the Goblin Scout on the table. [roll:true]\n- Use your Second Wind feature to heal before facing the scout (regain 1d10+1 HP). [roll:true]\n- Pick up the overturned table to use as full cover against the scout's bow. [roll:false]",
+      "chronicle": "Kael slew the Goblin Raider with a decisive strike of his longsword.",
+      "state_changes": [
+        "  Goblin Raider HP -> 0/7"
+      ],
+      "issues": [],
+      "elapsed": 27.37,
+      "tokens": {
+        "prompt_tokens": 2312,
+        "completion_tokens": 312,
+        "total_tokens": 3047
+      }
+    },
+    {
+      "turn": 7,
+      "player_input": "I'm hurt. I drink my Health Potion as my action this turn.",
+      "narrative": "Keeping your shield raised to ward off the archer, you reach down to your pouch with your free hand and unstopper the glass vial of glowing crimson liquid. The Goblin Scout on the table shrieks in frustration, drawing its bowstring back to its ear and tracking your movements, searching for a gap in your armor as you pull the cork with your teeth.\n\nYou quickly tip the elixir down your throat. A soothing, pleasant warmth begins spreading instantly through your chest, stitching together the torn fl",
+      "mechanics": "ITEM_USED:Health Potion\nROLL_REQUEST:2d4+2 for potion healing",
+      "suggestions": "- Roll 2d4+2 to determine how many hit points you recover from the potion. [roll:true]\n- Use your bonus action for Second Wind to regain an additional 1d10+1 HP. [roll:true]\n- Duck behind a heavy wooden pillar for cover against the scout's arrow. [roll:false]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [
+        "  Used: Health Potion",
+        "  [Roll requested] 2d4+2 for potion healing"
+      ],
+      "issues": [],
+      "elapsed": 37.67,
+      "tokens": {
+        "prompt_tokens": 2652,
+        "completion_tokens": 271,
+        "total_tokens": 4058
+      }
+    },
+    {
+      "turn": 8,
+      "player_input": "I try to intimidate the surviving goblin into surrendering. I rolled a 10 on Intimidation.",
+      "narrative": "You raise your bloody longsword toward the Goblin Scout, your voice booming through the wreckage of the tavern as you demand its immediate surrender. However, the feral creature's eyes flicker with desperate spite rather than fear. Glancing down at the lifeless body of its partner, the scout spits onto the sawdust floor and snarls, rejecting your ultimatum.\n\nWith a high-pitched screech, the goblin releases its drawn bowstring. The black-fletched arrow zips through the dim amber light, glancing o",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Charge forward and attack the Goblin Scout on the table with your longsword. [roll:true]\n- Attempt to leap onto the table to shove or tackle the scout to the floor. [roll:true]\n- Use your Second Wind feature as a bonus action to recover HP (1d10+1). [roll:true]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 61.17,
+      "tokens": {
+        "prompt_tokens": 2943,
+        "completion_tokens": 285,
+        "total_tokens": 4615
+      }
+    },
+    {
+      "turn": 9,
+      "player_input": "If the goblin surrenders, I tie it up with my rope and question it about why it attacked.",
+      "narrative": "The feral scout shows no intention of surrendering. Far from dropping its weapons, the goblin spat at your feet and fired an arrow directly at your head moments ago. Now, crouched on the table, its yellow eyes burn with vicious malice as it swiftly pulls a third crude arrow from its hip quiver and nocks it to the string.\n\nYour 50 feet of rope remains securely stowed in your pack. The goblin is very much alive, dangerous, and intent on putting an arrow through your chest before you can get anywhe",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Rush forward and strike the Goblin Scout with your longsword to subdue it. [roll:true]\n- Try to grapple or tackle the scout off the table to force it to the ground. [roll:true]\n- Take cover behind an overturned table while deciding your next move. [roll:false]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 14.42,
+      "tokens": {
+        "prompt_tokens": 3235,
+        "completion_tokens": 262,
+        "total_tokens": 4403
+      }
+    },
+    {
+      "turn": 10,
+      "player_input": "I search the bodies of the dead goblins for anything useful.",
+      "narrative": "Turning your back on a living archer to search a corpse is a dangerous gamble. As you kneel in the sawdust beside the slain raider and begin hastily patting down its foul-smelling leather rags, the Goblin Scout on the table cackles with malicious glee at your sudden vulnerability.\n\nWith a sharp *twang*, the scout looses an arrow directly into your exposed flank. The crude shaft bites beneath your armpit where the chain mail leaves a slight gap, dealing 3 piercing damage and sending a sharp jolt ",
+      "mechanics": "HP_CHANGE:-3\nROLL",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [
+        "  PC HP: 8 -> 5 (-3)",
+        "  [unparseable] ROLL"
+      ],
+      "issues": [
+        "Missing sections: ['SUGGESTIONS', 'CHRONICLE']",
+        "Narrative mentions damage but no roll was provided or requested"
+      ],
+      "elapsed": 27.9,
+      "tokens": {
+        "prompt_tokens": 3512,
+        "completion_tokens": 178,
+        "total_tokens": 5508
+      }
+    }
+  ],
+  "final_state": {
+    "pc_hp": "5/12",
+    "inventory": [
+      "Torch",
+      "Waterskin",
+      "50 feet of rope"
+    ],
+    "enemies": [
+      "Goblin Scout (7/7 HP, AC 15)",
+      "Goblin Raider (0/7 HP, AC 15 [DEAD])"
+    ],
+    "chronicle": []
+  },
+  "issues": [
+    "Turn 10: Missing sections: ['SUGGESTIONS', 'CHRONICLE']",
+    "Turn 10: Narrative mentions damage but no roll was provided or requested"
+  ],
+  "total_tokens": 35804,
+  "total_time": 469.920862197876
+}

@@ -1,0 +1,6 @@
+Scripted Play Scenario — gemini-3.5-flash
+Provider: gemini
+Total time: 0.0s
+Total tokens: 0
+Final state: {'pc_hp': '12/12', 'inventory': ['Health Potion', 'Torch', 'Waterskin', '50 feet of rope'], 'enemies': ['Goblin Scout (7/7 HP, AC 15)', 'Goblin Raider (7/7 HP, AC 15)']}
+

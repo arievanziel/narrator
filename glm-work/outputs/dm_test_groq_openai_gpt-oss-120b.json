@@ -1,0 +1,202 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "provider": "groq",
+  "turns": [
+    {
+      "turn": 1,
+      "player_input": "I push open the tavern door and step inside, hand on my sword hilt.",
+      "narrative": "The heavy wooden door creaks as Kael pushes it open, the dim candlelight spilling out to reveal the cramped interior of the Rusty Anchor. The smell of stale ale and wet wood hangs heavy in the air. At a rough\u2011hewn table near the back, two goblin eyes snap open\u2014one a wiry scout, the other a broader raider\u2014both clutching crude daggers. Their heads swivel toward the newcomer, the flicker of the torchlight catching the glint of Kael\u2019s shield as he steps forward, hand resting on the hilt of his longs",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Attack the Goblin Scout with your longsword [roll:true]\n- Intimidate the goblins, demanding they drop their weapons [roll:false]\n- Ready an action to strike as soon as the goblins move [roll:false]",
+      "chronicle": "Kael enters the Rusty Anchor tavern, confronting two goblin foes.",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 1.86,
+      "tokens": {
+        "prompt_tokens": 907,
+        "completion_tokens": 493,
+        "total_tokens": 1400
+      }
+    },
+    {
+      "turn": 2,
+      "player_input": "I draw my longsword and attack the nearest goblin. I rolled a 14 on my attack roll.",
+      "narrative": "Kael's hand flashes as he draws his longsword, the steel catching the dim candlelight. He lunges at the nearest goblin\u2014a wiry scout perched on a stool\u2014bringing the blade down in a swift, practiced arc. The goblin steps back just in time, the blade grazing the edge of its leather armor but failing to find purchase. The goblin hisses, eyes narrowing, and readies its shortbow, while the raider shifts his weight, preparing to meet the fighter's next move.\n\nThe tavern remains silent aside from the fa",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Attack the Goblin Scout again with your longsword [roll:true]\n- Attack the Goblin Raider instead [roll:true]\n- Attempt to grapple the Goblin Scout to disarm it [roll:true]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 1.23,
+      "tokens": {
+        "prompt_tokens": 1243,
+        "completion_tokens": 384,
+        "total_tokens": 1627
+      }
+    },
+    {
+      "turn": 3,
+      "player_input": "I use my bonus action to look around for other threats. I rolled a 12 for Perception.",
+      "narrative": "Kael shifts his weight, using his bonus action to scan the tavern with a practiced eye. The candlelight flickers across the rough wooden beams, revealing only the two goblins already engaged in the standoff. No hidden doors, concealed weapons, or additional foes reveal themselves; the other patrons keep their heads down, eyes wary but unmoving. The dim atmosphere offers no further surprises, and Kael\u2019s attention remains on the immediate threat before him.",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Attack the Goblin Scout again with your longsword [roll:true]\n- Attack the Goblin Raider with your longsword [roll:true]\n- Attempt to grapple the Goblin Scout to restrain it [roll:true]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 1.17,
+      "tokens": {
+        "prompt_tokens": 1499,
+        "completion_tokens": 349,
+        "total_tokens": 1848
+      }
+    },
+    {
+      "turn": 4,
+      "player_input": "The goblin scout swings at me \u2014 go ahead and roll for it, then I'll respond.",
+      "narrative": "The Goblin Scout darts forward, snarling, and swings its rusted short sword at Kael. Rolling a 15 on its attack roll (d20\u202f+\u202f4), it falls just short of the fighter\u2019s shield\u2014Kael\u2019s AC of 16 deflects the blow. The blade clatters against the metal, sending a spray of sparks onto the tavern floor. The goblin snarls in frustration, its eyes flashing with renewed aggression, while the Raider watches, ready to join the fray.",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Attack the Goblin Scout with your longsword [roll:true]\n- Attack the Goblin Raider with your longsword [roll:true]\n- Attempt to grapple the Goblin Scout to restrain it [roll:true]",
+      "chronicle": "Goblin Scout attacks Kael and misses.",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 1.66,
+      "tokens": {
+        "prompt_tokens": 1691,
+        "completion_tokens": 507,
+        "total_tokens": 2198
+      }
+    },
+    {
+      "turn": 5,
+      "player_input": "I attack the goblin raider. I rolled a 19 on my attack roll.",
+      "narrative": "Kael lunges forward, swinging his longsword in a wide arc toward the Goblin Raider. The blade catches the dim candlelight and slashes cleanly across the goblin\u2019s chest, the impact ringing against its leather armor. The Raider staggers back, clutching the wound, clearly wounded but still standing. The tavern\u2019s patrons watch in tense silence, the crackle of the fire the only sound besides the ragged breaths of the combatants.",
+      "mechanics": "ROLL_REQUEST:1d8+3 for Damage",
+      "suggestions": "- Attack the Goblin Raider again with your longsword [roll:true]\n- Attack the Goblin Scout now that the Raider is wounded [roll:true]\n- Attempt to grapple the Goblin Raider to restrain it [roll:true]",
+      "chronicle": "Kael attacks Goblin Raider and lands a hit.",
+      "state_changes": [
+        "  [Roll requested] 1d8+3 for Damage"
+      ],
+      "issues": [],
+      "elapsed": 1.4,
+      "tokens": {
+        "prompt_tokens": 1903,
+        "completion_tokens": 450,
+        "total_tokens": 2353
+      }
+    },
+    {
+      "turn": 6,
+      "player_input": "I roll damage for my longsword: 1d8+3 = I got a 5, so 8 damage total.",
+      "narrative": "Kael\u2019s longsword bites deep into the Goblin Raider\u2019s chest, the blade\u2019s edge tearing through leather and flesh. The goblin lets out a guttural howl as the weapon\u2019s force drives home, the impact reverberating across the tavern\u2019s wooden floor. Blood splatters onto the worn boards, and the Raider collapses in a heap, the life draining from its eyes. The remaining goblin scout snarls, eyes darting between the fallen foe and Kael, clearly wary of the fighter\u2019s skill.\n\nThe tavern\u2019s patrons gasp in uni",
+      "mechanics": "ENEMY_HP:Goblin Raider,0/7\nENEMY_DEAD:Goblin Raider",
+      "suggestions": "- Attack the Goblin Scout with your longsword [roll:true]\n- Attempt to grapple the Goblin Scout to restrain it [roll:true]\n- Intimidate the Goblin Scout, demanding it surrender [roll:false]",
+      "chronicle": "Goblin Raider killed by Kael\u2019s longsword.",
+      "state_changes": [
+        "  Goblin Raider HP -> 0/7"
+      ],
+      "issues": [],
+      "elapsed": 1.25,
+      "tokens": {
+        "prompt_tokens": 2128,
+        "completion_tokens": 390,
+        "total_tokens": 2518
+      }
+    },
+    {
+      "turn": 7,
+      "player_input": "I'm hurt. I drink my Health Potion as my action this turn.",
+      "narrative": "Kael fumbles for the small glass vial in his pack, uncorks it, and tosses the bitter liquid down his throat. The potion\u2019s warm, sweet taste spreads through his throat and into his veins, knitting torn flesh and staunching the sting of pain. He feels his strength returning as the wounds of the recent battle begin to close. The tavern\u2019s uneasy silence persists, the goblin scout watching him warily, its dagger still poised.",
+      "mechanics": "ROLL_REQUEST:2d4+2 for Healing",
+      "suggestions": "- Attack the Goblin Scout with your longsword [roll:true]\n- Attempt to grapple the Goblin Scout to restrain it [roll:true]\n- Intimidate the Goblin Scout, demanding it surrender [roll:false]",
+      "chronicle": "Kael drinks a health potion.",
+      "state_changes": [
+        "  [Roll requested] 2d4+2 for Healing"
+      ],
+      "issues": [],
+      "elapsed": 17.66,
+      "tokens": {
+        "prompt_tokens": 2419,
+        "completion_tokens": 355,
+        "total_tokens": 2774
+      }
+    },
+    {
+      "turn": 8,
+      "player_input": "I try to intimidate the surviving goblin into surrendering. I rolled a 10 on Intimidation.",
+      "narrative": "Kael\u2019s voice drops low and threatening as he steps forward, the edge of his sword still glinting in the candlelight. \u201cYield, or I\u2019ll make you wish you\u2019d never left the shadows,\u201d he growls, the words ringing with the confidence of a seasoned fighter. The Goblin Scout\u2019s eyes widen; the sudden surge of authority seems to shake its resolve. It hesitates, clutching its dagger tighter, clearly unnerved by Kael\u2019s fierce demeanor.\n\nWhile Kael\u2019s intimidation hangs in the air, the health potion he swallow",
+      "mechanics": "ROLL_REQUEST:2d4+2 for Healing\nCONDITION:Goblin Scout,frightened",
+      "suggestions": "- Attack the frightened Goblin Scout with your longsword [roll:true]\n- Attempt to grapple the Goblin Scout while it is frightened [roll:true]\n- Let the Goblin Scout flee and end the encounter [roll:false]",
+      "chronicle": "Goblin Scout becomes frightened after Kael\u2019s intimidation.",
+      "state_changes": [
+        "  [Roll requested] 2d4+2 for Healing",
+        "  Condition: Goblin Scout,frightened"
+      ],
+      "issues": [],
+      "elapsed": 21.67,
+      "tokens": {
+        "prompt_tokens": 2619,
+        "completion_tokens": 893,
+        "total_tokens": 3512
+      }
+    },
+    {
+      "turn": 9,
+      "player_input": "If the goblin surrenders, I tie it up with my rope and question it about why it attacked.",
+      "narrative": "Kael steps forward, the dim candlelight catching the glint of his sword as he lowers his weapon, signaling he means no further bloodshed. \u201cEnough,\u201d he says, voice steady. \u201cTie yourself up and tell me why you\u2019re here.\u201d The Goblin Scout, still trembling from the earlier intimidation, eyes the rope in Kael\u2019s hand warily. Its fear is palpable, but the promise of safety in surrender seems to outweigh the urge to fight. Kael reaches for the 50\u2011foot coil of rope, preparing to bind the frightened creatu",
+      "mechanics": "ROLL_REQUEST:d20+2 for Persuasion\nROLL_REQUEST:d20+5 for Athletics",
+      "suggestions": "- Attempt to persuade the goblin to surrender and cooperate [roll:true]\n- Use your Athletics skill to quickly tie the goblin up with rope [roll:true]\n- Threaten the goblin again to force immediate surrender [roll:true]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [
+        "  [Roll requested] d20+2 for Persuasion",
+        "  [Roll requested] d20+5 for Athletics"
+      ],
+      "issues": [],
+      "elapsed": 27.99,
+      "tokens": {
+        "prompt_tokens": 2915,
+        "completion_tokens": 768,
+        "total_tokens": 3683
+      }
+    },
+    {
+      "turn": 10,
+      "player_input": "I search the bodies of the dead goblins for anything useful.",
+      "narrative": "Kael kneels beside the fallen Goblin Raider, the dim candlelight flickering over the corpse\u2019s ragged armor. He lifts the crude leather helm, feeling the chill of death beneath his fingertips, and begins to rummage through the goblin\u2019s belongings. Tucked in the goblin\u2019s belt, Kael finds a short, rust\u2011stained dagger\u2014clearly a weapon of little value but still functional. In the pocket of the Raider\u2019s tattered tunic, a small leather pouch jingles; inside are five copper pieces, enough for a modest p",
+      "mechanics": "ITEM_GAINED:Rusty Short Dagger\nITEM_GAINED:5 Copper Pieces\nITEM_GAINED:Torn Parchment",
+      "suggestions": "- Interrogate the frightened Goblin Scout for information about the raid [roll:true]\n- Bind the Goblin Scout with rope to prevent further trouble [roll:true]\n- Leave the tavern and head toward the docks to investigate the meeting point [roll:false]",
+      "chronicle": "Kael searches the dead Goblin Raider and finds a rusty short dagger, 5 copper pieces, and a torn parchment.",
+      "state_changes": [
+        "  Gained: Rusty Short Dagger",
+        "  Gained: 5 Copper Pieces",
+        "  Gained: Torn Parchment"
+      ],
+      "issues": [],
+      "elapsed": 26.05,
+      "tokens": {
+        "prompt_tokens": 3147,
+        "completion_tokens": 583,
+        "total_tokens": 3730
+      }
+    }
+  ],
+  "final_state": {
+    "pc_hp": "12/12",
+    "inventory": [
+      "Health Potion",
+      "Torch",
+      "Waterskin",
+      "50 feet of rope",
+      "Rusty Short Dagger",
+      "5 Copper Pieces",
+      "Torn Parchment"
+    ],
+    "enemies": [
+      "Goblin Scout (7/7 HP, AC 15)",
+      "Goblin Raider (0/7 HP, AC 15 [DEAD])"
+    ],
+    "chronicle": []
+  },
+  "issues": [],
+  "total_tokens": 25643,
+  "total_time": 101.94151568412781
+}

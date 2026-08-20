@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Narrator — app mockup</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d29;
+    --surface-2: #232735;
+    --border: #2d3142;
+    --text: #e4e6ef;
+    --text-dim: #8b8fa3;
+    --accent: #e94560;
+    --accent-dim: #c73e54;
+    --gold: #f0c674;
+    --good: #6bcb77;
+    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    height: 100%;
+    overscroll-behavior: none;
+  }
+  /* Phone-frame container — on desktop shows a narrow column, on phone fills screen */
+  #app {
+    max-width: 440px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--bg);
+  }
+  @media (min-width: 480px) {
+    body { padding: 20px 0; background: #050608; }
+    #app {
+      min-height: calc(100vh - 40px);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+  }
+
+  /* Top bar */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .topbar .title { font-size: 17px; font-weight: 600; letter-spacing: 0.3px; }
+  .topbar .title .dot { color: var(--accent); }
+  .topbar .session-meta { font-size: 11px; color: var(--text-dim); }
+
+  /* View container */
+  .view { flex: 1; overflow-y: auto; padding: 16px; display: none; }
+  .view.active { display: block; }
+
+  /* Bottom tab bar */
+  .tabbar {
+    display: flex;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .tab {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    padding: 10px 4px 12px;
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: color 0.15s;
+  }
+  .tab .icon { font-size: 20px; line-height: 1; }
+  .tab.active { color: var(--accent); }
+
+  /* ===== Story view ===== */
+  .story-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 8px;
+  }
+  .narration {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--gold);
+    font-family: "Iowan Old Style", "Palatino", Georgia, serif;
+    font-size: 15.5px;
+    line-height: 1.65;
+    color: #d8dae3;
+  }
+  .narration .speaker {
+    display: block;
+    font-family: -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .narration .speaker.narrator { color: var(--gold); }
+  .narration .cue {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 13px;
+  }
+  .turn-meta {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 2px 0;
+    letter-spacing: 0.5px;
+  }
+
+  /* Audio player bar (sticky within story view) */
+  .player {
+    position: sticky;
+    top: -16px;
+    margin: -16px -16px 12px;
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 5;
+  }
+  .player .play-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .player .play-btn:active { background: var(--accent-dim); }
+  .player .info { flex: 1; min-width: 0; }
+  .player .now-playing {
+    font-size: 12px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .player .scrubber {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .player .scrubber .fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: var(--accent);
+    width: 35%;
+    transition: width 0.3s linear;
+  }
+  .player .scrubber.streaming .fill {
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    animation: shimmer 1.5s linear infinite;
+    background-size: 200% 100%;
+  }
+  @keyframes shimmer { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
+  .player .time { font-size: 10px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+  .stream-badge {
+    font-size: 9px;
+    color: var(--good);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .stream-badge::before {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--good);
+    margin-right: 4px;
+    animation: pulse 1s ease-in-out infinite;
+    vertical-align: middle;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* Choice panel */
+  .choice-panel {
+    margin-top: 8px;
+    padding: 16px;
+    background: var(--surface);
+    border-radius: 12px 12px 0 0;
+    border-top: 1px solid var(--border);
+  }
+  .choice-panel .prompt {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .choice {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .choice:active { border-color: var(--accent); background: #2a2f40; }
+  .choice:disabled { opacity: 0.4; cursor: wait; }
+  .text-input-row input:disabled, .text-input-row button:disabled { opacity: 0.4; cursor: wait; }
+  .choice .pick { color: var(--accent); font-weight: 600; margin-right: 6px; }
+  .text-input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .text-input-row input {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .text-input-row input:focus { outline: none; border-color: var(--accent); }
+  .text-input-row button {
+    background: var(--accent);
+    border: none;
+    color: white;
+    border-radius: 10px;
+    padding: 0 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .text-input-row button:active { background: var(--accent-dim); }
+
+  /* ===== Voices view ===== */
+  .section-h {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 4px 0 12px;
+  }
+  .char-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+  }
+  .char-card .char-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .char-card .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .char-card .name { font-weight: 600; font-size: 15px; }
+  .char-card .role { font-size: 11px; color: var(--text-dim); }
+  .char-card .voice-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .char-card select, .char-card input[type=text] {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .char-card .method-pill {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .char-card .method-pill.preset { color: var(--gold); border-color: #4a4030; }
+  .char-card .method-pill.designed { color: var(--accent); border-color: #4a2630; }
+  .char-card .method-pill.clone { color: var(--good); border-color: #2a4a30; }
+  .add-char {
+    width: 100%;
+    background: none;
+    border: 1px dashed var(--border);
+    color: var(--text-dim);
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .add-char:active { border-color: var(--accent); color: var(--accent); }
+
+  /* ===== Sessions view ===== */
+  .session-item {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .session-item .play-mini {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .session-item .meta { flex: 1; min-width: 0; }
+  .session-item .s-title { font-size: 14px; font-weight: 500; }
+  .session-item .s-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .session-item .actions { display: flex; gap: 6px; }
+  .session-item .icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .session-item .icon-btn:active { color: var(--accent); }
+
+  /* ===== Settings view ===== */
+  .setting-row {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .setting-row label { display: block; font-size: 13px; color: var(--text-dim); margin-bottom: 6px; }
+  .setting-row select, .setting-row input[type=range] {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .setting-row .range-row { display: flex; align-items: center; gap: 10px; }
+  .setting-row input[type=range] { flex: 1; padding: 0; height: 4px; -webkit-appearance: none; background: var(--border); }
+  .setting-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+  .setting-row .val { font-size: 13px; color: var(--text); min-width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
+  .setting-row .hint { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+
+  /* Generating overlay */
+  .generating {
+    display: none;
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 10px 18px;
+    font-size: 13px;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    z-index: 100;
+    max-width: 90%;
+  }
+  .generating.show { display: flex; align-items: center; gap: 10px; }
+  .generating .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div>
+      <div class="title">Narrator<span class="dot">.</span></div>
+      <div class="session-meta">The Marsh at Quill's Hollow · turn 4</div>
+    </div>
+    <div style="font-size:20px;cursor:pointer;color:var(--text-dim)">⋯</div>
+  </div>
+
+  <!-- ===== Story view ===== -->
+  <div class="view active" id="view-story">
+    <div class="player">
+      <button class="play-btn" onclick="togglePlay(this)">▶</button>
+      <div class="info">
+        <div class="now-playing"><span class="stream-badge">STREAMING</span> Narrator — turn 4</div>
+        <div class="scrubber streaming"><div class="fill" id="scrub-fill"></div></div>
+      </div>
+      <div class="time" id="time">0:12 / 0:34</div>
+    </div>
+
+    <div class="story-scroll">
+      <div class="turn-meta">— TURN 1 —</div>
+      <div class="narration">
+        <span class="speaker narrator">NARRATOR</span>
+        The marsh had a memory, Mireth knew, longer than any living thing in Quill's Hollow cared to admit. She had grown up on its edge — close enough that the smell of peat and black water lived in the walls of her mother's house.
+      </div>
+
+      <div class="turn-meta">— TURN 3 —</div>
+      <div class="narration">
+        <span class="speaker">MIRETH</span>
+        "You're not from Quill's Hollow," she said — not a question.
+      </div>
+      <div class="narration">
+        <span class="speaker">THE STRANGER</span>
+        "No," he said, and the word came out like something he had to carry.
+      </div>
+
+      <div class="turn-meta">— TURN 4 · NOW PLAYING —</div>
+      <div class="narration">
+        <span class="speaker narrator">NARRATOR</span>
+        She did not invite him in. She did not turn him away. She set the net down, opened the door the rest of the way, and stepped back — and that, in the marsh, was as much an invitation as anyone ever gave.
+        <span class="cue">[a long beat of silence]</span>
+        He crossed the lamplight border like a man walking into deep water, and the door closed behind him.
+      </div>
+      <div class="narration">
+        <span class="speaker">MIRETH</span>
+        <span class="cue">(whispering)</span> "Hold still. This will sting."
+      </div>
+    </div>
+
+    <div class="choice-panel">
+      <div class="prompt">What does Mireth do next?</div>
+      <div class="choices">
+        <button class="choice" onclick="pickChoice(this)"><span class="pick">A</span>Press him for his name before treating the wounds.</button>
+        <button class="choice" onclick="pickChoice(this)"><span class="pick">B</span>Work in silence — the marsh teaches that questions can wait.</button>
+        <button class="choice" onclick="pickChoice(this)"><span class="pick">C</span>Check the door. The reeds were still. That's wrong.</button>
+      </div>
+      <div class="text-input-row">
+        <input type="text" placeholder="Or type your own action…" id="custom-action">
+        <button onclick="submitCustom()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Voices view ===== -->
+  <div class="view" id="view-voices">
+    <div class="section-h">Characters in this session</div>
+
+    <div class="char-card">
+      <div class="char-head">
+        <div class="avatar" style="background:#3a3520;color:var(--gold)">N</div>
+        <div>
+          <div class="name">Narrator</div>
+          <div class="role">Voice of the world</div>
+        </div>
+        <div class="method-pill preset" style="margin-left:auto">PRESET</div>
+      </div>
+      <div class="voice-row">
+        <select>
+          <option>af_heart (warm female)</option>
+          <option>af_sky (clear female)</option>
+          <option>bm_george (gravitas male)</option>
+          <option>am_michael (steady male)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="char-card">
+      <div class="char-head">
+        <div class="avatar" style="background:#3a2030;color:var(--accent)">M</div>
+        <div>
+          <div class="name">Mireth</div>
+          <div class="role">Marsh-edge healer · protagonist</div>
+        </div>
+        <div class="method-pill designed" style="margin-left:auto">DESIGNED</div>
+      </div>
+      <div class="voice-row">
+        <input type="text" value="Calm, weathered woman in her 40s, low register, careful diction, a hint of regional accent.">
+      </div>
+    </div>
+
+    <div class="char-card">
+      <div class="char-head">
+        <div class="avatar" style="background:#203a2a;color:var(--good)">S</div>
+        <div>
+          <div class="name">The Stranger</div>
+          <div class="role">Wounded arrival · unknown</div>
+        </div>
+        <div class="method-pill clone" style="margin-left:auto">CLONE</div>
+      </div>
+      <div class="voice-row">
+        <input type="text" value="ref: stranger_grunt_01.wav (3s)" style="flex:1">
+        <button style="background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:0 10px;font-size:18px;cursor:pointer">＋</button>
+      </div>
+    </div>
+
+    <button class="add-char" onclick="alert('Add a new character — name them, pick a voice method, the story AI will voice them when they next speak.')">＋ Add character</button>
+
+    <div class="section-h" style="margin-top:20px">Sound bed</div>
+    <div class="setting-row">
+      <label>Ambient layer</label>
+      <select>
+        <option>Marsh at night (auto-detected from scene)</option>
+        <option>Tavern murmur</option>
+        <option>Forest, wind</option>
+        <option>None</option>
+      </select>
+      <div class="hint">Plays under narration. Auto-suggested from the story AI's scene tags; override anytime.</div>
+    </div>
+  </div>
+
+  <!-- ===== Sessions view ===== -->
+  <div class="view" id="view-sessions">
+    <div class="section-h">Saved sessions</div>
+    <div class="session-item">
+      <button class="play-mini">▶</button>
+      <div class="meta">
+        <div class="s-title">The Marsh at Quill's Hollow</div>
+        <div class="s-sub">Today, 21:14 · 4 turns · 12 min audio · in progress</div>
+      </div>
+      <div class="actions">
+        <button class="icon-btn" title="Export">↗</button>
+        <button class="icon-btn" title="More">⋯</button>
+      </div>
+    </div>
+    <div class="session-item">
+      <button class="play-mini">▶</button>
+      <div class="meta">
+        <div class="s-title">The Cartographer's Debt</div>
+        <div class="s-sub">Yesterday · 11 turns · 38 min audio</div>
+      </div>
+      <div class="actions">
+        <button class="icon-btn" title="Export">↗</button>
+        <button class="icon-btn" title="More">⋯</button>
+      </div>
+    </div>
+    <div class="session-item">
+      <button class="play-mini">▶</button>
+      <div class="meta">
+        <div class="s-title">Salt and Iron — one-shot</div>
+        <div class="s-sub">Aug 14 · 6 turns · 21 min audio</div>
+      </div>
+      <div class="actions">
+        <button class="icon-btn" title="Export">↗</button>
+        <button class="icon-btn" title="More">⋯</button>
+      </div>
+    </div>
+    <div class="section-h" style="margin-top:16px">Export / share</div>
+    <div class="setting-row">
+      <label>When sharing a session</label>
+      <select>
+        <option>Single stitched MP3 (all turns joined)</option>
+        <option>Per-turn WAVs in a zip</option>
+        <option>Private link (relisten only, no edit)</option>
+      </select>
+      <div class="hint">"Manual send" = export a file and send it yourself. No account or upload required.</div>
+    </div>
+  </div>
+
+  <!-- ===== Settings view ===== -->
+  <div class="view" id="view-settings">
+    <div class="section-h">Story AI</div>
+    <div class="setting-row">
+      <label>Model</label>
+      <select>
+        <option>Claude (via API — bring your own key)</option>
+        <option>Local Llama 3.3 70B (mlx-lm)</option>
+        <option>GPT-4o</option>
+      </select>
+      <div class="hint">Generates the narration text each turn. Claude is where you currently paste from.</div>
+    </div>
+    <div class="setting-row">
+      <label>Choice style</label>
+      <select>
+        <option>3 multiple-choice + free text (current)</option>
+        <option>Free text only</option>
+        <option>5 multiple-choice, no free text</option>
+      </select>
+    </div>
+
+    <div class="section-h">Voice / TTS</div>
+    <div class="setting-row">
+      <label>TTS engine</label>
+      <select>
+        <option>Kokoro MLX — fast, 54 presets, no GPU wait</option>
+        <option>Qwen3-TTS VoiceDesign — describe voices in words</option>
+        <option>Higgs Audio V2 — clone from reference clip</option>
+        <option>Dia-1.6B — native [S1]/[S2] dialogue</option>
+        <option>Auto — pick per character (mixed)</option>
+      </select>
+      <div class="hint">"Auto" lets each character use the method that fits — presets for the narrator, descriptions for named NPCs, cloning for recurring voices.</div>
+    </div>
+    <div class="setting-row">
+      <label>Playback</label>
+      <div class="range-row">
+        <input type="range" min="0.7" max="1.5" step="0.1" value="1.0" oninput="this.nextElementSibling.textContent=this.value+'×'">
+        <div class="val">1.0×</div>
+      </div>
+      <div class="hint">Speed. Streaming playback starts ~9s after each turn (model warmup), then plays continuously.</div>
+    </div>
+    <div class="setting-row">
+      <label>Pause handling</label>
+      <select>
+        <option>Smart pauses (auto from [beat] / [long beat] tags)</option>
+        <option>Uniform 0.3s between sentences</option>
+        <option>No pauses (fastest)</option>
+      </select>
+    </div>
+
+    <div class="section-h">Storage</div>
+    <div class="setting-row">
+      <label>Save sessions to</label>
+      <select>
+        <option>Local folder (~/Narrator/sessions/)</option>
+        <option>iCloud Drive</option>
+        <option>Custom path…</option>
+      </select>
+      <div class="hint">Audio is always saved locally first. You can relisten or export anytime. No cloud account required.</div>
+    </div>
+  </div>
+
+  <!-- Generating toast -->
+  <div class="generating" id="gen-toast">
+    <div class="spinner"></div>
+    <div>Generating turn 5… <span style="color:var(--text-dim);font-size:11px">story AI → TTS → streaming</span></div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tabbar">
+    <button class="tab active" data-view="story" onclick="switchTab(this)"><span class="icon">📖</span>Story</button>
+    <button class="tab" data-view="voices" onclick="switchTab(this)"><span class="icon">🎭</span>Voices</button>
+    <button class="tab" data-view="sessions" onclick="switchTab(this)"><span class="icon">📚</span>Sessions</button>
+    <button class="tab" data-view="settings" onclick="switchTab(this)"><span class="icon">⚙</span>Settings</button>
+  </div>
+</div>
+
+<script>
+function switchTab(btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('view-' + btn.dataset.view).classList.add('active');
+}
+
+let playing = true;
+function togglePlay(btn) {
+  playing = !playing;
+  btn.textContent = playing ? '▶' : '⏸';
+  const scrub = document.querySelector('.scrubber');
+  scrub.classList.toggle('streaming', playing);
+}
+
+// Fake scrubber advance to simulate streaming playback
+let pos = 12;
+setInterval(() => {
+  if (!playing) return;
+  pos += 1;
+  if (pos > 34) pos = 0;
+  document.getElementById('scrub-fill').style.width = (pos/34*100) + '%';
+  document.getElementById('time').textContent = '0:' + String(pos).padStart(2,'0') + ' / 0:34';
+}, 1000);
+
+// --- Interaction simulation ---
+// Picking a choice or typing an action appends a new narration card,
+// scrolls to it, and updates the player — so the chat flow is testable.
+
+let turnNum = 4;
+const SIM_DELAY = 1800; // ms — fake "generating" time
+
+// Canned narration responses. In the real app the story AI generates these.
+const SIM_RESPONSES = [
+  { speaker: 'NARRATOR', isNarrator: true, text: 'She set the needle to the worst of the wounds at his ribs. He did not flinch. Outside, the reeds began to move again — slowly, deliberately, as if something out there had decided it was done waiting.' },
+  { speaker: 'MIRETH', isNarrator: false, cue: '(quietly, not looking up)', text: '"I\'ve seen this kind of wound once before. The man who had it didn\'t live through the night. You will, if you do exactly what I tell you."' },
+  { speaker: 'THE STRANGER', isNarrator: false, text: '"I\'ve had worse," he said. It was a lie, and they both knew it, and the marsh knew it too.' },
+  { speaker: 'NARRATOR', isNarrator: true, text: 'The lamp guttered. Thunder again, closer now, and with it the smell of rain on peat — the marsh\'s oldest warning. Mireth did not look toward the door. She looked at the stranger\'s hands, and at what his hands were not doing, and that was the third wrong thing.' },
+  { speaker: 'NARRATOR', isNarrator: true, text: 'Somewhere beyond the reeds, something breathed. Not the wind. Not an animal. Something that had learned to breathe like both, and was now learning to breathe like neither.' },
+];
+let simIdx = 0;
+
+function pickChoice(btn) {
+  document.querySelectorAll('.choice').forEach(c => c.style.borderColor = 'var(--border)');
+  btn.style.borderColor = 'var(--accent)';
+  const actionText = btn.textContent.replace(/^[A-C]\s*/, '').trim();
+  generateTurn(actionText);
+}
+
+function submitCustom() {
+  const input = document.getElementById('custom-action');
+  if (!input.value.trim()) return;
+  const actionText = input.value.trim();
+  input.value = '';
+  generateTurn(actionText);
+}
+
+function generateTurn(actionText) {
+  const toast = document.getElementById('gen-toast');
+  toast.classList.add('show');
+
+  // Disable inputs while "generating"
+  document.querySelectorAll('.choice, .text-input-row button, .text-input-row input').forEach(el => el.disabled = true);
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    turnNum += 1;
+    const resp = SIM_RESPONSES[simIdx % SIM_RESPONSES.length];
+    simIdx += 1;
+
+    // 1. Append the player's action as a small "you chose" line
+    appendActionSummary(actionText);
+
+    // 2. Append the generated narration
+    appendNarration(resp);
+
+    // 3. Update the player to show new turn streaming
+    updatePlayerForNewTurn(turnNum);
+
+    // 4. Re-enable inputs
+    document.querySelectorAll('.choice, .text-input-row button, .text-input-row input').forEach(el => el.disabled = false);
+  }, SIM_DELAY);
+}
+
+function appendActionSummary(actionText) {
+  const scroll = document.querySelector('.story-scroll');
+  const div = document.createElement('div');
+  div.className = 'turn-meta';
+  div.textContent = `— YOU: ${actionText.slice(0, 60)}${actionText.length > 60 ? '…' : ''} —`;
+  scroll.appendChild(div);
+}
+
+function appendNarration(resp) {
+  const scroll = document.querySelector('.story-scroll');
+
+  // Turn divider
+  const meta = document.createElement('div');
+  meta.className = 'turn-meta';
+  meta.textContent = `— TURN ${turnNum} · NOW PLAYING —`;
+  scroll.appendChild(meta);
+
+  // Narration card
+  const card = document.createElement('div');
+  card.className = 'narration';
+  const speaker = document.createElement('span');
+  speaker.className = 'speaker' + (resp.isNarrator ? ' narrator' : '');
+  speaker.textContent = resp.speaker;
+  card.appendChild(speaker);
+  if (resp.cue) {
+    const cue = document.createElement('span');
+    cue.className = 'cue';
+    cue.textContent = resp.cue + ' ';
+    card.appendChild(cue);
+  }
+  const text = document.createTextNode(resp.text);
+  card.appendChild(text);
+  scroll.appendChild(card);
+
+  // Auto-scroll to the new card
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+function updatePlayerForNewTurn(turn) {
+  const np = document.querySelector('.now-playing');
+  np.innerHTML = `<span class="stream-badge">STREAMING</span> Narrator — turn ${turn}`;
+  // Reset scrubber to start of new turn
+  pos = 0;
+  playing = true;
+  document.querySelector('.play-btn').textContent = '▶';
+  document.querySelector('.scrubber').classList.add('streaming');
+}
+</script>
+</body>
+</html>

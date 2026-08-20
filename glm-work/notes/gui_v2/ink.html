@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrator — Ink</title>
+<style>
+  :root {
+    --bg: #e6e4e0;
+    --bg-soft: #dedcd8;
+    --ink: #1c1c1a;
+    --ink-mid: #4a4a48;
+    --ink-light: #8a8a86;
+    --rule: #c4c2be;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Spectral', 'Iowan Old Style', Georgia, serif;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+  #app {
+    max-width: 34rem;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 4rem 1.5rem 6rem;
+  }
+
+  /* No chrome bar. State is a single line at the very top, barely visible. */
+  .state-line {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--ink-light);
+    padding: 8px;
+    font-family: -apple-system, sans-serif;
+    text-transform: uppercase;
+    z-index: 20;
+    background: var(--bg);
+    border-bottom: 1px solid var(--rule);
+    transform: translateY(-100%);
+    transition: transform 0.4s ease;
+  }
+  .state-line.show { transform: translateY(0); }
+  .tap-zone { position: fixed; top: 0; left: 0; right: 0; height: 35px; z-index: 25; }
+
+  /* Story — generous, airy, almost no structure */
+  .story { }
+  .title-block {
+    margin-bottom: 4rem;
+  }
+  .title-block h1 {
+    font-size: 20px;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--ink-mid);
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  .title-block .subtitle {
+    font-size: 11px;
+    color: var(--ink-light);
+    text-align: center;
+    margin-top: 0.5rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-family: -apple-system, sans-serif;
+  }
+
+  .passage {
+    margin-bottom: 2.5rem;
+  }
+  .passage p {
+    margin-bottom: 1.5rem;
+  }
+  .speaker {
+    font-family: -apple-system, sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .speaker.narrator { display: none; } /* narrator is the default voice — no label needed */
+  .dialogue { font-style: italic; }
+  .cue { color: var(--ink-light); font-style: italic; font-size: 14px; }
+
+  .turn-mark {
+    text-align: center;
+    margin: 3rem 0;
+    color: var(--ink-light);
+    font-size: 10px;
+    letter-spacing: 5px;
+    font-family: -apple-system, sans-serif;
+  }
+  .you-said {
+    text-align: center;
+    font-style: italic;
+    color: var(--ink-light);
+    font-size: 13px;
+    margin: 2rem 0 0.3rem;
+  }
+
+  /* Audio — a single small circle, breathing */
+  .audio-dot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ink-mid);
+    z-index: 30;
+    animation: breathe 2s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+  .audio-dot.paused { animation: none; opacity: 0.2; }
+
+  /* Choices — plain text, numbered, no buttons */
+  .choices-block {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+  }
+  .choices-prompt {
+    font-style: italic;
+    color: var(--ink-mid);
+    font-size: 15px;
+    margin-bottom: 1.8rem;
+  }
+  .choice-list {
+    list-style: none;
+    counter-reset: choice;
+  }
+  .choice-item {
+    counter-increment: choice;
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+    position: relative;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1.5;
+  }
+  .choice-item::before {
+    content: counter(choice, upper-alpha) ".";
+    position: absolute;
+    left: 0;
+    color: var(--ink-light);
+    font-family: -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .choice-item:hover { color: var(--ink-mid); }
+  .choice-item:hover::before { color: var(--ink); }
+  .choice-item.disabled { opacity: 0.3; cursor: wait; }
+
+  .text-row {
+    margin-top: 2rem;
+    border-top: none;
+    padding-top: 1.5rem;
+  }
+  .text-row input {
+    width: 100%;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink);
+    padding: 0.5rem 0;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 300;
+    outline: none;
+  }
+  .text-row input:focus { border-bottom-color: var(--ink); }
+  .text-row input::placeholder { color: var(--ink-light); font-style: italic; }
+  .text-row button {
+    background: none;
+    border: none;
+    color: var(--ink-mid);
+    font-family: -apple-system, sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 0.8rem;
+    padding: 0;
+  }
+  .text-row button:active { color: var(--ink); }
+  .text-row button:disabled { opacity: 0.3; cursor: wait; }
+
+  .generating {
+    text-align: center;
+    color: var(--ink-light);
+    font-style: italic;
+    font-size: 14px;
+    margin: 2rem 0;
+    display: none;
+  }
+  .generating.show { display: block; }
+</style>
+</head>
+<body>
+  <div class="tap-zone" onclick="document.querySelector('.state-line').classList.toggle('show')"></div>
+  <div class="state-line">Mireth · 12/12 HP · Turn 4 · The Marsh</div>
+
+  <div id="app">
+    <div class="story" id="story">
+      <div class="title-block">
+        <h1>The Marsh at Quill's Hollow</h1>
+        <div class="subtitle">Chapter One</div>
+      </div>
+
+      <div class="passage">
+        <p>The marsh had a memory, Mireth knew, longer than any living thing in Quill's Hollow cared to admit. She had grown up on its edge — close enough that the smell of peat and black water lived in the walls of her mother's house, close enough that the lantern in the window each night was not decoration but defense.</p>
+      </div>
+
+      <div class="turn-mark">— III —</div>
+
+      <div class="passage">
+        <p><span class="speaker">Mireth</span><span class="dialogue">"You're not from Quill's Hollow,"</span> she said — not a question.</p>
+        <p><span class="speaker">The Stranger</span><span class="dialogue">"No,"</span> he said, and the word came out like something he had to carry.</p>
+      </div>
+
+      <div class="turn-mark">— IV —</div>
+
+      <div class="passage">
+        <p>She did not invite him in. She did not turn him away. She set the net down, opened the door the rest of the way, and stepped back — and that, in the marsh, was as much an invitation as anyone ever gave. He crossed the lamplight border like a man walking into deep water, and the door closed behind him, and the reeds outside stayed perfectly, impossibly still.</p>
+        <p><span class="speaker">Mireth</span><span class="cue">(whispering)</span> <span class="dialogue">"Hold still. This will sting."</span></p>
+      </div>
+    </div>
+
+    <div class="generating" id="genIndicator">the marsh stirs</div>
+
+    <div class="choices-block" id="choicesBlock">
+      <div class="choices-prompt">What does Mireth do?</div>
+      <ul class="choice-list" id="choiceList">
+        <li class="choice-item" onclick="pick(this)">Press him for his name before treating the wounds.</li>
+        <li class="choice-item" onclick="pick(this)">Work in silence — the marsh teaches that questions can wait.</li>
+        <li class="choice-item" onclick="pick(this)">Check the door. The reeds were still. That's wrong.</li>
+      </ul>
+      <div class="text-row">
+        <input type="text" id="customInput" placeholder="or in your own words…" onkeypress="if(event.key==='Enter')submitCustom()">
+        <button onclick="submitCustom()" id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="audio-dot" id="audioDot" onclick="this.classList.toggle('paused')"></div>
+
+<script>
+let turn = 4;
+const responses = [
+  { speaker: '', narrator: true, text: 'She set the needle to the worst of the wounds at his ribs. He did not flinch. Outside, the reeds began to move again — slowly, deliberately, as if something out there had decided it was done waiting.' },
+  { speaker: 'Mireth', narrator: false, cue: '(quietly)', dialogue: true, text: '"I\'ve seen this kind of wound once before. The man who had it didn\'t live through the night. You will, if you do exactly what I tell you."' },
+  { speaker: 'The Stranger', narrator: false, dialogue: true, text: '"I\'ve had worse," he said. It was a lie, and they both knew it, and the marsh knew it too.' },
+  { speaker: '', narrator: true, text: 'The lamp guttered. Thunder again, closer now, and with it the smell of rain on peat — the marsh\'s oldest warning. Mireth did not look toward the door. She looked at the stranger\'s hands, and at what his hands were not doing, and that was the third wrong thing.' },
+  { speaker: '', narrator: true, text: 'Somewhere beyond the reeds, something breathed. Not the wind. Not an animal. Something that had learned to breathe like both, and was now learning to breathe like neither.' },
+];
+let respIdx = 0;
+
+function pick(el) {
+  document.querySelectorAll('.choice-item').forEach(c => c.classList.add('disabled'));
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('customInput').disabled = true;
+  const action = el.textContent.trim();
+  generateTurn(action);
+}
+
+function submitCustom() {
+  const input = document.getElementById('customInput');
+  if (!input.value.trim()) return;
+  const action = input.value.trim();
+  input.value = '';
+  document.querySelectorAll('.choice-item').forEach(c => c.classList.add('disabled'));
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('customInput').disabled = true;
+  generateTurn(action);
+}
+
+function generateTurn(action) {
+  document.getElementById('genIndicator').classList.add('show');
+  setTimeout(() => {
+    document.getElementById('genIndicator').classList.remove('show');
+    turn += 1;
+    const r = responses[respIdx % responses.length];
+    respIdx++;
+    const story = document.getElementById('story');
+
+    const youSaid = document.createElement('div');
+    youSaid.className = 'you-said';
+    youSaid.textContent = `— you: ${action.slice(0,50)}${action.length>50?'…':''} —`;
+    story.appendChild(youSaid);
+
+    const mark = document.createElement('div');
+    mark.className = 'turn-mark';
+    const numerals = ['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV'];
+    mark.textContent = `— ${numerals[turn] || turn} —`;
+    story.appendChild(mark);
+
+    const passage = document.createElement('div');
+    passage.className = 'passage';
+    const p = document.createElement('p');
+    if (r.speaker) {
+      const sp = document.createElement('span');
+      sp.className = 'speaker' + (r.narrator ? ' narrator' : '');
+      sp.textContent = r.speaker;
+      p.appendChild(sp);
+    }
+    if (r.cue) {
+      const cue = document.createElement('span');
+      cue.className = 'cue';
+      cue.textContent = r.cue + ' ';
+      p.appendChild(cue);
+    }
+    if (r.dialogue) {
+      const d = document.createElement('span');
+      d.className = 'dialogue';
+      d.textContent = r.text;
+      p.appendChild(d);
+    } else {
+      p.appendChild(document.createTextNode(r.text));
+    }
+    passage.appendChild(p);
+    story.appendChild(passage);
+    passage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    document.querySelectorAll('.choice-item').forEach(c => c.classList.remove('disabled'));
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('customInput').disabled = false;
+  }, 2000);
+}
+</script>
+</body>
+</html>

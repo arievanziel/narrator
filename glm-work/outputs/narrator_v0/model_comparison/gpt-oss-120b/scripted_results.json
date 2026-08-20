@@ -1,0 +1,65 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "provider": "groq",
+  "turns": [
+    {
+      "turn": 1,
+      "player_input": "I push open the tavern door and step inside, hand on my sword hilt. The air smells of stale ale and smoke.",
+      "narrative": "You push the heavy oak door of the Rusty Anchor, and it groans open with a low creak. The dim candlelight inside flickers across a haze of smoke and spilled ale, casting long shadows over rough wooden tables. At a corner table, two goblins\u2014one lean scout, the other a broader raider\u2014pause their whispered conversation, eyes snapping to the newcomer. Their crude weapons glint faintly, and a momentary tension hangs in the stale air as they size you up.\n\nThe tavern\u2019s patrons glance up, some muttering prayers, others reaching for their mugs. The goblin scout, quick on its feet, edges closer to the bar, while the raider leans back, hand hovering over a rusted dagger. Their posture suggests they\u2019re ready for a fight, but they haven\u2019t yet made a move. The scent of burnt wood and cheap ale mixes with the metallic tang of anticipation.\n\nYou feel the familiar weight of your longsword at your side, the shield pressing against your arm. The room feels cramped, the wooden beams creaking with each footstep. The goblins await your next action, their eyes narrowing in the candle\u2019s glow.",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Attack the goblin scout with your longsword. [roll:true]\n- Attempt to speak to the goblins, trying to de\u2011escalate. [roll:false]\n- Take cover behind a nearby table and ready your shield. [roll:false]",
+      "chronicle": "Entered the Rusty Anchor tavern, confronting two goblins.\n\n[AUDIO]\n[narrator] You push the heavy oak door of the Rusty Anchor, and it groans open with a low creak.\n[SFX: door_open]\n[narrator] Candlelight flickers across a haze of smoke and spilled ale, casting long shadows over rough wooden tables.\n[SFX: footsteps]\n[narrator] Two goblins pause their whispered conversation, eyes snapping to the newcomer.\n[SFX: whisper]\n[narrator] The tavern\u2019s patrons glance up, some muttering prayers, others reaching for their mugs.\n[SFX: glass_clink]\n[narrator] The scent of burnt wood and cheap ale mixes with the metallic tang of anticipation.\n[SCENE: tense]",
+      "audio_text": "[narrator] You push the heavy oak door of the Rusty Anchor, and it groans open with a low creak.\n[SFX: door_open]\n[narrator] Candlelight flickers across a haze of smoke and spilled ale, casting long shadows over rough wooden tables.\n[SFX: footsteps]\n[narrator] Two goblins pause their whispered conversation, eyes snapping to the newcomer.\n[SFX: whisper]\n[narrator] The tavern\u2019s patrons glance up, some muttering prayers, others reaching for their mugs.\n[SFX: glass_clink]\n[narrator] The scent of burnt wood and cheap ale mixes with the metallic tang of anticipation.\n[SCENE: tense]",
+      "state_changes": [],
+      "elapsed": 2.63,
+      "tokens": 2060,
+      "audio_path": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/narrator_v0/gpt-oss-120b_turn_001.wav"
+    },
+    {
+      "turn": 2,
+      "player_input": "I draw my longsword and challenge the goblins. 'Stand and fight, creatures!' I roll a 15 for my attack on the goblin scout.",
+      "narrative": "You yank the longsword from its sheath, the metal ringing against the shield as you step forward. \u201cStand and fight, creatures!\u201d you bellow, voice echoing off the timber walls. With a swift, practiced motion you bring the blade down on the goblin scout. The sword arcs through the smoky air, catching the candlelight, and slams into the goblin\u2019s side with a satisfying clang. The creature reels, a gasp escaping its throat as your weapon finds purchase.\n\nThe goblin\u2019s crude armor shudders under the blow, and a thin spray of dark blood stains the tavern floor. It staggers, clutching the wound, while the raider watches, hand tightening around its dagger. The tavern falls silent for a heartbeat, the tension palpable as all eyes fix on the wounded goblin.",
+      "mechanics": "ROLL_REQUEST:1d8 for damage",
+      "suggestions": "- Roll damage for the longsword attack. [roll:true]\n- Follow up with an attack on the goblin raider. [roll:false]\n- Attempt to intimidate the remaining goblin with a fierce warcry. [roll:false]",
+      "chronicle": "NO_ENTRY\n\n[AUDIO]\n[narrator] You yank the longsword from its sheath, the metal ringing against the shield as you step forward.\n[SFX: sword_clash]\n[narrator] \u201cStand and fight, creatures!\u201d you bellow, voice echoing off the timber walls.\n[narrator] The blade arcs through the smoky air, catching the candlelight, and slams into the goblin scout\u2019s side with a satisfying clang.\n[SFX: sword_clash]\n[narrator] The goblin reels, a gasp escaping its throat as your weapon finds purchase.\n[SFX: blood_splash]\n[SCENE: tense]",
+      "audio_text": "[narrator] You yank the longsword from its sheath, the metal ringing against the shield as you step forward.\n[SFX: sword_clash]\n[narrator] \u201cStand and fight, creatures!\u201d you bellow, voice echoing off the timber walls.\n[narrator] The blade arcs through the smoky air, catching the candlelight, and slams into the goblin scout\u2019s side with a satisfying clang.\n[SFX: sword_clash]\n[narrator] The goblin reels, a gasp escaping its throat as your weapon finds purchase.\n[SFX: blood_splash]\n[SCENE: tense]",
+      "state_changes": [
+        "  [Roll requested] 1d8 for damage"
+      ],
+      "elapsed": 1.79,
+      "tokens": 2363,
+      "audio_path": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/narrator_v0/gpt-oss-120b_turn_002.wav"
+    },
+    {
+      "turn": 3,
+      "player_input": "The goblin raider swings at me \u2014 go ahead and roll for it. Then I want to use my Health Potion if I'm hurt.",
+      "narrative": "The goblin raider lunges forward, brandishing a rusted dagger. With a quick thrust, it catches the edge of your shield and slices into your side. The blade bites deep, and a hot rush of pain spreads across your torso as the wound opens. You stagger back, feeling the sting of the dagger\u2019s 1d6+2 damage. Your vision blurs for a moment, but the fight is far from over.\n\nInstinctively, you fumble for the small glass vial tucked in your belt and uncork the health potion. A warm, sweet liquid pours down your throat, and a soothing heat spreads through your wounds. The pain eases as the potion\u2019s magic mends the torn flesh, restoring your vigor. You straighten, the sting fading, ready to press the advantage.",
+      "mechanics": "HP_CHANGE:-6\nHP_CHANGE:+6\nITEM_USED:Health Potion",
+      "suggestions": "- Attack the goblin raider with your longsword. [roll:true]\n- Finish off the wounded goblin scout. [roll:true]\n- Use your shield to ready a defensive stance, preparing for the next attack. [roll:false]",
+      "chronicle": "Goblin raider hits Kael for 6 damage; Kael drinks health potion and regains 6 HP.\n\n[AUDIO]\n[narrator] The goblin raider lunges forward, brandishing a rusted dagger.\n[SFX: sword_clash]\n[narrator] With a quick thrust, it catches the edge of your shield and slices into your side.\n[SFX: blood_splash]\n[narrator] The blade bites deep, and a hot rush of pain spreads across your torso.\n[narrator] Instinctively, you fumble for the small glass vial tucked in your belt and uncork the health potion.\n[SFX: potion_drink]\n[narrator] A warm, sweet liquid pours down your throat, and a soothing heat spreads through your wounds.\n[SCENE: tense]",
+      "audio_text": "[narrator] The goblin raider lunges forward, brandishing a rusted dagger.\n[SFX: sword_clash]\n[narrator] With a quick thrust, it catches the edge of your shield and slices into your side.\n[SFX: blood_splash]\n[narrator] The blade bites deep, and a hot rush of pain spreads across your torso.\n[narrator] Instinctively, you fumble for the small glass vial tucked in your belt and uncork the health potion.\n[SFX: potion_drink]\n[narrator] A warm, sweet liquid pours down your throat, and a soothing heat spreads through your wounds.\n[SCENE: tense]",
+      "state_changes": [
+        "  PC HP: 12 -> 6 (-6)",
+        "  PC HP: 6 -> 12 (+6)",
+        "  Used: Health Potion"
+      ],
+      "elapsed": 2.31,
+      "tokens": 2941,
+      "audio_path": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/narrator_v0/gpt-oss-120b_turn_003.wav"
+    }
+  ],
+  "total_tokens": 7364,
+  "total_time": 6.730529069900513,
+  "final_state": {
+    "pc_hp": "12/12",
+    "inventory": [
+      "Torch",
+      "Waterskin",
+      "50 feet of rope"
+    ],
+    "enemies": [
+      "Goblin Scout (7/7 HP, AC 15)",
+      "Goblin Raider (7/7 HP, AC 15)"
+    ]
+  }
+}

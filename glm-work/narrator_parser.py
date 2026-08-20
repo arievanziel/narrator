@@ -167,7 +167,9 @@ def extract_pause_markers(text: str) -> tuple[str, float]:
         if count > 0:
             total_pause += count * seconds
             clean_text = clean_text.replace(marker, "")
-    return clean_text.strip(), total_pause
+    # Collapse multiple spaces left by removed markers
+    clean_text = re.sub(r" {2,}", " ", clean_text).strip()
+    return clean_text, total_pause
 
 
 def parse_speaker_tag(line: str) -> tuple[Optional[str], str]:
@@ -181,28 +183,96 @@ def parse_speaker_tag(line: str) -> tuple[Optional[str], str]:
     return None, line
 
 
+# Quote characters: ASCII straight + Unicode curly
+OPEN_QUOTES = '"\u201c\u00ab'  # " " «
+CLOSE_QUOTES = '"\u201d\u00bb'  # " " »
+ALL_QUOTES = OPEN_QUOTES + CLOSE_QUOTES
+
+# Characters that end a sentence (optionally followed by a closing quote/bracket)
+_SENTENCE_FINAL = set('.!?')
+_SENTENCE_FINAL_SUFFIX = set('"\'\u201d\u2019\u00bb)]')  # closing quotes/brackets
+
+
+def _ends_sentence_final(text: str) -> bool:
+    """Check if text ends with sentence-final punctuation (., !, ?) optionally
+    followed by a closing quote or bracket."""
+    stripped = text.rstrip()
+    if not stripped:
+        return False
+    last = stripped[-1]
+    if last in _SENTENCE_FINAL:
+        return True
+    if last in _SENTENCE_FINAL_SUFFIX and len(stripped) >= 2:
+        return stripped[-2] in _SENTENCE_FINAL
+    return False
+
+
+def join_wrapped_lines(text: str) -> list[str]:
+    """Join hard-wrapped lines into logical lines.
+
+    A line is a continuation of the previous if:
+    - It's not blank
+    - It doesn't start with [S1]/[S2] tag
+    - The previous logical line doesn't end with sentence-final punctuation
+      (., !, ? optionally followed by a closing quote/bracket)
+
+    Blank lines are preserved as paragraph separators.
+    """
+    logical_lines: list[str] = []
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            # Blank line — paragraph break
+            logical_lines.append("")
+            continue
+        # Check if this line starts a new segment
+        starts_new = (
+            line.startswith(("[S1]", "[S2]"))
+            or not logical_lines
+            or logical_lines[-1] == ""
+            or _ends_sentence_final(logical_lines[-1])
+        )
+        if starts_new:
+            logical_lines.append(line)
+        else:
+            # Continuation — join with space
+            logical_lines[-1] = logical_lines[-1] + " " + line
+    return logical_lines
+
+
 def is_dialogue(text: str) -> bool:
-    """Check if text looks like quoted dialogue."""
+    """Check if text looks like quoted dialogue (starts and ends with quotes).
+
+    Lines with more than 2 quotes likely contain narrator attribution
+    (e.g. '"No," she said. "I won't again."') and are classified as
+    narrator, not pure dialogue.
+    """
     stripped = text.strip()
-    return (stripped.startswith('"') and stripped.endswith('"')) or \
-           (stripped.startswith('"') and stripped.endswith('"')) or \
-           (stripped.startswith('"') and stripped.endswith('"'))
+    if len(stripped) < 2:
+        return False
+    first = stripped[0]
+    last = stripped[-1]
+    if first not in OPEN_QUOTES or last not in CLOSE_QUOTES:
+        return False
+    # Count quote characters — >2 means mixed dialogue + attribution
+    quote_count = sum(1 for ch in stripped if ch in ALL_QUOTES)
+    return quote_count <= 2
 
 
 def parse_text(text: str) -> list[Segment]:
     """Parse pasted text into a list of TTS-ready segments.
-    
+
     Handles:
     - [S1]/[S2] speaker tags
     - (emotion) cues
     - [beat]/[long beat] pause markers
     - Quoted dialogue (auto-labeled as "character")
     - Unquoted text (labeled as "narrator")
+    - Hard line-wrapping (joined into logical lines before parsing)
     """
     segments = []
-    
-    for raw_line in text.strip().splitlines():
-        line = raw_line.strip()
+
+    for line in join_wrapped_lines(text):
         if not line:
             continue
         
@@ -255,7 +325,7 @@ def parse_text(text: str) -> list[Segment]:
 
 def segments_to_text(segments: list[Segment], for_single_speaker: bool = False) -> str:
     """Convert segments back to plain text (for single-speaker TTS models).
-    
+
     If for_single_speaker=True, strips speaker labels and emotion cues,
     producing one continuous text block.
     """
@@ -266,32 +336,68 @@ def segments_to_text(segments: list[Segment], for_single_speaker: bool = False) 
         for s in segments:
             prefix = f"[{s.speaker}]" if s.speaker != "narrator" else ""
             emo = f" ({s.emotion})" if s.emotion else ""
-            lines.append(f"{prefix}{emo} {s.text}")
+            # Build line, avoiding leading space when prefix is empty
+            line = f"{prefix}{emo} {s.text}".strip()
+            lines.append(line)
         return "\n".join(lines)
+
+
+def segments_to_native_multi_speaker(segments: list[Segment]) -> str:
+    """Convert segments to text with inline [S1]/[S2] tags for models that
+    support native multi-speaker (e.g. Dia-1.6B).
+
+    Narrator segments are emitted without a tag (Dia treats untagged text as
+    a default narrator voice). Character segments use [character] since Dia
+    only supports [S1]/[S2] — the caller should map character→S1/S2 before
+    sending to Dia if needed.
+
+    Emotion cues are emitted as parentheticals before the text, which Dia
+    may interpret as stage directions.
+    """
+    lines = []
+    for s in segments:
+        if s.speaker in ("S1", "S2"):
+            prefix = f"[{s.speaker}] "
+        elif s.speaker == "narrator":
+            prefix = ""
+        else:
+            # character or custom — use as-is if it looks like a tag,
+            # otherwise wrap in brackets
+            prefix = f"[{s.speaker}] " if not s.speaker.startswith("[") else f"{s.speaker} "
+        emo = f"({s.emotion}) " if s.emotion else ""
+        lines.append(f"{prefix}{emo}{s.text}")
+    return "\n".join(lines)
 
 
 def main():
     """Demo: parse the test scripts and show the segment structure."""
     from pathlib import Path
-    
+
     scripts_dir = Path(__file__).resolve().parent / "test_scripts"
-    
+
     for script_file in sorted(scripts_dir.glob("*.txt")):
         print(f"\n{'='*60}")
         print(f"Parsing: {script_file.name}")
         print(f"{'='*60}")
-        
+
         text = script_file.read_text()
         segments = parse_text(text)
-        
+
         print(f"Found {len(segments)} segments:\n")
         for i, seg in enumerate(segments):
             print(f"  [{i:2d}] {seg}")
-        
-        # Show single-speaker adaptation
+
+        # Show all three output modes
         single_text = segments_to_text(segments, for_single_speaker=True)
-        print(f"\nSingle-speaker adaptation ({len(single_text)} chars):")
-        print(f"  {single_text[:100]}...")
+        print(f"\nSingle-speaker mode ({len(single_text)} chars):")
+        print(f"  {single_text[:120]}...")
+
+        native_text = segments_to_native_multi_speaker(segments)
+        print(f"\nNative multi-speaker mode (Dia-style, {len(native_text)} chars):")
+        for line in native_text.splitlines()[:5]:
+            print(f"  {line}")
+        if native_text.count("\n") > 5:
+            print(f"  ... ({native_text.count(chr(10)) + 1} lines total)")
 
 
 if __name__ == "__main__":

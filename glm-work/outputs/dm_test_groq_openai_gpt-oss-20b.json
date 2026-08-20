@@ -1,0 +1,98 @@
+{
+  "model": "openai/gpt-oss-20b",
+  "provider": "groq",
+  "turns": [
+    {
+      "turn": 1,
+      "player_input": "I push open the tavern door and step inside, hand on my sword hilt.",
+      "narrative": "",
+      "mechanics": "",
+      "suggestions": "",
+      "chronicle": "",
+      "state_changes": [],
+      "issues": [
+        "Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']"
+      ],
+      "elapsed": 3.56,
+      "tokens": {
+        "prompt_tokens": 907,
+        "completion_tokens": 2000,
+        "total_tokens": 2907
+      }
+    },
+    {
+      "turn": 2,
+      "player_input": "I draw my longsword and attack the nearest goblin. I rolled a 14 on my attack roll.",
+      "narrative": "You swing your longsword in a clean arc, the blade flashing in the dim candlelight. The nearest goblin, a lanky Scout with a crooked green hood, barely sidesteps the blow, its arm brushing the edge of your blade. The thud of metal against flesh echoes faintly as the attack lands\u2014only on the Scout\u2019s shield, not on the goblin\u2019s flesh. The Scout grunts, its eyes flicking to you with a mix of annoyance and fear, and retreats a step, clutching its dagger. The Goblin Raider behind it watches warily, r",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Aim for the Goblin Raider\u2019s head, hoping for a critical hit [roll:true]  \n- Use the torch to light the room and see better [roll:false]  \n- Attempt to disarm the Goblin Scout before it can retaliate [roll:true]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 0.74,
+      "tokens": {
+        "prompt_tokens": 939,
+        "completion_tokens": 286,
+        "total_tokens": 1225
+      }
+    },
+    {
+      "turn": 3,
+      "player_input": "I use my bonus action to look around for other threats. I rolled a 12 for Perception.",
+      "narrative": "You pause, your hand still on the hilt of your longsword, and scan the tavern\u2019s cramped interior. The low candlelight flickers against the rough wooden walls, casting long shadows across the tables. From the corner of your eye, the Goblin Scout and the Goblin Raider remain in their positions, eyes narrowed and weapons at the ready. The tavern\u2019s patrons\u2014an old barkeep, a pair of rough\u2011looking sailors, and a lone woman nursing a mug\u2014don\u2019t seem to notice the skirmish. No hidden threats or lurking f",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Strike the Goblin Scout again, aiming for a critical hit [roll:true]  \n- Target the Goblin Raider, hoping to finish it off before it can react [roll:true]  \n- Use the torch to illuminate the tavern and reveal any hidden corners [roll:false]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 1.16,
+      "tokens": {
+        "prompt_tokens": 1178,
+        "completion_tokens": 579,
+        "total_tokens": 1757
+      }
+    },
+    {
+      "turn": 4,
+      "player_input": "The goblin scout swings at me \u2014 go ahead and roll for it, then I'll respond.",
+      "narrative": "The Goblin Scout lunges forward, dagger glinting in the candlelight. With a quick, jerky motion, it hurls the blade toward you. The dagger slices through the air, finding a spot in your chain\u2011mail armor. A sting of pain surges up your arm, the metal biting into flesh. You stagger back a step, feeling the sting of the wound as the goblin retreats, its eyes flicking to the other goblin with a wary glance.",
+      "mechanics": "HP_CHANGE:-6",
+      "suggestions": "- Attack the Goblin Scout again, aiming for a critical hit [roll:true]  \n- Target the Goblin Raider, hoping to finish it off before it can react [roll:true]  \n- Use the torch to illuminate the tavern and reveal any hidden corners [roll:false]",
+      "chronicle": "Goblin Scout attacks Kael, dealing 6 damage.",
+      "state_changes": [
+        "  PC HP: 12 -> 6 (-6)"
+      ],
+      "issues": [],
+      "elapsed": 6.69,
+      "tokens": {
+        "prompt_tokens": 1437,
+        "completion_tokens": 505,
+        "total_tokens": 1942
+      }
+    },
+    {
+      "turn": 5,
+      "error": "Error code: 400 - {'error': {'message': 'Tool choice is none, but model called a tool', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"assistant\", \"arguments\": {\"response\":[{\"role\":\"assistant\",\"content\":\"[ROLL_REQUEST:1d8 for damage]\"}]}}'}}"
+    }
+  ],
+  "final_state": {
+    "pc_hp": "6/12",
+    "inventory": [
+      "Health Potion",
+      "Torch",
+      "Waterskin",
+      "50 feet of rope"
+    ],
+    "enemies": [
+      "Goblin Scout (7/7 HP, AC 15)",
+      "Goblin Raider (7/7 HP, AC 15)"
+    ],
+    "chronicle": []
+  },
+  "issues": [
+    "Turn 1: Missing sections: ['NARRATIVE', 'MECHANICS', 'SUGGESTIONS', 'CHRONICLE']",
+    "Turn 5 API error: Error code: 400 - {'error': {'message': 'Tool choice is none, but model called a tool', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"assistant\", \"arguments\": {\"response\":[{\"role\":\"assistant\",\"content\":\"[ROLL_REQUEST:1d8 for damage]\"}]}}'}}"
+  ],
+  "total_tokens": 7831,
+  "total_time": 12.142913341522217
+}

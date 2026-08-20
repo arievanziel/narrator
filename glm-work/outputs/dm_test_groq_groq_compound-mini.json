@@ -1,0 +1,193 @@
+{
+  "model": "groq/compound-mini",
+  "provider": "groq",
+  "turns": [
+    {
+      "turn": 1,
+      "player_input": "I push open the tavern door and step inside, hand on my sword hilt.",
+      "narrative": "The heavy wooden door creaks as Kael pushes it open, the dim candlelight spilling onto the worn floorboards of the Rusty Anchor. The smell of stale ale and smoke hangs heavy in the air. Two goblin eyes flicker to the newcomer\u2014a Goblin Scout perched on a stool near the bar, and a Goblin Raider leaning against a table, a crude dagger glinting at his side. Both hiss lowly, hands drifting toward their weapons, clearly surprised but ready for a fight.\n\nKael\u2019s hand rests on the hilt of his longsword, ",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Attack the Goblin Scout with your longsword [roll:true]  \n- Attack the Goblin Raider with your longsword [roll:true]  \n- Attempt to intimidate the goblins, demanding they stand down [roll:true]",
+      "chronicle": "Encounter begins at the Rusty Anchor tavern.",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 3.38,
+      "tokens": {
+        "prompt_tokens": 2100,
+        "completion_tokens": 977,
+        "total_tokens": 3077
+      }
+    },
+    {
+      "turn": 2,
+      "player_input": "I draw my longsword and attack the nearest goblin. I rolled a 14 on my attack roll.",
+      "narrative": "Kael swiftly draws his longsword, the steel flashing in the dim candlelight. He lunges at the nearest goblin, the Goblin Scout, and swings with practiced precision. The goblin, however, ducks low, the blade clattering harmlessly against the wooden table leg. The attack misses by a hair\u2019s breadth, and the goblin snarls, readying his own crude dagger.\n\nThe tavern\u2019s tension rises as the goblins exchange wary glances. The other patrons watch with bated breath, unsure whether to intervene or flee. Ka",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Attack the Goblin Scout again with your longsword [roll:true]  \n- Attack the Goblin Raider instead [roll:true]  \n- Attempt to grapple the Goblin Scout to restrain him [roll:true]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 1.93,
+      "tokens": {
+        "prompt_tokens": 2658,
+        "completion_tokens": 597,
+        "total_tokens": 3255
+      }
+    },
+    {
+      "turn": 3,
+      "player_input": "I use my bonus action to look around for other threats. I rolled a 12 for Perception.",
+      "narrative": "Kael shifts his focus, using his bonus action to scan the tavern for any hidden dangers. With a keen glance, his eyes catch the faint outline of a loose floorboard near the bar\u2014a subtle sign that something might be concealed beneath. He also notices a shadow moving just beyond the doorway, a cloaked figure slipping quietly toward the back room, seemingly trying to avoid the commotion. The goblins, still on edge, haven\u2019t spotted the newcomer yet.\n\nThe tavern\u2019s atmosphere grows tenser as Kael beco",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Focus your attack on the Goblin Scout now that you\u2019ve identified it more clearly [roll:true]  \n- Move toward the loose floorboard to investigate what\u2019s underneath [roll:false]  \n- Confront the cloaked figure in the back room, demanding they reveal themselves [roll:true]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 2.35,
+      "tokens": {
+        "prompt_tokens": 3125,
+        "completion_tokens": 663,
+        "total_tokens": 3788
+      }
+    },
+    {
+      "turn": 4,
+      "player_input": "The goblin scout swings at me \u2014 go ahead and roll for it, then I'll respond.",
+      "narrative": "The Goblin Scout lunges forward, dagger flashing as it aims for Kael\u2019s midsection. With a swift roll of 11 plus its +4 attack bonus, the goblin\u2019s strike lands a 15\u2014just shy of Kael\u2019s armor class of 16. The blade whistles past, grazing the edge of his shield and missing its mark. Kael feels the rush of air but remains unscathed, the tavern\u2019s tense silence broken only by the clatter of the goblin\u2019s missed attack.\n\nThe Goblin Raider watches intently, ready to capitalize on any opening, while the cl",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Attack the Goblin Scout with your longsword [roll:true]  \n- Attack the Goblin Raider instead [roll:true]  \n- Move toward the loose floorboard to investigate what\u2019s underneath [roll:false]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 2.85,
+      "tokens": {
+        "prompt_tokens": 3659,
+        "completion_tokens": 835,
+        "total_tokens": 4494
+      }
+    },
+    {
+      "turn": 5,
+      "player_input": "I attack the goblin raider. I rolled a 19 on my attack roll.",
+      "narrative": "Kael pivots his weight and drives his longsword toward the Goblin Raider, the blade humming as it arcs through the dim light. The attack roll of 19 easily pierces the goblin\u2019s defenses, striking true. With a solid thud, the sword bites deep into the Raider\u2019s torso, the blade\u2019s edge flashing as it cleaves through armor and flesh. The goblin lets out a guttural scream, stumbling backward before collapsing onto the tavern floor, lifeless. The remaining Goblin Scout eyes the fallen comrade warily, i",
+      "mechanics": "ENEMY_HP:Goblin Raider,0/7\nENEMY_DEAD:Goblin Raider\nNO_MECHANICS",
+      "suggestions": "- Attack the Goblin Scout now that the Raider is down [roll:true]  \n- Move toward the loose floorboard to investigate what\u2019s underneath [roll:false]  \n- Confront the cloaked figure in the back room, demanding they reveal themselves [roll:true]",
+      "chronicle": "Goblin Raider slain by Kael\u2019s attack.",
+      "state_changes": [
+        "  Goblin Raider HP -> 0/7"
+      ],
+      "issues": [],
+      "elapsed": 2.49,
+      "tokens": {
+        "prompt_tokens": 4163,
+        "completion_tokens": 772,
+        "total_tokens": 4935
+      }
+    },
+    {
+      "turn": 6,
+      "player_input": "I roll damage for my longsword: 1d8+3 = I got a 5, so 8 damage total.",
+      "narrative": "Kael\u2019s longsword arcs in a clean, powerful strike, the blade biting deep into the Goblin Scout\u2019s chest. The goblin lets out a high-pitched yelp as the steel cleaves through its armor, and the impact sends a spray of blood onto the tavern floor. The creature collapses in a heap, its dagger clattering to the wood as it breathes its last. The tavern falls silent save for the soft hiss of the candle flames, the patrons\u2019 eyes wide with a mixture of fear and awe at the swift end of the threat.\n\nThe cl",
+      "mechanics": "ENEMY_HP:Goblin Scout,0/7\nENEMY_DEAD:Goblin Scout",
+      "suggestions": "- Investigate the loose floorboard near the bar to see what\u2019s hidden underneath [roll:false]  \n- Confront the cloaked figure in the back room, demanding they reveal themselves [roll:true]  \n- Search the fallen Goblin Scout for any loot or clues [roll:false]",
+      "chronicle": "Goblin Scout slain by Kael\u2019s longsword.",
+      "state_changes": [
+        "  Goblin Scout HP -> 0/7"
+      ],
+      "issues": [],
+      "elapsed": 2.36,
+      "tokens": {
+        "prompt_tokens": 4902,
+        "completion_tokens": 647,
+        "total_tokens": 5549
+      }
+    },
+    {
+      "turn": 7,
+      "player_input": "I'm hurt. I drink my Health Potion as my action this turn.",
+      "narrative": "Kael feels the sting of battle coursing through his veins, the bruises and fatigue evident despite his armor. He reaches into his satchel, pulls out the small corked vial, and uncorks the health potion. The liquid glows a faint ruby red, and he brings it to his lips, feeling the warm, soothing magic spread through his body as he drinks.",
+      "mechanics": "ROLL_REQUEST:2d4+2 for Healing",
+      "suggestions": "- Wait for the healing roll result to apply the potion\u2019s effect [roll:false]  \n- After drinking, move to investigate the loose floorboard near the bar [roll:false]  \n- After drinking, confront the cloaked figure in the back room [roll:false]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [
+        "  [Roll requested] 2d4+2 for Healing"
+      ],
+      "issues": [],
+      "elapsed": 4.26,
+      "tokens": {
+        "prompt_tokens": 5516,
+        "completion_tokens": 586,
+        "total_tokens": 6102
+      }
+    },
+    {
+      "turn": 8,
+      "player_input": "I try to intimidate the surviving goblin into surrendering. I rolled a 10 on Intimidation.",
+      "narrative": "Kael steps forward, voice low and threatening, attempting to intimidate the \"surviving goblin\" into surrender. However, the tavern floor is already littered with the bodies of the Goblin Scout and Goblin Raider, both lifeless. There is no goblin left to sway with words, and the remaining patrons stare at the fallen foes, their fear now directed at the sudden silence.\n\nWith the immediate threat eliminated, Kael can turn his attention to other matters in the Rusty Anchor\u2014perhaps investigating the ",
+      "mechanics": "NO_MECHANICS",
+      "suggestions": "- Investigate the loose floorboard near the bar to see what\u2019s hidden underneath [roll:false]  \n- Confront the cloaked figure in the back room, demanding they reveal themselves [roll:true]  \n- Search the tavern for any loot, clues, or hidden compartments [roll:false]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [],
+      "issues": [],
+      "elapsed": 2.39,
+      "tokens": {
+        "prompt_tokens": 5891,
+        "completion_tokens": 576,
+        "total_tokens": 6467
+      }
+    },
+    {
+      "turn": 9,
+      "player_input": "If the goblin surrenders, I tie it up with my rope and question it about why it attacked.",
+      "narrative": "Kael reaches for his rope, intending to bind the goblin that might surrender, but the tavern floor tells a different story. The bodies of both the Goblin Scout and Goblin Raider lie still, their throats cut and weapons clattering on the wooden planks. There is no surviving goblin to question or restrain. The patrons watch in stunned silence, the tension now hanging heavy in the candlelit air.\n\nMeanwhile, the health potion you uncorked earlier still sits at your lips, its warm magic waiting to me",
+      "mechanics": "ROLL_REQUEST:2d4+2 for Healing",
+      "suggestions": "- Wait for the healing roll result to apply the potion\u2019s effect [roll:false]  \n- Investigate the loose floorboard near the bar to see what\u2019s hidden underneath [roll:false]  \n- Confront the cloaked figure in the back room, demanding they reveal themselves [roll:true]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [
+        "  [Roll requested] 2d4+2 for Healing"
+      ],
+      "issues": [],
+      "elapsed": 3.05,
+      "tokens": {
+        "prompt_tokens": 6375,
+        "completion_tokens": 860,
+        "total_tokens": 7235
+      }
+    },
+    {
+      "turn": 10,
+      "player_input": "I search the bodies of the dead goblins for anything useful.",
+      "narrative": "Kael steadies himself, the clatter of the fallen goblins still echoing in the tavern. Before he can rummage through their bodies for any useful items, the health potion he uncorked earlier sits ready at his lips, its warm magic waiting to mend his wounds. He knows he must finish drinking the potion and determine how much it heals before turning his attention to the goblins\u2019 remains.",
+      "mechanics": "ROLL_REQUEST:2d4+2 for Healing",
+      "suggestions": "- Roll the 2d4+2 healing dice for the health potion you\u2019re drinking [roll:true]  \n- Once healed, search the goblin bodies for any loot or clues [roll:false]",
+      "chronicle": "NO_ENTRY",
+      "state_changes": [
+        "  [Roll requested] 2d4+2 for Healing"
+      ],
+      "issues": [],
+      "elapsed": 2.86,
+      "tokens": {
+        "prompt_tokens": 6886,
+        "completion_tokens": 741,
+        "total_tokens": 7627
+      }
+    }
+  ],
+  "final_state": {
+    "pc_hp": "12/12",
+    "inventory": [
+      "Health Potion",
+      "Torch",
+      "Waterskin",
+      "50 feet of rope"
+    ],
+    "enemies": [
+      "Goblin Scout (0/7 HP, AC 15 [DEAD])",
+      "Goblin Raider (0/7 HP, AC 15 [DEAD])"
+    ],
+    "chronicle": []
+  },
+  "issues": [],
+  "total_tokens": 52529,
+  "total_time": 27.91332459449768
+}
