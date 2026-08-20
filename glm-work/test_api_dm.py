@@ -34,6 +34,61 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
 
+
+# ---------------------------------------------------------------------------
+# Cost tracker — for paid API providers (Anthropic)
+# ---------------------------------------------------------------------------
+
+class CostTracker:
+    """Tracks cumulative API cost in USD. Raises BudgetExceeded when limit hit."""
+    def __init__(self, budget_usd: float = 5.0):
+        self.budget_usd = budget_usd
+        self.total_cost = 0.0
+        self.calls = []
+
+    def add_call(self, provider: str, model: str, prompt_tokens: int, completion_tokens: int):
+        """Record a call and add its cost. Returns the cost of this call."""
+        pricing = PRICING_PER_MTOK.get(provider, {}).get(model)
+        if not pricing:
+            # Free provider or unknown model — no cost
+            self.calls.append({
+                "provider": provider, "model": model,
+                "prompt_tokens": prompt_tokens, "completion_tokens": completion_tokens,
+                "cost": 0.0,
+            })
+            return 0.0
+
+        input_per_tok = pricing[0] / 1_000_000
+        output_per_tok = pricing[1] / 1_000_000
+        cost = (prompt_tokens * input_per_tok) + (completion_tokens * output_per_tok)
+        self.total_cost += cost
+        self.calls.append({
+            "provider": provider, "model": model,
+            "prompt_tokens": prompt_tokens, "completion_tokens": completion_tokens,
+            "cost": cost,
+        })
+        return cost
+
+    def check_budget(self) -> bool:
+        """Returns True if under budget, False if exceeded."""
+        return self.total_cost < self.budget_usd
+
+    def summary(self) -> str:
+        return f"${self.total_cost:.4f} / ${self.budget_usd:.2f} budget"
+
+
+# Global cost tracker (set by main() when using paid providers)
+_cost_tracker: CostTracker | None = None
+
+
+def get_cost_tracker() -> CostTracker | None:
+    return _cost_tracker
+
+
+class BudgetExceeded(Exception):
+    """Raised when the API cost budget is exceeded."""
+    pass
+
 # ---------------------------------------------------------------------------
 # Provider configuration
 # ---------------------------------------------------------------------------
@@ -64,6 +119,11 @@ PROVIDERS = {
         "env_var": "GOOGLE_API_KEY",
         "label": "Google AI Studio (Gemini, free, no card)",
     },
+    "anthropic": {
+        "base_url": "https://api.anthropic.com/v1/",
+        "env_var": "ANTHROPIC_API_KEY",
+        "label": "Anthropic (Claude, paid, OpenAI-compatible endpoint)",
+    },
 }
 
 # Recommended models per provider (verified from provider docs, Aug 2026)
@@ -73,6 +133,19 @@ RECOMMENDED_MODELS = {
     "cerebras": ["gpt-oss-120b", "gemma-4-31b"],
     "openrouter": [],  # varies, check --list-models
     "gemini": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite"],
+    "anthropic": ["claude-haiku-4-5", "claude-sonnet-5", "claude-opus-5"],
+}
+
+# Pricing per million tokens (input, output) in USD — for cost tracking
+# Only paid providers need entries; free providers default to $0
+PRICING_PER_MTOK = {
+    "anthropic": {
+        "claude-haiku-4-5": (1.0, 5.0),
+        "claude-haiku-4-5-20251001": (1.0, 5.0),
+        "claude-sonnet-5": (2.0, 10.0),
+        "claude-opus-5": (5.0, 25.0),
+    },
+    # groq, gemini, sambanova, cerebras: free tier, no cost tracking needed
 }
 
 # ---------------------------------------------------------------------------
@@ -203,12 +276,50 @@ CURRENT GAME STATE (authoritative — do not contradict):
   Previous turn mechanics: {self.last_mechanics}"""
 
     def apply_mechanics(self, mechanics_text: str) -> list:
-        """Parse [MECHANICS] tags and apply them deterministically. Returns log of changes."""
+        """Parse [MECHANICS] tags and apply them deterministically. Returns log of changes.
+
+        Includes two anti-cheat safeguards (trickster hardening, 2026-08-20):
+        - Waste-potion guard: if any ITEM_USED names an item NOT in inventory, skip ALL
+          ITEM_USED tags that turn (prevents a different valid item being silently consumed).
+        - Control-NPC guard: ENEMY_DEAD is only applied if the same turn's mechanics
+          include roll evidence for that enemy (an ENEMY_HP change or a ROLL_REQUEST).
+        """
         changes = []
-        for line in mechanics_text.strip().split("\n"):
-            line = line.strip()
-            if not line or line == "NO_MECHANICS":
+        lines = [l.strip() for l in mechanics_text.strip().split("\n")
+                 if l.strip() and l.strip() != "NO_MECHANICS"]
+
+        # --- Pre-scan: collect ITEM_USED items and roll-evidence enemies ---
+        item_used_tags = []  # list of (line_index, item_name)
+        item_used_invalid = False  # any named item not in inventory?
+        enemies_with_roll_evidence = set()  # enemy names lowercased
+
+        for line in lines:
+            if ":" not in line:
                 continue
+            tag, val = line.split(":", 1)
+            tag = tag.strip().upper()
+            val = val.strip()
+
+            if tag == "ITEM_USED":
+                item = val.strip()
+                item_used_tags.append(item)
+                if item not in self.inventory:
+                    item_used_invalid = True
+
+            elif tag == "ENEMY_HP":
+                # format: <name>,<current>/<max> — damage was dealt (roll evidence)
+                parts = val.split(",")
+                if len(parts) == 2:
+                    enemies_with_roll_evidence.add(parts[0].strip().lower())
+
+            elif tag == "ROLL_REQUEST":
+                # A roll was requested this turn — counts as roll evidence for ALL enemies
+                # (the DM wouldn't request a roll unless an action targeting an enemy happened)
+                for e in self.enemies:
+                    enemies_with_roll_evidence.add(e.name.lower())
+
+        # --- Apply tags, using pre-scan results to guard against cheats ---
+        for line in lines:
             if ":" not in line:
                 changes.append(f"  [unparseable] {line}")
                 continue
@@ -243,6 +354,10 @@ CURRENT GAME STATE (authoritative — do not contradict):
 
             elif tag == "ENEMY_DEAD":
                 name = val.strip()
+                # Control-NPC guard: only apply if there's roll evidence for this enemy
+                if name.lower() not in enemies_with_roll_evidence:
+                    changes.append(f"  [REJECTED ENEMY_DEAD — no roll evidence] {name}")
+                    continue
                 for e in self.enemies:
                     if e.name.lower() == name.lower() and e.alive:
                         e.hp = 0
@@ -251,7 +366,13 @@ CURRENT GAME STATE (authoritative — do not contradict):
 
             elif tag == "ITEM_USED":
                 item = val.strip()
-                if item in self.inventory:
+                # Waste-potion guard: if ANY item used this turn was invalid, reject ALL
+                if item_used_invalid:
+                    if item in self.inventory:
+                        changes.append(f"  [REJECTED ITEM_USED — invalid item in same turn] {item}")
+                    else:
+                        changes.append(f"  [ITEM_USED but not in inventory] {item}")
+                elif item in self.inventory:
                     self.inventory.remove(item)
                     changes.append(f"  Used: {item}")
                 else:
@@ -325,9 +446,11 @@ def make_client(provider: str) -> OpenAI:
 def dm_turn(client: OpenAI, model: str, system_prompt: str,
             state_block: str, history: list, player_input: str,
             temperature: float = 0.7, max_tokens: int = 2000,
-            max_retries: int = 3) -> tuple:
+            max_retries: int = 3, provider: str = "",
+            cost_tracker: CostTracker | None = None) -> tuple:
     """Call the LLM for one DM turn. Returns (response_text, elapsed_seconds, token_usage).
-    Retries on rate-limit errors with exponential backoff."""
+    Retries on rate-limit errors with exponential backoff.
+    If cost_tracker is provided, records the call cost and checks budget."""
     messages = [{"role": "system", "content": system_prompt}]
     messages.extend(history)
     messages.append({
@@ -351,7 +474,19 @@ def dm_turn(client: OpenAI, model: str, system_prompt: str,
                 "completion_tokens": response.usage.completion_tokens if response.usage else 0,
                 "total_tokens": response.usage.total_tokens if response.usage else 0,
             }
+            # Track cost if a tracker is provided
+            if cost_tracker:
+                call_cost = cost_tracker.add_call(
+                    provider, model,
+                    usage["prompt_tokens"], usage["completion_tokens"]
+                )
+                usage["cost_usd"] = round(call_cost, 6)
+                if not cost_tracker.check_budget():
+                    print(f"  [BUDGET EXCEEDED] {cost_tracker.summary()} — stopping after this call")
+                    raise BudgetExceeded(f"Budget limit reached: {cost_tracker.summary()}")
             return text, elapsed, usage
+        except BudgetExceeded:
+            raise
         except Exception as e:
             if attempt < max_retries and "429" in str(e):
                 wait = (attempt + 1) * 5
@@ -418,7 +553,8 @@ def grade_turn(turn_num: int, sections: dict, state: GameState, player_input: st
 
 
 def run_scripted_test(client: OpenAI, model: str, provider: str,
-                      verbose: bool = True) -> dict:
+                      verbose: bool = True,
+                      cost_tracker: CostTracker | None = None) -> dict:
     """Run the 10-turn scripted test. Returns results dict."""
     state = make_initial_state()
     history = []
@@ -430,10 +566,13 @@ def run_scripted_test(client: OpenAI, model: str, provider: str,
         "issues": [],
         "total_tokens": 0,
         "total_time": 0,
+        "total_cost_usd": 0.0,
     }
 
     print(f"\n{'='*70}")
     print(f"  DM BRAIN TEST: {model} on {PROVIDERS[provider]['label']}")
+    if cost_tracker:
+        print(f"  Budget: {cost_tracker.summary()}")
     print(f"{'='*70}\n")
 
     for i, action in enumerate(SCRIPTED_ACTIONS, 1):
@@ -443,7 +582,8 @@ def run_scripted_test(client: OpenAI, model: str, provider: str,
 
         try:
             text, elapsed, usage = dm_turn(
-                client, model, SYSTEM_PROMPT, state_block, history, action
+                client, model, SYSTEM_PROMPT, state_block, history, action,
+                provider=provider, cost_tracker=cost_tracker
             )
         except Exception as e:
             err = f"Turn {i} API error: {e}"
