@@ -138,6 +138,20 @@ def generate_segment_qwen3(text: str, voice_desc: str, output_path: str,
         audio_format="wav", save=True, verbose=False,
     )
 
+    # Find the generated file (mlx_audio adds _000 suffix)
+    generated = Path(output_dir) / f"{prefix}.wav"
+    if generated.exists():
+        return str(generated)
+    # Try with _000 suffix
+    generated = Path(output_dir) / f"{prefix}_000.wav"
+    if generated.exists():
+        return str(generated)
+    # Try glob
+    files = list(Path(output_dir).glob(f"{prefix}*.wav"))
+    if files:
+        return str(files[0])
+    raise FileNotFoundError(f"Qwen3 TTS output not found: {output_path}")
+
 
 # Kokoro voice mapping (character name → Kokoro voice ID)
 KOKORO_VOICES = {
@@ -250,17 +264,19 @@ def generate_all_segments(segments: list, turn_id: str, cast: dict = None,
                   f"(RTF={elapsed/duration:.2f}) — {seg['speaker']} ({seg_engine})")
         except Exception as e:
             print(f"[audio] Segment {i} FAILED: {e}")
-            # Create silence fallback
+            # Create silence fallback proportional to text length
             sr = 24000
-            silence = np.zeros(int(sr * 0.5), dtype=np.float32)
+            est_dur = max(len(seg["text"]) / 15.0, 1.0)
+            silence = np.zeros(int(sr * est_dur), dtype=np.float32)
             sf.write(str(output_path), silence, sr)
             results.append({
                 "segment": seg,
                 "audio_path": str(output_path),
-                "duration": 0.5,
+                "duration": est_dur,
                 "gen_time": 0,
                 "error": str(e),
             })
+            print(f"[audio] Segment {i}: silence fallback ({est_dur:.1f}s)")
 
     if progress_callback:
         progress_callback(total, total, "Mixing audio...")
@@ -415,31 +431,40 @@ def mix_narration(segment_results: list, music_path: str = None,
     speech_track = speech_track[:actual_end]
 
     # Load and mix music
+    mixed = speech_track  # Default: no music
     if music_source == "procedural":
-        music_data, _ = generate_procedural_ambient(
-            len(speech_track) / target_sr, scene_mood, target_sr)
+        try:
+            music_data, _ = generate_procedural_ambient(
+                len(speech_track) / target_sr, scene_mood, target_sr)
+            music_track = music_data[:len(speech_track)] * music_volume
+            if len(music_track) < len(speech_track):
+                music_track = np.pad(music_track, (0, len(speech_track) - len(music_track)))
+            mixed = speech_track + music_track
+        except Exception as e:
+            print(f"[audio] Procedural music mix failed: {e}")
     elif music_path:
-        music_data, _ = load_music(music_path, len(speech_track) / target_sr, target_sr)
-        # Duck music during speech — lower volume where speech is present
-        music_gain = np.ones(len(speech_track), dtype=np.float32) * music_volume
-        # Simple ducking: reduce music where speech amplitude is high
-        speech_envelope = np.abs(speech_track)
-        # Smooth the envelope
-        window = int(0.1 * target_sr)
-        if len(speech_envelope) > window:
-            kernel = np.ones(window) / window
-            speech_envelope_smooth = np.convolve(speech_envelope, kernel, mode='same')
-            # Duck to 30% where speech is present
-            duck_factor = 1.0 - 0.7 * np.clip(speech_envelope_smooth * 5, 0, 1)
-            music_gain *= duck_factor
+        try:
+            music_data, _ = load_music(music_path, len(speech_track) / target_sr, target_sr)
+            # Duck music during speech — lower volume where speech is present
+            music_gain = np.ones(len(speech_track), dtype=np.float32) * music_volume
+            # Simple ducking: reduce music where speech amplitude is high
+            speech_envelope = np.abs(speech_track)
+            # Smooth the envelope
+            window = int(0.1 * target_sr)
+            if len(speech_envelope) > window:
+                kernel = np.ones(window) / window
+                speech_envelope_smooth = np.convolve(speech_envelope, kernel, mode='same')
+                # Duck to 30% where speech is present
+                duck_factor = 1.0 - 0.7 * np.clip(speech_envelope_smooth * 5, 0, 1)
+                music_gain *= duck_factor
 
-        music_track = music_data[:len(speech_track)] * music_gain[:len(music_data)]
-        if len(music_track) < len(speech_track):
-            music_track = np.pad(music_track, (0, len(speech_track) - len(music_track)))
+            music_track = music_data[:len(speech_track)] * music_gain[:len(music_data)]
+            if len(music_track) < len(speech_track):
+                music_track = np.pad(music_track, (0, len(speech_track) - len(music_track)))
 
-        mixed = speech_track + music_track
-    else:
-        mixed = speech_track
+            mixed = speech_track + music_track
+        except Exception as e:
+            print(f"[audio] Music mix failed: {e}")
 
     # Normalize to prevent clipping
     max_val = np.max(np.abs(mixed))
