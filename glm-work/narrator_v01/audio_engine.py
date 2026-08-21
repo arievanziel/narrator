@@ -174,24 +174,37 @@ def generate_segment_kokoro(text: str, voice_desc: str, output_path: str,
 
 
 def generate_all_segments(segments: list, turn_id: str, cast: dict = None,
-                           speed: float = 1.0, engine: str = "qwen3") -> list:
+                           speed: float = 1.0, engine: str = "qwen3",
+                           progress_callback=None) -> list:
     """Generate TTS for all story segments.
 
+    engine: 'qwen3', 'kokoro', or 'auto' (pick based on text length)
+    progress_callback: optional fn(done, total, info_str)
     Returns list of {segment, audio_path, duration} dicts.
     """
     results = []
     segments_dir = config.SEGMENTS_DIR / turn_id
     segments_dir.mkdir(parents=True, exist_ok=True)
 
+    total = len(segments)
     for i, seg in enumerate(segments):
         voice_desc = get_voice_description(seg["speaker"], cast)
         output_path = segments_dir / f"seg_{i:03d}.wav"
+
+        # Auto mode: use Kokoro for short segments, Qwen3 for longer ones
+        if engine == "auto":
+            seg_engine = "kokoro" if len(seg["text"]) < 120 else "qwen3"
+        else:
+            seg_engine = engine
+
+        if progress_callback:
+            progress_callback(i, total, f"Generating segment {i+1}/{total} ({seg_engine})")
 
         try:
             t0 = time.time()
             audio_path = generate_segment_tts(
                 text=seg["text"], voice_desc=voice_desc,
-                output_path=str(output_path), speed=speed, engine=engine,
+                output_path=str(output_path), speed=speed, engine=seg_engine,
             )
             elapsed = time.time() - t0
 
@@ -205,7 +218,7 @@ def generate_all_segments(segments: list, turn_id: str, cast: dict = None,
                 "gen_time": elapsed,
             })
             print(f"[audio] Segment {i}: {duration:.1f}s audio in {elapsed:.1f}s "
-                  f"(RTF={elapsed/duration:.2f}) — {seg['speaker']}")
+                  f"(RTF={elapsed/duration:.2f}) — {seg['speaker']} ({seg_engine})")
         except Exception as e:
             print(f"[audio] Segment {i} FAILED: {e}")
             # Create silence fallback
@@ -219,6 +232,9 @@ def generate_all_segments(segments: list, turn_id: str, cast: dict = None,
                 "gen_time": 0,
                 "error": str(e),
             })
+
+    if progress_callback:
+        progress_callback(total, total, "Mixing audio...")
 
     return results
 
@@ -401,7 +417,8 @@ def mix_narration(segment_results: list, music_path: str = None,
 def render_narration(segments: list, scene_mood: str, turn_id: str,
                      cast: dict = None, tts_engine: str = "qwen3",
                      speed: float = 1.0, music_enabled: bool = True,
-                     music_source: str = "library", music_volume: float = 0.12) -> dict:
+                     music_source: str = "library", music_volume: float = 0.12,
+                     progress_callback=None) -> dict:
     """Full narration rendering pipeline.
 
     music_source: 'library' (curated files) or 'procedural' (synthesized ambient)
@@ -415,7 +432,8 @@ def render_narration(segments: list, scene_mood: str, turn_id: str,
         return {"audio_path": None, "duration": 0, "segment_count": 0,
                 "gen_time": 0, "errors": ["TTS disabled"]}
 
-    segment_results = generate_all_segments(segments, turn_id, cast, speed, tts_engine)
+    segment_results = generate_all_segments(segments, turn_id, cast, speed,
+                                             tts_engine, progress_callback)
 
     # Select music
     music_path = None

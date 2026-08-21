@@ -129,19 +129,28 @@ session = Session()
 
 def generate_audio_async(segments: list, scene_mood: str, turn_id: str):
     """Generate audio in background thread."""
-    result = {"done": False, "audio_path": None, "duration": 0, "error": None}
+    result = {"done": False, "audio_path": None, "duration": 0, "error": None,
+              "progress": 0, "segment_info": ""}
     session.audio_results[turn_id] = result
 
     def worker():
         try:
             from . import audio_engine
             cast = session.load_cast()
+
+            # Custom progress callback
+            total_segs = len(segments)
+            def progress_cb(done, total, info):
+                result["progress"] = int((done / total) * 100) if total > 0 else 0
+                result["segment_info"] = info
+
             audio_result = audio_engine.render_narration(
                 segments=segments, scene_mood=scene_mood, turn_id=turn_id,
                 cast=cast, tts_engine=session.tts_engine,
                 speed=session.tts_speed, music_enabled=session.music_enabled,
                 music_source=getattr(session, 'music_source', 'library'),
                 music_volume=session.music_volume,
+                progress_callback=progress_cb,
             )
             result["audio_path"] = audio_result["audio_path"]
             result["duration"] = audio_result["duration"]
@@ -152,6 +161,9 @@ def generate_audio_async(segments: list, scene_mood: str, turn_id: str):
             result["error"] = str(e)
         finally:
             result["done"] = True
+
+    t = threading.Thread(target=worker, daemon=True)
+    t.start()
 
     t = threading.Thread(target=worker, daemon=True)
     t.start()
@@ -488,6 +500,7 @@ HTML_PAGE = r"""<!DOCTYPE html>
         <select id="set-tts" onchange="changeTTS(this.value)">
           <option value="qwen3">Qwen3 VoiceDesign (expressive)</option>
           <option value="kokoro">Kokoro (fast)</option>
+          <option value="auto">Automatic (best for each segment)</option>
           <option value="silent">Silent (text only)</option>
         </select>
       </div>
@@ -1025,9 +1038,12 @@ function pollAudio(turnId) {
         document.getElementById('audio-gen-bar').style.display = 'none';
         document.getElementById('audio-status').textContent = 'error: ' + (data.error || 'unknown');
       } else if (data.status === 'generating') {
-        // Update progress bar (fake progress)
-        const pct = Math.min(30 + pollCount * 2, 90);
+        // Update progress bar with real progress
+        const pct = data.progress || Math.min(30 + pollCount * 2, 90);
         document.getElementById('audio-gen-fill').style.width = pct + '%';
+        if (data.segment_info) {
+          document.getElementById('audio-status').textContent = data.segment_info;
+        }
       }
     } catch(e) {}
   }, 1000);
@@ -1134,7 +1150,11 @@ class NarratorHandler(BaseHTTPRequestHandler):
             if result is None:
                 self._json({"status": "unknown"})
             elif not result.get("done"):
-                self._json({"status": "generating"})
+                # Include progress info if available
+                progress = result.get("progress", 0)
+                segment_info = result.get("segment_info", "")
+                self._json({"status": "generating", "progress": progress,
+                            "segment_info": segment_info})
             elif result.get("error"):
                 self._json({"status": "error", "error": result["error"]})
             elif result.get("audio_path"):
