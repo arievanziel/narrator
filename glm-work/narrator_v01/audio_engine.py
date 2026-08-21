@@ -110,27 +110,33 @@ def generate_segment_tts(text: str, voice_desc: str, output_path: str,
 
 def generate_segment_qwen3(text: str, voice_desc: str, output_path: str,
                             speed: float = 1.0) -> str:
-    """Generate TTS using Qwen3 VoiceDesign."""
+    """Generate TTS using Qwen3 VoiceDesign.
+
+    Uses temperature=0.0 for deterministic, faithful text reproduction.
+    Higher temperatures cause Qwen3 to paraphrase or skip words.
+
+    NOTE: Qwen3 VoiceDesign is known to paraphrase or add content,
+    especially for longer passages. For faithful word-for-word
+    reproduction, use Kokoro instead.
+    """
     gen, model_obj = get_qwen_model()
 
     output_dir = str(Path(output_path).parent)
     prefix = Path(output_path).stem
     model_arg = model_obj if model_obj else config.QWEN3_MODEL_PATH
 
+    # Limit max_tokens based on text length to prevent runaway generation
+    # ~4 tokens per char, +200 buffer for voice design overhead
+    max_tokens = min(int(len(text) * 4) + 200, 2000)
+
     gen.generate_audio(
         text=text, model=model_arg, voice="af_heart",
         instruct=voice_desc, speed=speed, lang_code="en",
+        temperature=0.0,  # Force faithful text reproduction
+        max_tokens=max_tokens,
         output_path=output_dir, file_prefix=prefix,
         audio_format="wav", save=True, verbose=False,
     )
-
-    generated = Path(output_dir) / f"{prefix}.wav"
-    if generated.exists():
-        return str(generated)
-    files = list(Path(output_dir).glob(f"{prefix}*.wav"))
-    if files:
-        return str(files[0])
-    raise FileNotFoundError(f"TTS output not found: {output_path}")
 
 
 # Kokoro voice mapping (character name → Kokoro voice ID)
@@ -211,6 +217,29 @@ def generate_all_segments(segments: list, turn_id: str, cast: dict = None,
             # Get duration
             data, sr = sf.read(audio_path)
             duration = len(data) / sr
+
+            # Check for Qwen3 paraphrasing (audio much longer than expected)
+            est_dur = len(seg["text"]) / 15.0  # ~15 chars/sec
+            if est_dur > 0:
+                ratio = duration / est_dur
+                if ratio > 2.0:
+                    print(f"[audio] WARNING: Segment {i} ratio={ratio:.1f} — "
+                          f"Qwen3 may have paraphrased (expected ~{est_dur:.0f}s, got {duration:.0f}s)")
+                    if seg_engine == "qwen3":
+                        # Regenerate with Kokoro for fidelity
+                        print(f"[audio] Regenerating segment {i} with Kokoro for fidelity...")
+                        try:
+                            audio_path = generate_segment_tts(
+                                text=seg["text"], voice_desc=voice_desc,
+                                output_path=str(output_path), speed=speed,
+                                engine="kokoro",
+                            )
+                            data, sr = sf.read(audio_path)
+                            duration = len(data) / sr
+                            seg_engine = "kokoro (fallback)"
+                        except Exception as e2:
+                            print(f"[audio] Kokoro fallback failed: {e2}")
+
             results.append({
                 "segment": seg,
                 "audio_path": audio_path,

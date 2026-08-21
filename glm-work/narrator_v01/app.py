@@ -93,7 +93,7 @@ class Session:
         self.model = config.DEFAULT_MODEL
         self.provider = config.DEFAULT_PROVIDER
         self.audio_enabled = True
-        self.tts_engine = "qwen3"
+        self.tts_engine = "kokoro"
         self.tts_speed = 1.0
         self.music_enabled = True
         self.music_volume = 0.12
@@ -502,9 +502,9 @@ HTML_PAGE = r"""<!DOCTYPE html>
       <div class="setting-row">
         <span>TTS Engine</span>
         <select id="set-tts" onchange="changeTTS(this.value)">
-          <option value="qwen3">Qwen3 VoiceDesign (expressive)</option>
-          <option value="kokoro">Kokoro (fast)</option>
-          <option value="auto">Automatic (best for each segment)</option>
+          <option value="kokoro">Kokoro (faithful, fast)</option>
+          <option value="qwen3">Qwen3 VoiceDesign (expressive, may paraphrase)</option>
+          <option value="auto">Automatic (Kokoro for short, Qwen3 for long)</option>
           <option value="silent">Silent (text only)</option>
         </select>
       </div>
@@ -595,7 +595,7 @@ let isPlaying = false;
 let audioDuration = 0;
 let audioPosition = 0;
 let audioUpdateTimer = null;
-let settings = { autoroll: true, music: true, tts: 'qwen3', speed: 1.0, musicVol: 0.12, musicSrc: 'library', model: 'gemini-3.5-flash-lite' };
+let settings = { autoroll: true, music: true, tts: 'kokoro', speed: 1.0, musicVol: 0.12, musicSrc: 'library', model: 'gemini-3.5-flash-lite' };
 let currentMood = 'exploration';
 let bgMusicPlaying = false;
 
@@ -959,7 +959,7 @@ async function loadGame() {
   try {
     const resp = await fetch('/api/load', {method: 'POST'});
     const data = await resp.json();
-    if (data.error) { addError('Load failed: ' + data.error); return; }
+    if (data.error) { addError(data.error); return; }
     updateState(data.state);
     turnCount = data.turn;
     document.getElementById('tb-turn').textContent = turnCount;
