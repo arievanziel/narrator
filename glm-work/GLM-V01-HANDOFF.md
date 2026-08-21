@@ -16,7 +16,7 @@
 
 ## Testing summary
 
-58 audio recordings, 4 screenshots, 3 rounds of playtests (16 playtests total).
+70 audio recordings, 7 screenshots, 6 rounds of playtests (30+ playtests total).
 
 ### TTS fidelity finding
 
@@ -31,6 +31,37 @@ Kokoro is consistently faithful (ratio ~1.0-1.2):
 - temperature=0.0 (reduces paraphrasing)
 - max_tokens limited to text length * 4 + 200
 - Auto-fallback: if Qwen3 audio is >2x expected duration, regenerate with Kokoro
+
+### Test results
+
+- **Kokoro default**: All turns GOOD fidelity (ratio 1.0-1.2)
+- **Qwen3 with auto-fallback**: Paraphrasing detected and fallback to Kokoro works
+- **Groq provider**: 6-turn playthrough, perfect fidelity (0.99-1.03)
+- **10-turn playthrough**: All turns generated audio correctly, rules lawyer working
+- **Edge cases**: Empty input, long input, special characters, unicode — all handled
+- **Settings switching**: All models, TTS engines, music sources, speeds — all work
+- **Save/Load**: Working correctly
+- **Music**: Library and procedural both return HTTP 200
+- **HTML features**: 17/17 present
+
+### Bugs fixed during testing
+
+1. Qwen3 text mismatch (paraphrasing) — fixed with Kokoro default + auto-fallback
+2. Qwen3 file-finding logic missing after generate_audio call
+3. mix_narration UnboundLocalError when procedural music fails
+4. Silence fallback for failed segments was only 0.5s (now proportional to text)
+5. Audio file overwrites between games — fixed with unique game IDs
+6. Kokoro am_george voice doesn't exist — replaced with bm_george
+7. Narrator and player character had same voice — now differentiated
+
+### Voice mapping (Kokoro)
+
+- Narrator: am_michael (mature male)
+- Player character: am_puck or am_adam (distinct from narrator)
+- Female NPCs: af_bella or af_heart
+- Old characters: bm_george
+- Goblin/rough: am_adam
+- British/formal: bm_fable
 
 ## What was built
 
