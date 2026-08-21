@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-21
 **Author:** GLM (Instance A — Rules Lawyer + Core App)
-**Status:** v0.3 functional, tested, committed
+**Status:** v0.3 functional, extensively tested, committed
 
 ## Version history
 
@@ -10,8 +10,27 @@
 - **v0.2**: Pre-loaded TTS model, dark/sepia themes, budget fallback, continuous
   background music with mood-based switching, save/load game state, Kokoro TTS,
   auto TTS mode, real progress indicator, chronicle panel
-- **v0.3**: UX polish — keyboard shortcuts, auto-send choices, smooth scroll,
-  model label sync, mood in topbar, loading states, procedural music crash fix
+- **v0.3**: UX polish + TTS fidelity fix — keyboard shortcuts, auto-send choices,
+  smooth scroll, model label sync, mood in topbar, loading states, procedural
+  music crash fix, Qwen3 paraphrasing fix (auto-fallback to Kokoro)
+
+## Testing summary
+
+58 audio recordings, 4 screenshots, 3 rounds of playtests (16 playtests total).
+
+### TTS fidelity finding
+
+Qwen3 VoiceDesign paraphrases heavily, especially for longer passages:
+- 286 chars of text → 160s of audio (8.4x longer than expected)
+- Qwen3 adds words, skips words, or goes on tangents
+
+Kokoro is consistently faithful (ratio ~1.0-1.2):
+- Same 286 chars → 20.2s of audio (1.06x — nearly perfect)
+
+**Fix**: Default TTS changed to Kokoro. Qwen3 still available but with:
+- temperature=0.0 (reduces paraphrasing)
+- max_tokens limited to text length * 4 + 200
+- Auto-fallback: if Qwen3 audio is >2x expected duration, regenerate with Kokoro
 
 ## What was built
 
