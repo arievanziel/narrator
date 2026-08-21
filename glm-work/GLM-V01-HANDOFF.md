@@ -1,14 +1,17 @@
-# Narrator v0.2 — GLM Handoff to Sonnet
+# Narrator v0.3 — GLM Handoff to Sonnet
 
 **Date:** 2026-08-21
 **Author:** GLM (Instance A — Rules Lawyer + Core App)
-**Status:** v0.2 functional, tested, committed
+**Status:** v0.3 functional, tested, committed
 
 ## Version history
 
 - **v0.1**: Core app — DM engine, GUI, TTS, music, intro screen, settings
 - **v0.2**: Pre-loaded TTS model, dark/sepia themes, budget fallback, continuous
-  background music with mood-based switching, save/load game state
+  background music with mood-based switching, save/load game state, Kokoro TTS,
+  auto TTS mode, real progress indicator, chronicle panel
+- **v0.3**: UX polish — keyboard shortcuts, auto-send choices, smooth scroll,
+  model label sync, mood in topbar, loading states, procedural music crash fix
 
 ## What was built
 
@@ -89,6 +92,18 @@ Player action → DM brain (LLM) → rules lawyer → parsed story → TTS → m
 - Auto-fallback: free providers (Gemini, Groq) have no budget limit
 - Visual warning when fallback is triggered
 
+### v0.3 UX improvements
+
+- **Keyboard shortcuts**: 1-9 to select choices, Esc to close panels, Enter to send
+- **Auto-send choices**: Clicking a choice immediately sends it (no need to press Send)
+- **Choice numbers**: Shown as 1/2/3 (matches keyboard shortcuts)
+- **Smooth scroll**: Story area scrolls smoothly instead of jumping
+- **Model label sync**: Topbar model label updates when model is switched or fallback occurs
+- **Mood in topbar**: Current scene mood shown alongside location
+- **Loading states**: Send button shows "..." while waiting, intro button shows "Starting..."
+- **Procedural music fix**: Pre-generated and cached at startup to avoid MLX threading crash
+- **Bg music at newgame**: Background music starts immediately when game starts
+
 ## How to run
 
 ```bash
@@ -121,8 +136,9 @@ Then open http://localhost:5102 in your browser.
 2. **Audio generation is sequential**: Segments are generated one at a time. Parallel generation would require multiple model instances (memory tradeoff).
 3. **Anthropic provider not tested**: API key has insufficient credits. Code is in place but untested.
 4. **Single session**: One game at a time (class-level state). Multi-session would need session management.
-5. **No Kokoro TTS**: Kokoro is installed but not downloaded (needs HuggingFace auth). Would be a faster, lighter TTS option.
-6. **Bg music restarts on mood change**: The /api/music endpoint serves a fresh file each time, causing a brief gap when mood changes. A proper streaming solution would be smoother.
+5. **Bg music restarts on mood change**: The /api/music endpoint serves a fresh file each time, causing a brief gap when mood changes. A proper streaming solution would be smoother.
+6. **Procedural music is pre-generated**: Tracks are cached at startup to avoid MLX/numpy threading crashes. Regenerating requires server restart.
+7. **Kokoro warmup**: First 1-2 Kokoro calls are slow (~6s) due to pipeline warmup. After that, RTF drops to 0.17.
 
 ## What Sonnet should focus on next
 
