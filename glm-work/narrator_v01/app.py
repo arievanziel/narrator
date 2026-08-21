@@ -527,6 +527,8 @@ HTML_PAGE = r"""<!DOCTYPE html>
       <div class="panel-h">Session</div>
       <div class="setting-row">
         <button onclick="newGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">New Story</button>
+        <button onclick="saveGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">Save</button>
+        <button onclick="loadGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">Load</button>
       </div>
     </div>
 
@@ -898,6 +900,27 @@ function showFallbackWarning(originalModel, fallbackModel) {
   document.getElementById('main-area').scrollTop = document.getElementById('main-area').scrollHeight;
 }
 
+async function saveGame() {
+  try {
+    const resp = await fetch('/api/save', {method: 'POST'});
+    const data = await resp.json();
+    if (data.error) addError('Save failed: ' + data.error);
+    else addError('Game saved (turn ' + data.turn + ')');
+  } catch(e) { addError('Save error: ' + e.message); }
+}
+
+async function loadGame() {
+  try {
+    const resp = await fetch('/api/load', {method: 'POST'});
+    const data = await resp.json();
+    if (data.error) { addError('Load failed: ' + data.error); return; }
+    updateState(data.state);
+    turnCount = data.turn;
+    document.getElementById('tb-turn').textContent = turnCount;
+    addError('Game loaded (turn ' + data.turn + ')');
+  } catch(e) { addError('Load error: ' + e.message); }
+}
+
 // Update state display
 function updateState(state) {
   if (!state) return;
@@ -1109,6 +1132,12 @@ class NarratorHandler(BaseHTTPRequestHandler):
             # Serve continuous background music
             self._serve_music(parsed)
 
+        elif parsed.path == "/api/chronicle":
+            if session.state:
+                self._json({"chronicle": session.state.chronicle})
+            else:
+                self._json({"chronicle": []})
+
         else:
             self.send_response(404)
             self.end_headers()
@@ -1126,6 +1155,10 @@ class NarratorHandler(BaseHTTPRequestHandler):
             self._handle_newgame(data)
         elif parsed.path == "/api/turn":
             self._handle_turn(data)
+        elif parsed.path == "/api/save":
+            self._handle_save()
+        elif parsed.path == "/api/load":
+            self._handle_load()
         else:
             self.send_response(404)
             self.end_headers()
@@ -1289,6 +1322,61 @@ class NarratorHandler(BaseHTTPRequestHandler):
                 "model": session.model,
             })
 
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            self._json({"error": str(e)})
+
+    def _handle_save(self):
+        """Save game state to JSON file."""
+        try:
+            if not session.state:
+                self._json({"error": "No game to save"})
+                return
+            save_data = {
+                "state": session.state.to_dict(),
+                "history": session.history[-20:],  # last 20 messages
+                "turn_counter": session.turn_counter,
+                "model": session.model,
+                "timestamp": time.time(),
+            }
+            save_path = config.OUTPUT_DIR / "save.json"
+            with open(save_path, "w") as f:
+                json.dump(save_data, f, indent=2)
+            self._json({"saved": True, "path": str(save_path),
+                        "turn": session.turn_counter})
+        except Exception as e:
+            self._json({"error": str(e)})
+
+    def _handle_load(self):
+        """Load game state from JSON file."""
+        try:
+            save_path = config.OUTPUT_DIR / "save.json"
+            if not save_path.exists():
+                self._json({"error": "No save file found"})
+                return
+            with open(save_path) as f:
+                data = json.load(f)
+            state_dict = data["state"]
+            session.state = GameState(
+                pc_name=state_dict["pc_name"], pc_class=state_dict["pc_class"],
+                pc_level=state_dict["pc_level"], pc_hp=state_dict["pc_hp"],
+                pc_max_hp=state_dict["pc_max_hp"], pc_ac=state_dict["pc_ac"],
+                pc_str=state_dict.get("pc_str", 16), pc_dex=state_dict.get("pc_dex", 12),
+                pc_con=state_dict.get("pc_con", 14), pc_int=state_dict.get("pc_int", 10),
+                pc_wis=state_dict.get("pc_wis", 10), pc_cha=state_dict.get("pc_cha", 10),
+                inventory=state_dict["inventory"], equipment=state_dict.get("equipment", ""),
+                enemies=[Enemy(e["name"], e["hp"], e["max_hp"], e["ac"]) for e in state_dict["enemies"]],
+                location=state_dict.get("location", ""), light=state_dict.get("light", ""),
+                time=state_dict.get("time", ""), chronicle=state_dict.get("chronicle", []),
+                auto_roll=state_dict.get("auto_roll", True),
+            )
+            session.history = data.get("history", [])
+            session.turn_counter = data.get("turn_counter", 0)
+            session.model = data.get("model", session.model)
+            session.init_client()
+            self._json({"loaded": True, "turn": session.turn_counter,
+                        "state": session.state.to_dict()})
         except Exception as e:
             import traceback
             traceback.print_exc()
