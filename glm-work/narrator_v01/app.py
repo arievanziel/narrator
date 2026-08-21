@@ -486,7 +486,8 @@ HTML_PAGE = r"""<!DOCTYPE html>
       <div class="setting-row">
         <span>TTS Engine</span>
         <select id="set-tts" onchange="changeTTS(this.value)">
-          <option value="qwen3">Qwen3 VoiceDesign</option>
+          <option value="qwen3">Qwen3 VoiceDesign (expressive)</option>
+          <option value="kokoro">Kokoro (fast)</option>
           <option value="silent">Silent (text only)</option>
         </select>
       </div>
