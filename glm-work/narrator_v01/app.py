@@ -569,6 +569,7 @@ HTML_PAGE = r"""<!DOCTYPE html>
   <!-- Audio bar -->
   <div class="audio-bar ui-font">
     <button class="audio-play-btn" id="audio-play" onclick="toggleAudio()" disabled>▶</button>
+    <button class="audio-play-btn" onclick="replayAudio()" title="Replay narration" style="width:24px;height:24px;font-size:12px;">↻</button>
     <div class="audio-progress" id="audio-progress" onclick="seekAudio(event)">
       <div class="audio-gen-bar" id="audio-gen-bar" style="display:none;"><div class="audio-gen-fill" id="audio-gen-fill"></div></div>
       <div class="audio-progress-fill" id="audio-fill"></div>
@@ -881,6 +882,14 @@ function addStoryTurn(data, isFirst = false) {
   inputArea.innerHTML = `<input type="text" placeholder="What do you do?" onkeypress="if(event.key==='Enter')sendAction()" autofocus><button onclick="sendAction()">Send</button>`;
   container.appendChild(inputArea);
 
+  // Add a subtle hint about keyboard shortcuts
+  if (isFirst) {
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:11px;color:var(--ink-faint);text-align:center;padding:0.5rem;font-style:italic;';
+    hint.textContent = 'Press 1-9 to choose, Enter to send, Esc to close panels';
+    container.appendChild(hint);
+  }
+
   // Scroll to bottom smoothly
   const mainArea = document.getElementById('main-area');
   mainArea.scrollTo({ top: mainArea.scrollHeight, behavior: 'smooth' });
@@ -1071,8 +1080,26 @@ function loadAudio(url, duration) {
   document.getElementById('audio-label').textContent = `Narrator · turn ${toRoman(turnCount)}`;
   document.getElementById('audio-time').textContent = `0:00 / ${formatTime(duration)}`;
   document.getElementById('audio-status').textContent = '';
+  // Duck background music during narration
+  const bgPlayer = document.getElementById('bg-music-player');
+  if (bgPlayer && bgMusicPlaying) {
+    bgPlayer.volume = settings.musicVol * 0.3; // reduce to 30% during speech
+  }
   // Auto-play
-  player.play().then(() => { isPlaying = true; document.getElementById('audio-play').textContent = '⏸'; startAudioUpdate(); }).catch(() => {});
+  player.play().then(() => {
+    isPlaying = true;
+    document.getElementById('audio-play').textContent = '⏸';
+    startAudioUpdate();
+  }).catch(() => {});
+  // Restore bg music when narration ends
+  player.onended = () => {
+    isPlaying = false;
+    document.getElementById('audio-play').textContent = '▶';
+    stopAudioUpdate();
+    if (bgPlayer && bgMusicPlaying) {
+      bgPlayer.volume = settings.musicVol * 2; // restore full volume
+    }
+  };
 }
 
 function toggleAudio() {
@@ -1082,6 +1109,13 @@ function toggleAudio() {
   } else {
     player.pause(); isPlaying = false; document.getElementById('audio-play').textContent = '▶'; stopAudioUpdate();
   }
+}
+
+function replayAudio() {
+  const player = document.getElementById('audio-player');
+  if (!player.src) return;
+  player.currentTime = 0;
+  player.play().then(() => { isPlaying = true; document.getElementById('audio-play').textContent = '⏸'; startAudioUpdate(); }).catch(()=>{});
 }
 
 function startAudioUpdate() {
