@@ -99,6 +99,7 @@ class Session:
         self.music_volume = 0.12
         self.music_source = "library"
         self.turn_counter = 0
+        self.game_id = str(int(time.time()))  # Unique game ID to prevent file overwrites
         self.audio_results: dict = {}  # turn_id -> {done, audio_path, duration, error}
         self.budget = BudgetTracker(config.DEFAULT_BUDGET)
         self.started = False
@@ -1329,6 +1330,7 @@ class NarratorHandler(BaseHTTPRequestHandler):
                 session.state.pc_name = name
             session.history = []
             session.turn_counter = 0
+            session.game_id = str(int(time.time()))  # New unique game ID
             session.model = data.get("model", session.model)
             session.init_client()
 
@@ -1361,7 +1363,7 @@ class NarratorHandler(BaseHTTPRequestHandler):
             session.turn_counter = 1
 
             # Start audio generation
-            audio_turn_id = f"turn_{session.turn_counter:03d}"
+            audio_turn_id = f"g{session.game_id}_turn_{session.turn_counter:03d}"
             if session.audio_enabled and segments:
                 generate_audio_async(segments, sections.get("SCENE", "exploration"), audio_turn_id)
 
@@ -1448,7 +1450,7 @@ class NarratorHandler(BaseHTTPRequestHandler):
             session.history.append({"role": "assistant", "content": text})
             session.turn_counter += 1
 
-            audio_turn_id = f"turn_{session.turn_counter:03d}"
+            audio_turn_id = f"g{session.game_id}_turn_{session.turn_counter:03d}"
             if session.audio_enabled and segments:
                 generate_audio_async(segments, sections.get("SCENE", "exploration"), audio_turn_id)
 
