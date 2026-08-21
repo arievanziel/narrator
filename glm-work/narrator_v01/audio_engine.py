@@ -154,12 +154,15 @@ def generate_segment_qwen3(text: str, voice_desc: str, output_path: str,
 
 
 # Kokoro voice mapping (character name → Kokoro voice ID)
+# Available voices: af_heart, af_bella, af_sky, af_nicole,
+#                   am_michael, am_adam, am_puck, bm_fable, bm_george
 KOKORO_VOICES = {
     "narrator": "am_michael",  # mature male narrator
     "male": "am_michael",
     "female": "af_heart",
     "goblin": "am_adam",  # deeper, rougher
-    "old": "am_george",
+    "old": "bm_george",   # British male, older sounding
+    "young": "am_puck",   # younger, lighter
 }
 
 def generate_segment_kokoro(text: str, voice_desc: str, output_path: str,
@@ -173,11 +176,15 @@ def generate_segment_kokoro(text: str, voice_desc: str, output_path: str,
     if "female" in desc_lower or "woman" in desc_lower or "girl" in desc_lower:
         voice = "af_heart"
     elif "young" in desc_lower:
-        voice = "am_adam"
-    elif "old" in desc_lower or "aged" in desc_lower:
-        voice = "am_george"
+        voice = "am_puck"
+    elif "old" in desc_lower or "aged" in desc_lower or "elderly" in desc_lower:
+        voice = "bm_george"
     elif "narrator" in desc_lower:
         voice = "am_michael"
+    elif "goblin" in desc_lower or "rough" in desc_lower or "deep" in desc_lower:
+        voice = "am_adam"
+    elif "british" in desc_lower or "formal" in desc_lower:
+        voice = "bm_fable"
 
     # Generate
     import numpy as np
