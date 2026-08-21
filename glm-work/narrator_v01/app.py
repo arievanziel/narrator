@@ -494,6 +494,7 @@ HTML_PAGE = r"""<!DOCTYPE html>
         <span>Auto-roll dice</span>
         <div class="setting-toggle on" id="set-autoroll" onclick="toggleSetting('autoroll',this)"></div>
       </div>
+      <div id="provider-status" style="font-size:11px;color:var(--ink-light);padding:0.3rem 0;"></div>
     </div>
 
     <div class="setting-group">
@@ -767,6 +768,7 @@ async function newGame(params = {}) {
       updateBgMusic();
       document.getElementById('bg-music-player').play().catch(()=>{});
     }
+    fetchProviderStatus();
   } catch(e) { typing.remove(); addError('Connection error: ' + e.message); }
 }
 
@@ -805,6 +807,7 @@ async function sendAction() {
         showFallbackWarning(data.original_model, data.model);
       }
       fetchChronicle();
+      fetchProviderStatus();
     }
   } catch(e) { typing.remove(); addError('Connection error: ' + e.message); }
   if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
@@ -977,6 +980,26 @@ async function fetchChronicle() {
       } else {
         list.innerHTML = entries.map((e, i) => `<div style="padding:0.3rem 0;border-bottom:1px solid var(--rule-soft);"><span style="color:var(--ink-faint);font-size:11px;">Turn ${i+1}</span><br>${escapeHtml(e)}</div>`).join('');
       }
+    }
+  } catch(e) {}
+}
+
+async function fetchProviderStatus() {
+  try {
+    const resp = await fetch('/api/providers');
+    const data = await resp.json();
+    const el = document.getElementById('provider-status');
+    if (el) {
+      const current = data.current_model;
+      const providers = data.providers || [];
+      const lines = providers.map(p => {
+        const isCurrent = p.id === current;
+        const dot = p.available ? (p.free ? '🟢' : '🟡') : '🔴';
+        const label = isCurrent ? `<b>${p.name}</b>` : p.name;
+        const cost = p.free ? 'free' : 'paid';
+        return `${dot} ${label} (${cost})`;
+      });
+      el.innerHTML = lines.join('<br>');
     }
   } catch(e) {}
 }
@@ -1248,6 +1271,19 @@ class NarratorHandler(BaseHTTPRequestHandler):
                 self._json({"chronicle": session.state.chronicle})
             else:
                 self._json({"chronicle": []})
+
+        elif parsed.path == "/api/providers":
+            self._json({
+                "providers": [
+                    {"id": "gemini-3.5-flash-lite", "name": "Gemini 3.5 Flash-Lite", "free": True, "available": True},
+                    {"id": "openai/gpt-oss-120b", "name": "Groq GPT-OSS 120B", "free": True, "available": True},
+                    {"id": "openai/gpt-oss-20b", "name": "Groq GPT-OSS 20B", "free": True, "available": True},
+                    {"id": "claude-haiku-4-5", "name": "Claude Haiku 4.5", "free": False, "available": bool(os.getenv("ANTHROPIC_API_KEY"))},
+                    {"id": "claude-sonnet-5", "name": "Claude Sonnet 5", "free": False, "available": bool(os.getenv("ANTHROPIC_API_KEY"))},
+                ],
+                "current_model": session.model,
+                "budget": session.budget.to_dict() if session.budget else None,
+            })
 
         else:
             self.send_response(404)
