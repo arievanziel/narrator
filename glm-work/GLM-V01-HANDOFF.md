@@ -1,12 +1,18 @@
-# Narrator v0.1 — GLM Handoff to Sonnet
+# Narrator v0.2 — GLM Handoff to Sonnet
 
 **Date:** 2026-08-21
 **Author:** GLM (Instance A — Rules Lawyer + Core App)
-**Status:** v0.1 functional, tested, committed
+**Status:** v0.2 functional, tested, committed
+
+## Version history
+
+- **v0.1**: Core app — DM engine, GUI, TTS, music, intro screen, settings
+- **v0.2**: Pre-loaded TTS model, dark/sepia themes, budget fallback, continuous
+  background music with mood-based switching, save/load game state
 
 ## What was built
 
-A complete v0.1 D&D narration app at `glm-work/narrator_v01/`. This is a fresh package
+A complete v0.2 D&D narration app at `glm-work/narrator_v01/`. This is a fresh package
 (separate from the old `narrator_v0/`) that implements the full story loop:
 
 ```
@@ -32,6 +38,8 @@ Player action → DM brain (LLM) → rules lawyer → parsed story → TTS → m
 - Rules-lawyer safeguards: waste-potion guard, control-NPC guard
 - 5-section response format: [SCENE], [STORY], [MECHANICS], [SUGGESTIONS], [CHRONICLE]
 - Handles legacy [NARRATIVE]/[AUDIO] format from models that don't follow the prompt exactly
+- Budget fallback: auto-switch to free provider when paid budget exhausted
+- Fallback warning shown on screen when model is switched
 
 **B: GUI (v9-inspired)**
 - Book-like aesthetic: paper background, serif font, circle buttons
@@ -45,6 +53,8 @@ Player action → DM brain (LLM) → rules lawyer → parsed story → TTS → m
 - Turn marks (Roman numerals)
 - Speaker labels for dialogue
 - State changes shown inline (HP changes, item used/gained)
+- Dark, sepia, and light theme options
+- Save/Load buttons in settings panel
 
 **C: Audio narration**
 - Qwen3-TTS VoiceDesign via mlx_audio (local, Apple Silicon)
@@ -52,22 +62,32 @@ Player action → DM brain (LLM) → rules lawyer → parsed story → TTS → m
 - Character voices: narrator voice + gender-based character voices
 - Background generation: audio starts generating immediately when LLM responds
 - Audio status polling: browser polls until audio is ready, then auto-plays
+- Pre-loaded model: 4s → 0.7s per TTS call (model stays in memory)
 - RTF ~0.47 (2x faster than real-time for longer text)
 - Music ducking: music volume reduces during speech
 
-**D: Background music**
+**D: Background music (continuous)**
+- Separate continuous music stream via /api/music endpoint
 - Two music sources:
   1. Library: curated CC0/CC-BY tracks mapped by scene mood
   2. Procedural: synthesized ambient (drone + noise + bells, mood-based)
 - Mood-based selection from [SCENE] tag: combat, tense, horror, mystery, exploration, tavern, etc.
-- Music ducking during speech segments
+- Music changes automatically when scene mood changes
+- Music ducking during speech segments (in narration audio)
 - Settings: enable/disable, source selection, volume control
+- Background music loops continuously between turns
+
+**Save/Load**
+- /api/save: saves game state + history to JSON file
+- /api/load: restores game state from save file
+- /api/chronicle: returns campaign log entries
 
 **Budget tracking**
 - BudgetTracker class with USD cap
 - Per-call cost tracking for paid providers (Anthropic)
 - Budget bar in settings panel
 - Auto-fallback: free providers (Gemini, Groq) have no budget limit
+- Visual warning when fallback is triggered
 
 ## How to run
 
@@ -98,12 +118,11 @@ Then open http://localhost:5102 in your browser.
 
 ### Known issues
 1. **Gemini model names changed**: 2.5 → 3.5. Config updated but old models in v0 still reference 2.5.
-2. **Qwen3 model loads per-call**: The mlx_audio library reinitializes the model on each call (4s overhead). A persistent model singleton would speed this up.
-3. **Audio generation is sequential**: Segments are generated one at a time. Parallel generation would require multiple model instances (memory tradeoff).
-4. **No continuous music**: Music is embedded in each turn's audio, not a separate continuous stream. A separate music player endpoint would be needed for true continuity.
-5. **Anthropic provider not tested**: API key has insufficient credits. Code is in place but untested.
-6. **No save/load**: Game state is in-memory only. Server restart loses progress.
-7. **Single session**: One game at a time (class-level state). Multi-session would need session management.
+2. **Audio generation is sequential**: Segments are generated one at a time. Parallel generation would require multiple model instances (memory tradeoff).
+3. **Anthropic provider not tested**: API key has insufficient credits. Code is in place but untested.
+4. **Single session**: One game at a time (class-level state). Multi-session would need session management.
+5. **No Kokoro TTS**: Kokoro is installed but not downloaded (needs HuggingFace auth). Would be a faster, lighter TTS option.
+6. **Bg music restarts on mood change**: The /api/music endpoint serves a fresh file each time, causing a brief gap when mood changes. A proper streaming solution would be smoother.
 
 ## What Sonnet should focus on next
 
