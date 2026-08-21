@@ -64,6 +64,15 @@ class BudgetTracker:
             self.spent += cost
         return cost
 
+    def can_spend(self, estimated_cost: float = 0.01) -> bool:
+        return (self.spent + estimated_cost) < self.budget
+
+    def should_fallback(self, provider: str, model: str) -> bool:
+        """Check if a paid provider should fall back to a free one."""
+        if provider not in config.PRICING:
+            return False
+        return not self.can_spend()
+
     def remaining(self) -> float:
         return max(0, self.budget - self.spent)
 
@@ -520,6 +529,18 @@ HTML_PAGE = r"""<!DOCTYPE html>
         <button onclick="newGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">New Story</button>
       </div>
     </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Theme</div>
+      <div class="setting-row">
+        <span>Appearance</span>
+        <select id="set-theme" onchange="setTheme(this.value)">
+          <option value="light">Light (paper)</option>
+          <option value="dark">Dark (ink)</option>
+          <option value="sepia">Sepia</option>
+        </select>
+      </div>
+    </div>
   </div>
 
   <!-- Audio bar -->
@@ -579,6 +600,57 @@ function changeTTS(val) { settings.tts = val; }
 function changeSpeed(val) { settings.speed = parseFloat(val); document.getElementById('speed-val').textContent = val + 'x'; }
 function changeMusicVol(val) { settings.musicVol = parseFloat(val); document.getElementById('musicvol-val').textContent = Math.round(val*100) + '%'; }
 function changeMusicSrc(val) { settings.musicSrc = val; }
+
+function setTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'dark') {
+    root.style.setProperty('--bg', '#1a1a1e');
+    root.style.setProperty('--bg-soft', '#22222a');
+    root.style.setProperty('--bg-panel', '#26262e');
+    root.style.setProperty('--ink', '#d8d6d2');
+    root.style.setProperty('--ink-mid', '#a8a6a2');
+    root.style.setProperty('--ink-light', '#78767a');
+    root.style.setProperty('--ink-faint', '#504e52');
+    root.style.setProperty('--rule', '#38383e');
+    root.style.setProperty('--rule-soft', '#2e2e34');
+    root.style.setProperty('--accent', '#c8a040');
+    root.style.setProperty('--accent-soft', 'rgba(200,160,64,0.15)');
+    root.style.setProperty('--hp-good', '#5a9a5a');
+    root.style.setProperty('--hp-bad', '#c05050');
+    root.style.setProperty('--hp-mid', '#d8a830');
+  } else if (theme === 'sepia') {
+    root.style.setProperty('--bg', '#f0e6d2');
+    root.style.setProperty('--bg-soft', '#e8dcc4');
+    root.style.setProperty('--bg-panel', '#e2d6be');
+    root.style.setProperty('--ink', '#3a2e1e');
+    root.style.setProperty('--ink-mid', '#5a4e3e');
+    root.style.setProperty('--ink-light', '#8a7e6e');
+    root.style.setProperty('--ink-faint', '#b0a490');
+    root.style.setProperty('--rule', '#d0c4a8');
+    root.style.setProperty('--rule-soft', '#d8ccb0');
+    root.style.setProperty('--accent', '#8b6914');
+    root.style.setProperty('--accent-soft', 'rgba(139,105,20,0.12)');
+    root.style.setProperty('--hp-good', '#4a7a4a');
+    root.style.setProperty('--hp-bad', '#a04040');
+    root.style.setProperty('--hp-mid', '#b8860b');
+  } else {
+    // Light (default)
+    root.style.setProperty('--bg', '#e6e4e0');
+    root.style.setProperty('--bg-soft', '#dedcd8');
+    root.style.setProperty('--bg-panel', '#d8d6d2');
+    root.style.setProperty('--ink', '#1c1c1a');
+    root.style.setProperty('--ink-mid', '#4a4a48');
+    root.style.setProperty('--ink-light', '#8a8a86');
+    root.style.setProperty('--ink-faint', '#b0b0ac');
+    root.style.setProperty('--rule', '#c4c2be');
+    root.style.setProperty('--rule-soft', '#d0ceca');
+    root.style.setProperty('--accent', '#8b6914');
+    root.style.setProperty('--accent-soft', 'rgba(139,105,20,0.1)');
+    root.style.setProperty('--hp-good', '#4a7a4a');
+    root.style.setProperty('--hp-bad', '#a04040');
+    root.style.setProperty('--hp-mid', '#b8860b');
+  }
+}
 
 // Dice roller
 function rollDice(btn, sides) {
@@ -662,6 +734,9 @@ async function sendAction() {
       addStoryTurn(data);
       if (data.audio_enabled && data.audio_turn_id) pollAudio(data.audio_turn_id);
       updateBudget(data.budget);
+      if (data.fallback_used) {
+        showFallbackWarning(data.original_model, data.model);
+      }
     }
   } catch(e) { typing.remove(); addError('Connection error: ' + e.message); }
   if (btn) btn.disabled = false;
@@ -772,6 +847,20 @@ function addError(msg) {
   el.style.color = 'var(--hp-bad)';
   el.textContent = '⚠ ' + msg;
   container.appendChild(el);
+}
+
+function showFallbackWarning(originalModel, fallbackModel) {
+  const container = document.getElementById('story-content');
+  const el = document.createElement('div');
+  el.className = 'story-passage';
+  el.style.color = 'var(--hp-mid)';
+  el.style.fontSize = '13px';
+  el.style.padding = '0.5rem 1rem';
+  el.style.background = 'rgba(184,134,11,0.1)';
+  el.style.borderRadius = '6px';
+  el.innerHTML = `⚠ Budget limit reached — switched from <b>${escapeHtml(originalModel)}</b> to free model <b>${escapeHtml(fallbackModel)}</b>`;
+  container.appendChild(el);
+  document.getElementById('main-area').scrollTop = document.getElementById('main-area').scrollHeight;
 }
 
 // Update state display
@@ -1106,6 +1195,17 @@ class NarratorHandler(BaseHTTPRequestHandler):
                 session.music_source = client_settings["musicSrc"]
 
             session.init_client()
+
+            # Check if we need to fall back to a free provider
+            fallback_used = False
+            original_model = session.model
+            if session.budget.should_fallback(session.provider, session.model):
+                print(f"[server] Budget exhausted — falling back to free provider")
+                session.model = config.DEFAULT_MODEL
+                session.provider = detect_provider(session.model)
+                session.init_client()
+                fallback_used = True
+
             state_block = session.state.to_prompt_block()
 
             text, elapsed, usage = dm_turn(
@@ -1143,6 +1243,9 @@ class NarratorHandler(BaseHTTPRequestHandler):
                 "audio_turn_id": audio_turn_id if segments else None,
                 "budget": session.budget.to_dict(),
                 "elapsed": round(elapsed, 1),
+                "fallback_used": fallback_used,
+                "original_model": original_model if fallback_used else None,
+                "model": session.model,
             })
 
         except Exception as e:

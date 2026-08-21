@@ -22,20 +22,34 @@ from . import config
 # Model singleton — stays loaded across calls
 # ---------------------------------------------------------------------------
 
-_qwen_model = None
+_qwen_gen = None
+_qwen_model_obj = None
 _qwen_lock = threading.Lock()
 
 
 def get_qwen_model():
-    """Lazy-load Qwen3 model (singleton, thread-safe)."""
-    global _qwen_model
-    if _qwen_model is None:
+    """Lazy-load Qwen3 model (singleton, thread-safe).
+
+    Pre-loads the model into memory so subsequent calls are ~0.7s instead of ~4s.
+    """
+    global _qwen_gen, _qwen_model_obj
+    if _qwen_gen is None:
         with _qwen_lock:
-            if _qwen_model is None:
+            if _qwen_gen is None:
                 from mlx_audio.tts import generate as gen
-                _qwen_model = gen
-                print("[audio] Qwen3 TTS engine loaded")
-    return _qwen_model
+                from mlx_audio.utils import load_model
+                from pathlib import Path
+                _qwen_gen = gen
+                # Pre-load the model
+                model_path = Path(config.QWEN3_MODEL_PATH)
+                if model_path.exists():
+                    print("[audio] Pre-loading Qwen3 model...")
+                    t0 = time.time()
+                    _qwen_model_obj = load_model(model_path)
+                    print(f"[audio] Qwen3 model loaded in {time.time()-t0:.1f}s")
+                else:
+                    print(f"[audio] WARNING: Model not found at {model_path}")
+    return _qwen_gen, _qwen_model_obj
 
 
 # ---------------------------------------------------------------------------
@@ -70,15 +84,18 @@ def generate_segment_tts(text: str, voice_desc: str, output_path: str,
 
     Returns path to the generated WAV file.
     """
-    gen = get_qwen_model()
+    gen, model_obj = get_qwen_model()
 
     # Generate to a temp directory
     output_dir = str(Path(output_path).parent)
     prefix = Path(output_path).stem
 
+    # Use pre-loaded model if available, otherwise fall back to path
+    model_arg = model_obj if model_obj else config.QWEN3_MODEL_PATH
+
     gen.generate_audio(
         text=text,
-        model=config.QWEN3_MODEL_PATH,
+        model=model_arg,
         voice="af_heart",  # base voice, overridden by instruct
         instruct=voice_desc,
         speed=speed,
