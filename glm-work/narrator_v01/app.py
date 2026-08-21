@@ -445,6 +445,10 @@ HTML_PAGE = r"""<!DOCTYPE html>
       </div>
       <div class="dice-result" id="dice-result"></div>
     </div>
+    <div class="panel-section">
+      <div class="panel-h">Chronicle</div>
+      <div id="chronicle-list" style="font-size:13px;color:var(--ink-light);max-height:200px;overflow-y:auto;"></div>
+    </div>
   </div>
 
   <!-- Main story area -->
@@ -739,6 +743,7 @@ async function newGame(params = {}) {
     if (data.story) addStoryTurn(data, true);
     if (data.audio_enabled) pollAudio(data.audio_turn_id);
     updateBudget(data.budget);
+    fetchChronicle();
   } catch(e) { typing.remove(); addError('Connection error: ' + e.message); }
 }
 
@@ -771,6 +776,7 @@ async function sendAction() {
       if (data.fallback_used) {
         showFallbackWarning(data.original_model, data.model);
       }
+      fetchChronicle();
     }
   } catch(e) { typing.remove(); addError('Connection error: ' + e.message); }
   if (btn) btn.disabled = false;
@@ -918,7 +924,24 @@ async function loadGame() {
     turnCount = data.turn;
     document.getElementById('tb-turn').textContent = turnCount;
     addError('Game loaded (turn ' + data.turn + ')');
+    fetchChronicle();
   } catch(e) { addError('Load error: ' + e.message); }
+}
+
+async function fetchChronicle() {
+  try {
+    const resp = await fetch('/api/chronicle');
+    const data = await resp.json();
+    const list = document.getElementById('chronicle-list');
+    if (list) {
+      const entries = data.chronicle || [];
+      if (entries.length === 0) {
+        list.innerHTML = '<div style="color:var(--ink-faint);font-style:italic;">No entries yet</div>';
+      } else {
+        list.innerHTML = entries.map((e, i) => `<div style="padding:0.3rem 0;border-bottom:1px solid var(--rule-soft);"><span style="color:var(--ink-faint);font-size:11px;">Turn ${i+1}</span><br>${escapeHtml(e)}</div>`).join('');
+      }
+    }
+  } catch(e) {}
 }
 
 // Update state display
