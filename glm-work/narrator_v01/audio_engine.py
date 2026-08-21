@@ -96,14 +96,15 @@ def get_voice_description(speaker: str, cast: dict = None) -> str:
 # ---------------------------------------------------------------------------
 
 def generate_segment_tts(text: str, voice_desc: str, output_path: str,
-                          speed: float = 1.0, engine: str = "qwen3") -> str:
+                          speed: float = 1.0, engine: str = "qwen3",
+                          speaker: str = None) -> str:
     """Generate TTS for a single text segment.
 
     engine: 'qwen3' (VoiceDesign, expressive) or 'kokoro' (fast, simple)
     Returns path to the generated WAV file.
     """
     if engine == "kokoro":
-        return generate_segment_kokoro(text, voice_desc, output_path, speed)
+        return generate_segment_kokoro(text, voice_desc, output_path, speed, speaker=speaker)
     else:
         return generate_segment_qwen3(text, voice_desc, output_path, speed)
 
@@ -166,25 +167,48 @@ KOKORO_VOICES = {
 }
 
 def generate_segment_kokoro(text: str, voice_desc: str, output_path: str,
-                             speed: float = 1.0) -> str:
-    """Generate TTS using Kokoro (faster, less expressive than Qwen3)."""
+                             speed: float = 1.0, speaker: str = None) -> str:
+    """Generate TTS using Kokoro (faster, less expressive than Qwen3).
+
+    Uses keyword matching on voice_desc to select from available Kokoro voices.
+    Available: af_heart, af_bella, af_sky, af_nicole,
+               am_michael, am_adam, am_puck, bm_fable, bm_george
+    """
     pipeline = get_kokoro_pipeline()
 
     # Select voice based on description keywords
     voice = "am_michael"  # default
     desc_lower = voice_desc.lower()
-    if "female" in desc_lower or "woman" in desc_lower or "girl" in desc_lower:
-        voice = "af_heart"
-    elif "young" in desc_lower:
-        voice = "am_puck"
-    elif "old" in desc_lower or "aged" in desc_lower or "elderly" in desc_lower:
-        voice = "bm_george"
-    elif "narrator" in desc_lower:
-        voice = "am_michael"
-    elif "goblin" in desc_lower or "rough" in desc_lower or "deep" in desc_lower:
-        voice = "am_adam"
-    elif "british" in desc_lower or "formal" in desc_lower:
-        voice = "bm_fable"
+
+    # Speaker-based override (player character should differ from narrator)
+    if speaker and speaker.lower() != "narrator":
+        # Non-narrator characters get distinct voices
+        if "female" in desc_lower or "woman" in desc_lower or "girl" in desc_lower:
+            voice = "af_bella"  # distinct from narrator's af_heart
+        elif "young" in desc_lower:
+            voice = "am_puck"
+        elif "old" in desc_lower or "aged" in desc_lower or "elderly" in desc_lower:
+            voice = "bm_george"
+        elif "goblin" in desc_lower or "rough" in desc_lower or "deep" in desc_lower:
+            voice = "am_adam"
+        elif "british" in desc_lower or "formal" in desc_lower:
+            voice = "bm_fable"
+        elif "rugged" in desc_lower or "adventurer" in desc_lower or "confident" in desc_lower:
+            voice = "am_puck"  # lighter, more energetic for player character
+        else:
+            voice = "am_adam"  # default for non-narrator male characters
+    else:
+        # Narrator voice selection
+        if "female" in desc_lower or "woman" in desc_lower or "girl" in desc_lower:
+            voice = "af_heart"
+        elif "young" in desc_lower:
+            voice = "am_puck"
+        elif "old" in desc_lower or "aged" in desc_lower or "elderly" in desc_lower:
+            voice = "bm_george"
+        elif "goblin" in desc_lower or "rough" in desc_lower or "deep" in desc_lower:
+            voice = "am_adam"
+        elif "british" in desc_lower or "formal" in desc_lower:
+            voice = "bm_fable"
 
     # Generate
     import numpy as np
@@ -232,6 +256,7 @@ def generate_all_segments(segments: list, turn_id: str, cast: dict = None,
             audio_path = generate_segment_tts(
                 text=seg["text"], voice_desc=voice_desc,
                 output_path=str(output_path), speed=speed, engine=seg_engine,
+                speaker=seg.get("speaker"),
             )
             elapsed = time.time() - t0
 
@@ -253,7 +278,7 @@ def generate_all_segments(segments: list, turn_id: str, cast: dict = None,
                             audio_path = generate_segment_tts(
                                 text=seg["text"], voice_desc=voice_desc,
                                 output_path=str(output_path), speed=speed,
-                                engine="kokoro",
+                                engine="kokoro", speaker=seg.get("speaker"),
                             )
                             data, sr = sf.read(audio_path)
                             duration = len(data) / sr
