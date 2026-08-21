@@ -556,8 +556,9 @@ HTML_PAGE = r"""<!DOCTYPE html>
   </div>
 </div>
 
-<!-- Hidden audio element for playback -->
+<!-- Hidden audio elements -->
 <audio id="audio-player" preload="auto"></audio>
+<audio id="bg-music-player" preload="auto" loop></audio>
 
 <script>
 // State
@@ -570,6 +571,8 @@ let audioDuration = 0;
 let audioPosition = 0;
 let audioUpdateTimer = null;
 let settings = { autoroll: true, music: true, tts: 'qwen3', speed: 1.0, musicVol: 0.12, musicSrc: 'library', model: 'gemini-3.5-flash-lite' };
+let currentMood = 'exploration';
+let bgMusicPlaying = false;
 
 // Panel toggling
 function togglePanel(name) {
@@ -592,14 +595,37 @@ function toggleBar() {
 function toggleSetting(name, el) {
   el.classList.toggle('on');
   settings[name] = el.classList.contains('on');
-  if (name === 'autoroll') { /* will be sent with next turn */ }
-  if (name === 'music') { /* will be sent with next turn */ }
+  if (name === 'music') { updateBgMusic(); }
 }
 function changeModel(val) { settings.model = val; }
 function changeTTS(val) { settings.tts = val; }
 function changeSpeed(val) { settings.speed = parseFloat(val); document.getElementById('speed-val').textContent = val + 'x'; }
 function changeMusicVol(val) { settings.musicVol = parseFloat(val); document.getElementById('musicvol-val').textContent = Math.round(val*100) + '%'; }
-function changeMusicSrc(val) { settings.musicSrc = val; }
+function changeMusicSrc(val) { settings.musicSrc = val; updateBgMusic(); }
+
+function updateBgMusic() {
+  const player = document.getElementById('bg-music-player');
+  if (!settings.music) {
+    player.pause();
+    bgMusicPlaying = false;
+    return;
+  }
+  const url = `/api/music?mood=${currentMood}&source=${settings.musicSrc}`;
+  if (player.src.indexOf(url) === -1) {
+    player.src = url;
+    player.volume = settings.musicVol * 2; // bg music is quieter than narration
+    if (bgMusicPlaying) player.play().catch(()=>{});
+  } else {
+    player.volume = settings.musicVol * 2;
+  }
+}
+
+function setMood(mood) {
+  if (mood && mood !== currentMood) {
+    currentMood = mood;
+    updateBgMusic();
+  }
+}
 
 function setTheme(theme) {
   const root = document.documentElement;
@@ -682,6 +708,12 @@ async function startGame(opts = {}) {
   document.getElementById('tab-left').classList.add('active');
   document.getElementById('ctab-left').classList.add('active');
   await newGame(params);
+  // Start background music after game starts
+  if (settings.music) {
+    bgMusicPlaying = true;
+    updateBgMusic();
+    document.getElementById('bg-music-player').play().catch(()=>{});
+  }
 }
 
 // New game
@@ -747,6 +779,9 @@ async function sendAction() {
 function addStoryTurn(data, isFirst = false) {
   turnCount = data.turn || turnCount + 1;
   const container = document.getElementById('story-content');
+
+  // Update background music mood
+  if (data.scene) setMood(data.scene);
 
   // Turn mark
   const mark = document.createElement('div');
@@ -1070,6 +1105,10 @@ class NarratorHandler(BaseHTTPRequestHandler):
             else:
                 self._json({"error": "no game"})
 
+        elif parsed.path == "/api/music":
+            # Serve continuous background music
+            self._serve_music(parsed)
+
         else:
             self.send_response(404)
             self.end_headers()
@@ -1154,6 +1193,7 @@ class NarratorHandler(BaseHTTPRequestHandler):
                 "changes": changes,
                 "state": session.state.to_dict(),
                 "turn": session.turn_counter,
+                "scene": sections.get("SCENE", "exploration"),
                 "audio_enabled": session.audio_enabled,
                 "audio_turn_id": audio_turn_id if segments else None,
                 "auto_roll": session.state.auto_roll,
@@ -1239,6 +1279,7 @@ class NarratorHandler(BaseHTTPRequestHandler):
                 "changes": changes,
                 "state": session.state.to_dict(),
                 "turn": session.turn_counter,
+                "scene": sections.get("SCENE", "exploration"),
                 "audio_enabled": session.audio_enabled,
                 "audio_turn_id": audio_turn_id if segments else None,
                 "budget": session.budget.to_dict(),
@@ -1260,6 +1301,44 @@ class NarratorHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+
+    def _serve_music(self, parsed):
+        """Serve a continuous music stream based on current scene mood."""
+        params = parse_qs(parsed.query)
+        mood = params.get("mood", ["exploration"])[0]
+        source = params.get("source", ["library"])[0]
+
+        if source == "procedural":
+            # Generate procedural ambient on the fly
+            from . import audio_engine
+            data, sr = audio_engine.generate_procedural_ambient(30.0, mood)
+            import io
+            buf = io.BytesIO()
+            import soundfile as sf
+            sf.write(buf, data, sr, format='WAV')
+            buf.seek(0)
+            self.send_response(200)
+            self.send_header("Content-Type", "audio/wav")
+            self.send_header("Content-Length", str(buf.getbuffer().nbytes))
+            self.end_headers()
+            self.wfile.write(buf.read())
+        else:
+            # Serve from library
+            from . import audio_engine
+            track_path = audio_engine.select_music_track(mood)
+            if track_path and Path(track_path).exists():
+                data_size = Path(track_path).stat().st_size
+                self.send_response(200)
+                ext = Path(track_path).suffix.lower()
+                ct = {"mp3": "audio/mpeg", "wav": "audio/wav", "ogg": "audio/ogg"}.get(ext, "audio/mpeg")
+                self.send_header("Content-Type", ct)
+                self.send_header("Content-Length", str(data_size))
+                self.end_headers()
+                with open(track_path, "rb") as f:
+                    self.wfile.write(f.read())
+            else:
+                self.send_response(404)
+                self.end_headers()
 
 
 # ---------------------------------------------------------------------------
