@@ -274,44 +274,50 @@ def generate_procedural_ambient(duration: float, mood: str = "calm",
     """Generate procedural ambient music as a second music source.
 
     Uses simple synthesis: low drone + filtered noise + occasional tones.
+    Thread-safe: uses only numpy, no MLX calls.
     """
-    samples = int(duration * target_sr)
-    t = np.linspace(0, duration, samples)
+    try:
+        samples = int(duration * target_sr)
+        t = np.linspace(0, duration, samples)
 
-    # Base drone (low frequency)
-    base_freq = {"calm": 110, "tense": 87, "mystery": 98, "combat": 65,
-                 "horror": 55, "sad": 73, "exploration": 123}.get(mood, 110)
-    drone = 0.15 * np.sin(2 * np.pi * base_freq * t)
-    # Add a fifth above
-    drone += 0.08 * np.sin(2 * np.pi * base_freq * 1.5 * t)
-    # Add subtle vibrato
-    drone *= 1 + 0.02 * np.sin(2 * np.pi * 0.3 * t)
+        # Base drone (low frequency)
+        base_freq = {"calm": 110, "tense": 87, "mystery": 98, "combat": 65,
+                     "horror": 55, "sad": 73, "exploration": 123}.get(mood, 110)
+        drone = 0.15 * np.sin(2 * np.pi * base_freq * t)
+        # Add a fifth above
+        drone += 0.08 * np.sin(2 * np.pi * base_freq * 1.5 * t)
+        # Add subtle vibrato
+        drone *= 1 + 0.02 * np.sin(2 * np.pi * 0.3 * t)
 
-    # Filtered noise for texture
-    noise = np.random.randn(samples) * 0.02
-    # Simple low-pass: moving average
-    window = int(0.05 * target_sr)
-    if window > 0 and len(noise) > window:
-        kernel = np.ones(window) / window
-        noise = np.convolve(noise, kernel, mode='same')
+        # Filtered noise for texture
+        noise = np.random.randn(samples) * 0.02
+        # Simple low-pass: moving average
+        window = int(0.05 * target_sr)
+        if window > 0 and len(noise) > window:
+            kernel = np.ones(window) / window
+            noise = np.convolve(noise, kernel, mode='same')
 
-    # Occasional bell tones for atmosphere
-    bell_times = np.random.choice(samples, size=min(5, max(1, int(duration / 8))), replace=False)
-    bells = np.zeros(samples)
-    for bt in bell_times:
-        bell_freq = base_freq * 2 * (1 + np.random.choice([0, 2, 4, 7]) / 12)
-        decay = np.exp(-3 * (t - bt / target_sr))
-        decay[decay > 1] = 0
-        bells += 0.1 * np.sin(2 * np.pi * bell_freq * t) * decay
+        # Occasional bell tones for atmosphere
+        bell_times = np.random.choice(samples, size=min(5, max(1, int(duration / 8))), replace=False)
+        bells = np.zeros(samples)
+        for bt in bell_times:
+            bell_freq = base_freq * 2 * (1 + np.random.choice([0, 2, 4, 7]) / 12)
+            decay = np.exp(-3 * (t - bt / target_sr))
+            decay[decay > 1] = 0
+            bells += 0.1 * np.sin(2 * np.pi * bell_freq * t) * decay
 
-    ambient = drone + noise + bells
-    # Fade in/out
-    fade = int(2.0 * target_sr)
-    if len(ambient) > fade * 2:
-        ambient[:fade] *= np.linspace(0, 1, fade)
-        ambient[-fade:] *= np.linspace(1, 0, fade)
+        ambient = drone + noise + bells
+        # Fade in/out
+        fade = int(2.0 * target_sr)
+        if len(ambient) > fade * 2:
+            ambient[:fade] *= np.linspace(0, 1, fade)
+            ambient[-fade:] *= np.linspace(1, 0, fade)
 
-    return ambient.astype(np.float32), target_sr
+        return ambient.astype(np.float32), target_sr
+    except Exception as e:
+        print(f"[audio] Procedural generation error: {e}")
+        # Return silence on error
+        return np.zeros(int(duration * target_sr), dtype=np.float32), target_sr
 
 
 def load_music(path: str, target_duration: float, target_sr: int = 24000) -> tuple:

@@ -338,6 +338,7 @@ HTML_PAGE = r"""<!DOCTYPE html>
   .intro-field textarea { resize: vertical; min-height: 60px; }
   .intro-start { width: 100%; background: var(--accent); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-size: 17px; font-family: inherit; margin-top: 1rem; transition: opacity 0.2s; }
   .intro-start:hover { opacity: 0.85; }
+  .intro-start:disabled { opacity: 0.5; cursor: not-allowed; }
   .intro-skip { width: 100%; background: none; border: none; color: var(--ink-faint); cursor: pointer; font-size: 13px; margin-top: 0.5rem; }
   .intro-skip:hover { color: var(--ink-mid); }
 
@@ -397,7 +398,7 @@ HTML_PAGE = r"""<!DOCTYPE html>
         <option value="manual">Manual — I roll my own dice</option>
       </select>
     </div>
-    <button class="intro-start" onclick="startGame()">Begin Your Story</button>
+    <button class="intro-start" id="intro-start-btn" onclick="startGame()">Begin Your Story</button>
     <button class="intro-skip" onclick="startGame({skip:true})">Skip — use defaults</button>
   </div>
 </div>
@@ -716,6 +717,8 @@ function rollDice(btn, sides) {
 // Start game from intro
 async function startGame(opts = {}) {
   const overlay = document.getElementById('intro-overlay');
+  const startBtn = document.getElementById('intro-start-btn');
+  if (startBtn) { startBtn.disabled = true; startBtn.textContent = 'Starting...'; }
   const params = opts.skip ? {} : {
     style: document.getElementById('intro-style').value,
     setting: document.getElementById('intro-setting').value,
@@ -731,12 +734,7 @@ async function startGame(opts = {}) {
   document.getElementById('tab-left').classList.add('active');
   document.getElementById('ctab-left').classList.add('active');
   await newGame(params);
-  // Start background music after game starts
-  if (settings.music) {
-    bgMusicPlaying = true;
-    updateBgMusic();
-    document.getElementById('bg-music-player').play().catch(()=>{});
-  }
+  if (startBtn) { startBtn.disabled = false; startBtn.textContent = 'Begin Your Story'; }
 }
 
 // New game
@@ -779,7 +777,7 @@ async function sendAction() {
   if (!action) return;
   input.value = '';
   const btn = document.querySelector('.input-block button');
-  if (btn) btn.disabled = true;
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
 
   addPlayerAction(action);
   const typing = showTyping();
@@ -808,7 +806,7 @@ async function sendAction() {
       fetchChronicle();
     }
   } catch(e) { typing.remove(); addError('Connection error: ' + e.message); }
-  if (btn) btn.disabled = false;
+  if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
   if (input) input.focus();
 }
 
@@ -1475,37 +1473,49 @@ class NarratorHandler(BaseHTTPRequestHandler):
         mood = params.get("mood", ["exploration"])[0]
         source = params.get("source", ["library"])[0]
 
-        if source == "procedural":
-            # Generate procedural ambient on the fly
-            from . import audio_engine
-            data, sr = audio_engine.generate_procedural_ambient(30.0, mood)
-            import io
-            buf = io.BytesIO()
-            import soundfile as sf
-            sf.write(buf, data, sr, format='WAV')
-            buf.seek(0)
-            self.send_response(200)
-            self.send_header("Content-Type", "audio/wav")
-            self.send_header("Content-Length", str(buf.getbuffer().nbytes))
-            self.end_headers()
-            self.wfile.write(buf.read())
-        else:
-            # Serve from library
-            from . import audio_engine
-            track_path = audio_engine.select_music_track(mood)
-            if track_path and Path(track_path).exists():
-                data_size = Path(track_path).stat().st_size
+        try:
+            if source == "procedural":
+                # Pre-generate and cache procedural tracks to avoid threading issues
+                cache_path = config.OUTPUT_DIR / f"procedural_{mood}.wav"
+                if not cache_path.exists():
+                    from . import audio_engine
+                    import numpy as np
+                    import soundfile as sf
+                    data, sr = audio_engine.generate_procedural_ambient(30.0, mood)
+                    sf.write(str(cache_path), data, sr)
+
+                # Serve the cached file
+                data_size = cache_path.stat().st_size
                 self.send_response(200)
-                ext = Path(track_path).suffix.lower()
-                ct = {"mp3": "audio/mpeg", "wav": "audio/wav", "ogg": "audio/ogg"}.get(ext, "audio/mpeg")
-                self.send_header("Content-Type", ct)
+                self.send_header("Content-Type", "audio/wav")
                 self.send_header("Content-Length", str(data_size))
                 self.end_headers()
-                with open(track_path, "rb") as f:
+                with open(cache_path, "rb") as f:
                     self.wfile.write(f.read())
             else:
-                self.send_response(404)
+                # Serve from library
+                from . import audio_engine
+                track_path = audio_engine.select_music_track(mood)
+                if track_path and Path(track_path).exists():
+                    data_size = Path(track_path).stat().st_size
+                    self.send_response(200)
+                    ext = Path(track_path).suffix.lower()
+                    ct = {"mp3": "audio/mpeg", "wav": "audio/wav", "ogg": "audio/ogg"}.get(ext, "audio/mpeg")
+                    self.send_header("Content-Type", ct)
+                    self.send_header("Content-Length", str(data_size))
+                    self.end_headers()
+                    with open(track_path, "rb") as f:
+                        self.wfile.write(f.read())
+                else:
+                    self.send_response(404)
+                    self.end_headers()
+        except Exception as e:
+            print(f"[server] Music endpoint error: {e}")
+            try:
+                self.send_response(500)
                 self.end_headers()
+            except:
+                pass
 
 
 # ---------------------------------------------------------------------------
@@ -1532,6 +1542,22 @@ def main():
     print(f"  Budget: ${args.budget:.2f}")
     print(f"  URL: http://localhost:{args.port}")
     print(f"{'='*60}\n")
+
+    # Pre-generate procedural music tracks to avoid runtime crashes
+    if session.audio_enabled:
+        try:
+            from . import audio_engine
+            import soundfile as sf
+            moods = ["combat", "tense", "mystery", "exploration", "tavern", "sad", "horror"]
+            for mood in moods:
+                cache_path = config.OUTPUT_DIR / f"procedural_{mood}.wav"
+                if not cache_path.exists():
+                    print(f"[server] Pre-generating procedural music: {mood}...")
+                    data, sr = audio_engine.generate_procedural_ambient(30.0, mood)
+                    sf.write(str(cache_path), data, sr)
+            print("[server] Procedural music tracks cached")
+        except Exception as e:
+            print(f"[server] Procedural music pre-gen failed: {e}")
 
     server = ThreadingHTTPServer(("0.0.0.0", args.port), NarratorHandler)
     try:
