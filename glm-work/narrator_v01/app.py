@@ -416,6 +416,8 @@ HTML_PAGE = r"""<!DOCTYPE html>
       <div class="stat"><span class="stat-label">Turn</span><span class="stat-val" id="tb-turn">0</span></div>
       <span class="sep">|</span>
       <div class="stat"><span class="stat-label">Location</span><span class="stat-val" id="tb-loc">—</span></div>
+      <span class="sep">|</span>
+      <div class="stat"><span class="stat-label">Mood</span><span class="stat-val" id="tb-mood">—</span></div>
     </div>
     <div style="display:flex;gap:6px;align-items:center;">
       <span id="model-label" class="stat-val" style="font-size:11px;">Loading...</span>
@@ -643,6 +645,7 @@ function updateBgMusic() {
 function setMood(mood) {
   if (mood && mood !== currentMood) {
     currentMood = mood;
+    document.getElementById('tb-mood').textContent = mood;
     updateBgMusic();
   }
 }
@@ -758,6 +761,13 @@ async function newGame(params = {}) {
     if (data.audio_enabled) pollAudio(data.audio_turn_id);
     updateBudget(data.budget);
     fetchChronicle();
+    // Start/restart background music
+    if (settings.music) {
+      bgMusicPlaying = true;
+      if (data.scene) currentMood = data.scene;
+      updateBgMusic();
+      document.getElementById('bg-music-player').play().catch(()=>{});
+    }
   } catch(e) { typing.remove(); addError('Connection error: ' + e.message); }
 }
 
@@ -784,6 +794,11 @@ async function sendAction() {
     if (data.error) { addError(data.error); }
     else {
       updateState(data.state);
+      if (data.model) {
+        document.getElementById('model-label').textContent = data.model;
+        settings.model = data.model;
+        document.getElementById('set-model').value = data.model;
+      }
       addStoryTurn(data);
       if (data.audio_enabled && data.audio_turn_id) pollAudio(data.audio_turn_id);
       updateBudget(data.budget);
@@ -851,7 +866,7 @@ function addStoryTurn(data, isFirst = false) {
       const letter = String.fromCharCode(65 + i);
       const item = document.createElement('div');
       item.className = 'choice-item';
-      item.innerHTML = `<span class="choice-letter">${letter}.</span><span>${escapeHtml(s.text)}</span>${s.roll ? '<span class="choice-roll">🎲 roll</span>' : ''}`;
+      item.innerHTML = `<span class="choice-letter">${i+1}</span><span>${escapeHtml(s.text)}</span>${s.roll ? '<span class="choice-roll">🎲 roll</span>' : ''}`;
       item.onclick = () => useChoice(s.text);
       choices.appendChild(item);
     });
@@ -868,14 +883,15 @@ function addStoryTurn(data, isFirst = false) {
   inputArea.innerHTML = `<input type="text" placeholder="What do you do?" onkeypress="if(event.key==='Enter')sendAction()" autofocus><button onclick="sendAction()">Send</button>`;
   container.appendChild(inputArea);
 
-  // Scroll to bottom
-  document.getElementById('main-area').scrollTop = document.getElementById('main-area').scrollHeight;
+  // Scroll to bottom smoothly
+  const mainArea = document.getElementById('main-area');
+  mainArea.scrollTo({ top: mainArea.scrollHeight, behavior: 'smooth' });
   if (inputArea.querySelector('input')) inputArea.querySelector('input').focus();
 }
 
 function useChoice(text) {
   const input = document.querySelector('.input-block input');
-  if (input) { input.value = text; input.focus(); }
+  if (input) { input.value = text; sendAction(); }
 }
 
 function addPlayerAction(text) {
@@ -1097,10 +1113,29 @@ function escapeHtml(s) { if(!s) return ''; const d=document.createElement('div')
 function formatTime(s) { if(!s) return '0:00'; const m=Math.floor(s/60); const sec=Math.floor(s%60); return `${m}:${sec.toString().padStart(2,'0')}`; }
 function toRoman(n) { const r=['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX']; return r[n] || n.toString(); }
 
-// Keyboard shortcut: Enter to send
+// Keyboard shortcuts: Enter to send, 1-9 for choices, Esc to close panels
 document.addEventListener('keydown', (e) => {
+  // Enter to send (when in input field)
   if (e.key === 'Enter' && document.activeElement.tagName === 'INPUT' && document.activeElement.closest('.input-block')) {
     sendAction();
+    return;
+  }
+  // Number keys 1-9 to select choices (only when not typing in an input)
+  if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    const num = parseInt(e.key);
+    if (num >= 1 && num <= 9) {
+      const choices = document.querySelectorAll('.choice-item');
+      if (choices[num - 1]) {
+        choices[num - 1].click();
+        return;
+      }
+    }
+  }
+  // Escape to close all panels
+  if (e.key === 'Escape') {
+    document.getElementById('app').classList.remove('show-settings');
+    document.getElementById('tab-settings').classList.remove('active');
+    document.getElementById('ctab-settings').classList.remove('active');
   }
 });
 </script>
