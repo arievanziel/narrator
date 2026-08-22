@@ -276,9 +276,15 @@ class GameState:
     _turn_counter: int = 0
 
     def attach_world_store(self, store) -> None:
-        """Attach a WorldStore and sync state from it."""
+        """Attach a WorldStore and sync state from it.
+
+        On initial attachment, we sync the current flat state TO the store
+        first (so existing enemies/PC are created as entities), then sync
+        back FROM the store to pick up any store-side changes.
+        """
         self.world_store = store
-        self._sync_from_store()
+        self._sync_to_store()  # push current state into store
+        self._sync_from_store()  # pull back any store-side changes
 
     def _sync_from_store(self) -> None:
         """Sync flat attributes from the WorldStore's PC entity."""
@@ -299,17 +305,28 @@ class GameState:
             self.inventory = inv_names
 
         # Sync enemies from store's NPC entities
+        # Only include NPCs that have HP attributes (combatants).
+        # Non-combatant NPCs (tavern keepers, quest givers) don't have HP
+        # and should not appear in the enemy list.
         store_enemies = []
         for entity in self.world_store.entities.values():
             if entity.type == "npc" and entity.alive:
-                store_enemies.append(Enemy(
-                    name=entity.name,
-                    hp=entity.attributes.get("hp", 0),
-                    max_hp=entity.attributes.get("max_hp", 0),
-                    ac=entity.attributes.get("ac", 10),
-                ))
+                # Only include as enemy if it has hp/max_hp attributes
+                # and a hostile disposition
+                if "hp" in entity.attributes and "max_hp" in entity.attributes:
+                    disp = entity.attributes.get("disposition", "hostile")
+                    if disp == "hostile":
+                        store_enemies.append(Enemy(
+                            name=entity.name,
+                            hp=entity.attributes.get("hp", 0),
+                            max_hp=entity.attributes.get("max_hp", 0),
+                            ac=entity.attributes.get("ac", 10),
+                        ))
         if store_enemies:
             self.enemies = store_enemies
+        else:
+            # Clear enemies if no hostile NPCs in store
+            self.enemies = []
 
     def _sync_to_store(self) -> None:
         """Sync flat attributes to the WorldStore's PC entity."""
@@ -333,18 +350,30 @@ class GameState:
             pc.attributes["max_hp"] = self.pc_max_hp
             pc.attributes["inventory"] = list(self.inventory)
 
-        # Sync enemies to store
+        # Sync enemies to store — update existing or create new.
+        # Only sync enemies that have hostile disposition.
         for enemy in self.enemies:
-            entity, created, _ = self.world_store.resolve_or_create(
-                enemy.name, "npc",
-                {"hp": enemy.hp, "max_hp": enemy.max_hp, "ac": enemy.ac,
-                 "disposition": "hostile", "voice_description": "enemy"},
-                current_turn=self._turn_counter,
-            )
-            entity.attributes["hp"] = enemy.hp
-            entity.attributes["max_hp"] = enemy.max_hp
-            if not enemy.alive:
-                entity.alive = False
+            # Find the existing entity by name
+            norm = enemy.name.lower().replace(" ", "_")
+            found = False
+            for eid, entity in self.world_store.entities.items():
+                if entity.type == "npc" and entity.norm_name == norm:
+                    entity.attributes["hp"] = enemy.hp
+                    entity.attributes["max_hp"] = enemy.max_hp
+                    entity.attributes["ac"] = enemy.ac
+                    entity.attributes["disposition"] = "hostile"
+                    if not enemy.alive:
+                        entity.alive = False
+                    found = True
+                    break
+            if not found:
+                # Create new entity for this enemy
+                self.world_store.resolve_or_create(
+                    enemy.name, "npc",
+                    {"hp": enemy.hp, "max_hp": enemy.max_hp, "ac": enemy.ac,
+                     "disposition": "hostile", "voice_description": "enemy"},
+                    current_turn=self._turn_counter,
+                )
 
     def to_prompt_block(self) -> str:
         enemies_str = "\n  ".join(str(e) for e in self.enemies) if self.enemies else "None"

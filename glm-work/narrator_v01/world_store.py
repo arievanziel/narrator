@@ -349,21 +349,48 @@ class WorldStore:
                 pass  # fall through to creation
 
         # Step 6: Token overlap (shared first token, same type)
+        # Matches when the first token of one name matches the first token
+        # of the other, AND at least one name has multiple tokens.
+        # This allows "Gorak" to match "Gorak the Goblin" but prevents
+        # "Goblin Scout" from matching "Goblin Raider" (different second tokens).
         if norm:
-            first_token = norm.split()[0] if norm.split() else norm
-            for eid, entity in self.entities.items():
-                if entity.type != entity_type:
-                    continue
-                entity_tokens = entity.norm_name.split()
-                if entity_tokens and entity_tokens[0] == first_token:
-                    same_loc = (current_location_id and
-                                any(l.rel == "connected_to" and l.target_id == current_location_id
-                                    for l in entity.links))
-                    recent = (current_turn - entity.last_seen_turn) <= 20
-                    if same_loc or recent:
-                        self.aliases[norm] = entity.id
-                        entity.last_seen_turn = current_turn
-                        return entity, False, f"matched token overlap '{name}' -> {entity.id}"
+            name_tokens = norm.split()
+            first_token = name_tokens[0] if name_tokens else norm
+            # Only use token overlap for longer first tokens (>= 4 chars)
+            if len(first_token) >= 4:
+                for eid, entity in self.entities.items():
+                    if entity.type != entity_type:
+                        continue
+                    entity_tokens = entity.norm_name.split()
+                    if not entity_tokens:
+                        continue
+                    # Match if first tokens are the same AND
+                    # (one name is single-token OR second tokens also match)
+                    if entity_tokens[0] == first_token:
+                        # If both are single-token, they should have been
+                        # caught by exact match. Only proceed if at least
+                        # one is multi-token.
+                        if len(name_tokens) == 1 and len(entity_tokens) >= 2:
+                            # "Gorak" matching "Gorak the Goblin" — OK
+                            pass
+                        elif len(entity_tokens) == 1 and len(name_tokens) >= 2:
+                            # "Gorak the Goblin" matching "Gorak" — OK
+                            pass
+                        elif len(name_tokens) >= 2 and len(entity_tokens) >= 2:
+                            # Both multi-token — check second token matches
+                            if name_tokens[1] != entity_tokens[1]:
+                                continue  # "Goblin Scout" != "Goblin Raider"
+                        else:
+                            continue  # both single-token, should've matched earlier
+
+                        same_loc = (current_location_id and
+                                    any(l.rel == "connected_to" and l.target_id == current_location_id
+                                        for l in entity.links))
+                        recent = (current_turn - entity.last_seen_turn) <= 20
+                        if same_loc or recent:
+                            self.aliases[norm] = entity.id
+                            entity.last_seen_turn = current_turn
+                            return entity, False, f"matched token overlap '{name}' -> {entity.id}"
 
         # Step 8: Create new entity
         entity = Entity(
