@@ -144,6 +144,15 @@
     <div class="panel-section">
       <div class="panel-h">Character</div>
       <div id="char-info"></div>
+      <div id="char-stats"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-h">Equipment</div>
+      <div id="equipment-list"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-h">Conditions</div>
+      <div id="conditions-list"></div>
     </div>
     <div class="panel-section">
       <div class="panel-h">Enemies</div>
@@ -165,6 +174,7 @@
         <button class="dice-btn" onclick="rollDice(this,100)">d100</button>
       </div>
       <div class="dice-result" id="dice-result"></div>
+      <div class="dice-history" id="dice-history"></div>
     </div>
     <div class="panel-section">
       <div class="panel-h">Chronicle</div>
@@ -298,6 +308,7 @@
 <!-- Hidden audio elements -->
 <audio id="audio-player" preload="auto"></audio>
 <audio id="bg-music-player" preload="auto" loop></audio>
+<audio id="bg-music-player-2" preload="auto" loop></audio>
 
 <script src="/static/app.js"></script>
 </body>

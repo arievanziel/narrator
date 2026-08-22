@@ -599,20 +599,55 @@ function updateState(state) {
   document.getElementById('tb-turn').textContent = turnCount;
   document.getElementById('tb-loc').textContent = state.location || '—';
 
-  // Left panel
+  // Left panel — Character info
   document.getElementById('char-info').innerHTML = `
     <div class="panel-item"><span>Name</span><span>${escapeHtml(state.pc_name)}</span></div>
     <div class="panel-item"><span>Class</span><span>Level ${state.pc_level} ${escapeHtml(state.pc_class)}</span></div>
-    <div class="panel-item"><span>HP</span><span>${state.pc_hp}/${state.pc_max_hp}</span></div>
-    <div class="panel-item"><span>AC</span><span>${state.pc_ac}</span></div>
-    <div class="panel-item"><span>STR</span><span>${state.pc_str}</span></div>
-    <div class="panel-item"><span>DEX</span><span>${state.pc_dex}</span></div>
-    <div class="panel-item"><span>CON</span><span>${state.pc_con}</span></div>`;
+    <div class="panel-item"><span>HP</span><span style="color:${hpColor}">${state.pc_hp}/${state.pc_max_hp}</span></div>
+    <div class="panel-item"><span>AC</span><span>${state.pc_ac}</span></div>`;
 
+  // Full ability scores with modifiers
+  const statMod = (v) => Math.floor((v - 10) / 2);
+  const modStr = (m) => m >= 0 ? `+${m}` : `${m}`;
+  document.getElementById('char-stats').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-val">${state.pc_str}</div><div class="stat-mod">${modStr(statMod(state.pc_str))}</div><div class="stat-label">STR</div></div>
+      <div class="stat-box"><div class="stat-val">${state.pc_dex}</div><div class="stat-mod">${modStr(statMod(state.pc_dex))}</div><div class="stat-label">DEX</div></div>
+      <div class="stat-box"><div class="stat-val">${state.pc_con}</div><div class="stat-mod">${modStr(statMod(state.pc_con))}</div><div class="stat-label">CON</div></div>
+      <div class="stat-box"><div class="stat-val">${state.pc_int}</div><div class="stat-mod">${modStr(statMod(state.pc_int))}</div><div class="stat-label">INT</div></div>
+      <div class="stat-box"><div class="stat-val">${state.pc_wis}</div><div class="stat-mod">${modStr(statMod(state.pc_wis))}</div><div class="stat-label">WIS</div></div>
+      <div class="stat-box"><div class="stat-val">${state.pc_cha}</div><div class="stat-mod">${modStr(statMod(state.pc_cha))}</div><div class="stat-label">CHA</div></div>
+    </div>`;
+
+  // Equipment
+  const eqList = document.getElementById('equipment-list');
+  if (state.equipment) {
+    eqList.innerHTML = state.equipment.split(',').map(e => {
+      e = e.trim();
+      if (!e) return '';
+      return `<div class="panel-item"><span class="equip-icon">⚔</span><span>${escapeHtml(e)}</span></div>`;
+    }).join('') || '<div class="panel-item" style="color:var(--ink-faint)">None</div>';
+  } else {
+    eqList.innerHTML = '<div class="panel-item" style="color:var(--ink-faint)">None</div>';
+  }
+
+  // Conditions (extracted from mechanics changes)
+  const condList = document.getElementById('conditions-list');
+  // Check if state has conditions (future: from WorldStore)
+  if (state.conditions && state.conditions.length) {
+    condList.innerHTML = state.conditions.map(c =>
+      `<div class="panel-item"><span class="condition-badge">${escapeHtml(c)}</span></div>`
+    ).join('');
+  } else {
+    condList.innerHTML = '<div class="panel-item" style="color:var(--ink-faint)">None</div>';
+  }
+
+  // Enemies
   document.getElementById('enemy-list').innerHTML = state.enemies.map(e =>
     `<div class="enemy-item ${e.alive ? '' : 'dead'}"><div class="enemy-dot ${e.alive ? 'alive' : 'dead'}"></div><span>${escapeHtml(e.name)}</span><span class="enemy-status">${e.hp}/${e.max_hp} HP, AC ${e.ac}</span></div>`
   ).join('') || '<div class="panel-item" style="color:var(--ink-faint)">None</div>';
 
+  // Inventory
   document.getElementById('inv-list').innerHTML = state.inventory.map(i =>
     `<div class="panel-item"><span>${escapeHtml(i)}</span></div>`
   ).join('') || '<div class="panel-item" style="color:var(--ink-faint)">Empty</div>';

@@ -59,6 +59,15 @@
   .enemy-item .enemy-status { font-size: 11px; color: var(--ink-faint); margin-left: auto; }
   .enemy-item.dead { text-decoration: line-through; opacity: 0.5; }
 
+  /* v0.7: Character sheet — stat grid */
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 0.6rem; }
+  .stat-box { text-align: center; background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 4px; }
+  .stat-box .stat-val { font-size: 18px; font-weight: 500; color: var(--ink); }
+  .stat-box .stat-mod { font-size: 12px; color: var(--accent); font-family: monospace; }
+  .stat-box .stat-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-faint); margin-top: 2px; }
+  .equip-icon { color: var(--ink-faint); margin-right: 4px; }
+  .condition-badge { font-size: 12px; color: var(--hp-mid); background: rgba(184,134,11,0.1); padding: 2px 8px; border-radius: 4px; }
+
   /* Dice roller */
   .dice-roller { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
   .dice-btn { background: var(--bg); border: 1px solid var(--rule); color: var(--ink-mid); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: monospace; transition: all 0.15s; }
