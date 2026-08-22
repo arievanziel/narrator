@@ -658,12 +658,13 @@ def detect_provider(model: str) -> str:
 
 import random as _random
 
-def roll_dice(spec: str) -> int:
+def roll_dice(spec: str, rng: _random.Random = None) -> int:
     """Roll dice from a specification like 'd20', '1d8+3', '2d6', 'd20+5'.
 
-    Returns the total. Uses a module-level Random instance for reproducibility
-    in tests (seed via set_dice_seed).
+    Returns the total. If rng is provided, uses it (for seeded rolls).
+    Otherwise uses the module-level Random instance.
     """
+    r = rng or _dice_rng
     spec = spec.strip().lower().replace(" ", "")
     # Parse: [count]d[sides][+/-modifier]
     m = re.match(r"(\d*)d(\d+)([+-]\d+)?", spec)
@@ -672,7 +673,7 @@ def roll_dice(spec: str) -> int:
     count = int(m.group(1)) if m.group(1) else 1
     sides = int(m.group(2))
     modifier = int(m.group(3)) if m.group(3) else 0
-    total = sum(_dice_rng.randint(1, sides) for _ in range(count))
+    total = sum(r.randint(1, sides) for _ in range(count))
     return total + modifier
 
 
@@ -682,6 +683,18 @@ _dice_rng = _random.Random()
 def set_dice_seed(seed: int) -> None:
     """Seed the dice RNG for reproducible tests."""
     _dice_rng.seed(seed)
+
+
+def make_roll_seed(campaign_id: str, turn: int) -> int:
+    """Create a deterministic seed from campaign ID and turn number.
+
+    This ensures the same campaign + turn always produces the same roll,
+    making rolls reproducible for replay/debugging while preventing
+    the LLM from influencing the outcome.
+    """
+    import hashlib
+    h = hashlib.sha256(f"{campaign_id}:{turn}".encode())
+    return int.from_bytes(h.digest()[:8], "big")
 
 
 def parse_roll_request(mechanics_text: str) -> dict | None:
@@ -711,28 +724,49 @@ def parse_roll_request(mechanics_text: str) -> dict | None:
     return None
 
 
-def resolve_roll(roll_request: dict, manual_roll: int | None = None) -> dict:
+def resolve_roll(roll_request: dict, manual_roll: int | None = None,
+                 seed: int | None = None) -> dict:
     """Resolve a roll request deterministically.
 
     If manual_roll is provided, use it (player rolled manually).
-    Otherwise, auto-roll using roll_dice().
+    If seed is provided, create a seeded RNG for reproducible rolls.
+    Otherwise, auto-roll using the module-level RNG.
 
-    Returns: {dice, skill, dc, roll, result, margin}
+    Returns: {dice, skill, dc, roll, modifier, total, result, margin, seed}
     """
     dice = roll_request["dice"]
     dc = roll_request.get("dc")
     skill = roll_request["skill"]
 
+    # Parse modifier from dice spec (e.g. "d20+5" -> modifier=5)
+    modifier = 0
+    m = re.match(r"(\d*)d(\d+)([+-]\d+)?", dice.lower().replace(" ", ""))
+    if m and m.group(3):
+        modifier = int(m.group(3))
+
     if manual_roll is not None:
-        roll = manual_roll
+        roll_total = manual_roll
+        raw_roll = manual_roll - modifier
     else:
-        roll = roll_dice(dice)
+        rng = _random.Random(seed) if seed is not None else None
+        roll_total = roll_dice(dice, rng=rng)
+        raw_roll = roll_total - modifier
 
     if dc is not None:
-        result = "SUCCESS" if roll >= dc else "FAILURE"
-        margin = roll - dc
+        if roll_total >= dc:
+            result = "SUCCESS"
+        else:
+            result = "FAILURE"
+        # Detect critical success/failure on natural d20
+        if dice.lower().startswith("d20") and modifier == 0:
+            pass  # roll_total is the raw roll for d20 with no modifier
+        elif dice.lower().startswith("d20"):
+            if raw_roll == 20:
+                result = "CRITICAL_SUCCESS"
+            elif raw_roll == 1:
+                result = "CRITICAL_FAILURE"
+        margin = roll_total - dc
     else:
-        # No DC set — treat as a simple roll, no pass/fail
         result = "NO_DC"
         margin = 0
 
@@ -740,9 +774,12 @@ def resolve_roll(roll_request: dict, manual_roll: int | None = None) -> dict:
         "dice": dice,
         "skill": skill,
         "dc": dc,
-        "roll": roll,
+        "roll": raw_roll,
+        "modifier": modifier,
+        "total": roll_total,
         "result": result,
         "margin": margin,
+        "seed": seed,
     }
 
 
@@ -781,20 +818,25 @@ def dm_turn(client: OpenAI, model: str, system_prompt: str,
 def dm_turn_dc_roll(client: OpenAI, model: str, system_prompt: str,
                      state_block: str, history: list, player_input: str,
                      auto_roll: bool = True, manual_roll: int | None = None,
+                     seed: int | None = None,
                      temperature: float = 0.8, max_tokens: int = 2000) -> dict:
     """Two-phase DC-then-roll turn for contested actions.
 
     Phase 1: LLM narrates the setup and emits ROLL_REQUEST with a DC.
-    Phase 2: Code resolves the roll deterministically.
+    Phase 2: Code resolves the roll deterministically (seeded).
     Phase 3: LLM narrates the consequence of the already-decided outcome.
 
     If the LLM's first response doesn't include a ROLL_REQUEST, this is a
     non-contested turn — return the single response with no roll.
 
+    The seed ensures reproducibility: the same campaign + turn always
+    produces the same roll, preventing the LLM from influencing outcomes.
+
     Returns: {
         phase1_text, phase1_sections, roll_result (or None),
         phase3_text (or None), phase3_sections (or None),
-        sections (final sections to use), elapsed_total, usage_total
+        sections (final sections to use), elapsed_total, usage_total,
+        contested, phase1_audio_segments (for early audio start)
     }
     """
     # Phase 1: setup + DC setting
@@ -821,17 +863,26 @@ def dm_turn_dc_roll(client: OpenAI, model: str, system_prompt: str,
         }
 
     # Phase 2: resolve the roll (pure code, no LLM)
-    roll_result = resolve_roll(roll_req, manual_roll=manual_roll if not auto_roll else None)
+    if auto_roll:
+        roll_result = resolve_roll(roll_req, seed=seed)
+    else:
+        roll_result = resolve_roll(roll_req, manual_roll=manual_roll, seed=seed)
 
     # Phase 3: LLM narrates the consequence
+    result_label = roll_result["result"].replace("_", " ").title()
     outcome_prompt = (
         f"ROLL RESULT (deterministic — you cannot change this):\n"
-        f"  Roll: {roll_result['roll']} on {roll_result['dice']}\n"
+        f"  Dice: {roll_result['dice']}\n"
+        f"  Raw roll: {roll_result['roll']}\n"
+        f"  Modifier: {'+' if roll_result['modifier'] >= 0 else ''}{roll_result['modifier']}\n"
+        f"  Total: {roll_result['total']}\n"
         f"  DC: {roll_result['dc']}\n"
-        f"  Result: {roll_result['result']}\n"
+        f"  Result: {result_label}\n"
         f"  Margin: {roll_result['margin']:+d}\n\n"
-        f"Narrate the consequence of this outcome. The {'success' if roll_result['result'] == 'SUCCESS' else 'failure'} "
-        f"is already decided — do not change it. Apply appropriate [MECHANICS] based on the result.\n\n"
+        f"Narrate ONLY the consequence of this outcome. The result is already "
+        f"decided — do not change it. Apply appropriate [MECHANICS] based on "
+        f"the result. Do not repeat the setup narration from the previous "
+        f"response — continue directly from where you left off.\n\n"
         f"PLAYER ACTION (for context):\n{player_input}"
     )
 

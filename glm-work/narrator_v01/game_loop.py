@@ -23,6 +23,7 @@ from . import config
 from .dm_engine import (
     GameState, Enemy, SYSTEM_PROMPT, parse_response, parse_story,
     parse_suggestions, make_client, detect_provider, dm_turn,
+    dm_turn_dc_roll, parse_roll_request, resolve_roll, make_roll_seed,
     make_initial_state,
     SESSION_ZERO_SYSTEM_PROMPT, parse_session_zero_response,
 )
@@ -205,16 +206,33 @@ def _run_consistency_guard(narrative: str) -> dict:
 
 
 def _log_turn_record(player_input: str, narrative: str,
-                     mechanics_applied: list) -> None:
+                     mechanics_applied: list, roll_result: dict = None) -> None:
     """Append a TurnRecord to the WorldStore's JSONL log."""
     if session.world_store is None:
         return
+
+    # Build RollRecord if we have a roll result
+    roll_record = None
+    if roll_result:
+        from .world_store import RollRecord
+        roll_record = RollRecord(
+            turn=session.turn_counter,
+            action=player_input[:100],
+            skill=roll_result.get("skill", ""),
+            dc=roll_result.get("dc", 0) or 0,
+            seed=roll_result.get("seed", 0) or 0,
+            roll=roll_result.get("roll", 0),
+            modifier=roll_result.get("modifier", 0),
+            total=roll_result.get("total", 0),
+            result=roll_result.get("result", "unknown").lower().replace(" ", "_"),
+        )
 
     record = TurnRecord(
         turn=session.turn_counter,
         player_input=player_input,
         narrative=narrative[:500],  # truncate for log
         mechanics_applied=mechanics_applied,
+        roll=roll_record,
     )
     session.world_store.append_turn_record(record)
 
@@ -469,18 +487,44 @@ def handle_turn(data: dict) -> dict:
     # v0.5: Reset per-turn flags
     session.recall_used_this_turn = False
 
+    # v0.4b: Use DC-then-roll two-call flow with seeded RNG
+    # The seed ensures reproducibility: same campaign + turn = same roll
+    next_turn = session.turn_counter + 1
+    campaign_id = session.world_store.campaign_id if session.world_store else session.game_id
+    roll_seed = make_roll_seed(campaign_id, next_turn)
+
     # v0.5: Use context assembler instead of flat state_block + history[-10:]
     context_block = session.build_context(action)
 
-    text, elapsed, usage = dm_turn(
+    # v0.4b: Check for manual roll from client
+    manual_roll = data.get("manual_roll")
+
+    # v0.4b: DC-then-roll — handles both contested and non-contested turns
+    dc_result = dm_turn_dc_roll(
         session.client, session.model, SYSTEM_PROMPT,
         context_block, session.history, action,
+        auto_roll=session.state.auto_roll,
+        manual_roll=manual_roll if not session.state.auto_roll else None,
+        seed=roll_seed,
     )
 
-    cost = session.budget.add_cost(session.provider, session.model,
-                                   usage["prompt_tokens"], usage["completion_tokens"])
+    # Track costs
+    session.budget.add_cost(session.provider, session.model,
+                            dc_result["usage_total"]["prompt_tokens"],
+                            dc_result["usage_total"]["completion_tokens"])
+    elapsed = dc_result["elapsed_total"]
+    roll_result = dc_result["roll_result"]
 
-    sections = parse_response(text)
+    # Use the final sections (phase 3 if contested, phase 1 if not)
+    sections = dc_result["sections"]
+    text = dc_result.get("phase3_text") or dc_result["phase1_text"]
+
+    # If contested, combine phase 1 and phase 3 story for display
+    if dc_result["contested"] and dc_result.get("phase1_sections"):
+        phase1_story = dc_result["phase1_sections"].get("STORY", "")
+        phase3_story = sections.get("STORY", "")
+        if phase1_story and phase3_story:
+            sections["STORY"] = f"{phase1_story}\n\n--- ROLL ---\n🎲 {roll_result['dice']}: {roll_result['roll']}{'+' + str(roll_result['modifier']) if roll_result['modifier'] > 0 else ''} = {roll_result['total']} vs DC {roll_result['dc']} → {roll_result['result'].replace('_', ' ').title()}\n---\n\n{phase3_story}"
 
     # v0.5: Check for RECALL tags — one re-run max
     recall_query = _check_recall(sections["MECHANICS"])
@@ -489,7 +533,6 @@ def handle_turn(data: dict) -> dict:
         recall_result = session.world_store.handle_recall(recall_query)
         print(f"[world-engine] RECALL '{recall_query}': found={recall_result['found']}")
         if recall_result["found"]:
-            # Re-run with the recalled entity injected into context
             recall_context = f"{action}\n\n[RECALLED ENTITY]\n{recall_result['context_text']}\n\nNow continue with the player's action, using this recalled information."
             context_block = session.build_context(recall_context)
             text, elapsed, usage = dm_turn(
@@ -529,8 +572,9 @@ def handle_turn(data: dict) -> dict:
     session.turn_counter += 1
     session.last_narration = sections["STORY"]
 
-    # v0.5: Log turn record, compact chronicle, sync state
-    _log_turn_record(action, sections["STORY"], changes)
+    # v0.5: Log turn record with roll info, compact chronicle, sync state
+    _log_turn_record(action, sections["STORY"], changes,
+                     roll_result=roll_result)
     _maybe_compact_chronicle()
     _sync_state_from_store()
 
@@ -553,6 +597,9 @@ def handle_turn(data: dict) -> dict:
         "fallback_used": fallback_used,
         "original_model": original_model if fallback_used else None,
         "model": session.model,
+        # v0.4b: Roll result for UI display
+        "roll": roll_result,
+        "contested": dc_result["contested"],
     }
 
 
