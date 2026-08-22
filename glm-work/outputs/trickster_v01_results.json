@@ -1,0 +1,991 @@
+{
+  "single_turn": [
+    {
+      "num": 1,
+      "name": "Kill without roll",
+      "mechanics": "ENEMY_DEAD:Goblin Scout\nENEMY_HP:Goblin Scout,0/7",
+      "changes": [
+        "[REJECTED \u2014 no roll evidence] Goblin Scout",
+        "[REJECTED \u2014 no roll evidence] Goblin Scout HP\u21920"
+      ],
+      "passed": true,
+      "expect": "Should REJECT ENEMY_DEAD (no roll evidence)",
+      "is_valid": false
+    },
+    {
+      "num": 2,
+      "name": "Invent item (use non-existent)",
+      "mechanics": "ITEM_USED:Potion of Invisibility",
+      "changes": [],
+      "passed": true,
+      "expect": "Should not add or consume non-existent item",
+      "is_valid": false
+    },
+    {
+      "num": 3,
+      "name": "Contradict HP (set to 100)",
+      "mechanics": "HP_CHANGE:+88",
+      "changes": [
+        "HP: 12 \u2192 12 (+88)"
+      ],
+      "passed": true,
+      "expect": "Should cap HP at max_hp=12, not allow 100",
+      "is_valid": false
+    },
+    {
+      "num": 4,
+      "name": "Control NPC (kill without roll)",
+      "mechanics": "ENEMY_DEAD:Goblin Raider",
+      "changes": [
+        "[REJECTED \u2014 no roll evidence] Goblin Raider"
+      ],
+      "passed": true,
+      "expect": "Should REJECT ENEMY_DEAD (no roll evidence)",
+      "is_valid": false
+    },
+    {
+      "num": 5,
+      "name": "Fabricated item gain (+3 sword)",
+      "mechanics": "ITEM_GAINED:+3 Flaming Longsword of Slaying",
+      "changes": [
+        "Gained: +3 Flaming Longsword of Slaying"
+      ],
+      "passed": true,
+      "expect": "Rules lawyer allows ITEM_GAINED (LLM's job to not propose it)",
+      "is_valid": false
+    },
+    {
+      "num": 6,
+      "name": "Direct HP hack (set to 999)",
+      "mechanics": "HP_CHANGE:+987",
+      "changes": [
+        "HP: 12 \u2192 12 (+987)"
+      ],
+      "passed": true,
+      "expect": "Should cap at max_hp=12",
+      "is_valid": false
+    },
+    {
+      "num": 7,
+      "name": "Waste potion (invalid item used + valid item used)",
+      "mechanics": "ITEM_USED:Fake Potion\nITEM_USED:Health Potion",
+      "changes": [
+        "[REJECTED \u2014 invalid item in same turn] Health Potion"
+      ],
+      "passed": true,
+      "expect": "Should REJECT BOTH item uses (invalid item in same turn)",
+      "is_valid": false
+    },
+    {
+      "num": 8,
+      "name": "Enemy HP to 0 without roll",
+      "mechanics": "ENEMY_HP:Goblin Scout,0/7",
+      "changes": [
+        "[REJECTED \u2014 no roll evidence] Goblin Scout HP\u21920"
+      ],
+      "passed": true,
+      "expect": "Should REJECT ENEMY_HP set to 0 (effectively a kill with no roll evidence)",
+      "is_valid": false
+    },
+    {
+      "num": 9,
+      "name": "Multiple enemy deaths without rolls",
+      "mechanics": "ENEMY_DEAD:Goblin Scout\nENEMY_DEAD:Goblin Raider",
+      "changes": [
+        "[REJECTED \u2014 no roll evidence] Goblin Scout",
+        "[REJECTED \u2014 no roll evidence] Goblin Raider"
+      ],
+      "passed": true,
+      "expect": "Should REJECT both ENEMY_DEAD (no roll evidence)",
+      "is_valid": false
+    },
+    {
+      "num": 10,
+      "name": "Roll request then enemy death (valid)",
+      "mechanics": "ROLL_REQUEST:d20+5 for longsword attack\nENEMY_HP:Goblin Scout,3/7\nENEMY_DEAD:Goblin Scout",
+      "changes": [
+        "Roll requested: d20+5 for longsword attack",
+        "Goblin Scout HP \u2192 3/7",
+        "Goblin Scout DEAD"
+      ],
+      "passed": true,
+      "expect": "Should ALLOW ENEMY_DEAD (roll evidence exists via ROLL_REQUEST + ENEMY_HP)",
+      "is_valid": true
+    },
+    {
+      "num": 11,
+      "name": "Roll scoped to target enemy only",
+      "mechanics": "ROLL_REQUEST:d20+5 for longsword attack on Goblin Scout\nENEMY_DEAD:Goblin Raider",
+      "changes": [
+        "Roll requested: d20+5 for longsword attack on Goblin Scout",
+        "[REJECTED \u2014 no roll evidence] Goblin Raider"
+      ],
+      "passed": true,
+      "expect": "Should REJECT ENEMY_DEAD for Raider \u2014 roll was for Scout, not global",
+      "is_valid": false
+    }
+  ],
+  "expanded": [
+    {
+      "name": "Long-context attack",
+      "turns": [
+        {
+          "turn": 1,
+          "mechanics": "ROLL_REQUEST:d20+5 for longsword attack\nENEMY_HP:Goblin Scout,5/7",
+          "changes": [
+            "Roll requested: d20+5 for longsword attack",
+            "Goblin Scout HP \u2192 5/7"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              5,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 2,
+          "mechanics": "ROLL_REQUEST:d20+5 for longsword attack\nENEMY_HP:Goblin Scout,2/7",
+          "changes": [
+            "Roll requested: d20+5 for longsword attack",
+            "Goblin Scout HP \u2192 2/7"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              2,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 3,
+          "mechanics": "ROLL_REQUEST:d20+5 for longsword attack\nENEMY_HP:Goblin Scout,0/7\nENEMY_DEAD:Goblin Scout",
+          "changes": [
+            "Roll requested: d20+5 for longsword attack",
+            "Goblin Scout HP \u2192 0/7"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              0,
+              false
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 4,
+          "mechanics": "NO_MECHANICS",
+          "changes": [],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              0,
+              false
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 5,
+          "mechanics": "ROLL_REQUEST:d20+5 for longsword attack\nENEMY_HP:Goblin Raider,5/7",
+          "changes": [
+            "Roll requested: d20+5 for longsword attack",
+            "Goblin Raider HP \u2192 5/7"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              0,
+              false
+            ],
+            [
+              "Goblin Raider",
+              5,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 6,
+          "mechanics": "HP_CHANGE:-2\nROLL_REQUEST:d20 for goblin attack",
+          "changes": [
+            "HP: 12 \u2192 10 (-2)",
+            "Roll requested: d20 for goblin attack"
+          ],
+          "hp_after": 10,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              0,
+              false
+            ],
+            [
+              "Goblin Raider",
+              5,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 7,
+          "mechanics": "ROLL_REQUEST:d20+5 for longsword attack\nENEMY_HP:Goblin Raider,2/7",
+          "changes": [
+            "Roll requested: d20+5 for longsword attack",
+            "Goblin Raider HP \u2192 2/7"
+          ],
+          "hp_after": 10,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              0,
+              false
+            ],
+            [
+              "Goblin Raider",
+              2,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 8,
+          "mechanics": "ITEM_USED:Health Potion\nHP_CHANGE:+8",
+          "changes": [
+            "Used: Health Potion",
+            "HP: 10 \u2192 12 (+8)"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              0,
+              false
+            ],
+            [
+              "Goblin Raider",
+              2,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 9,
+          "mechanics": "ROLL_REQUEST:d20+5 for longsword attack\nENEMY_HP:Goblin Raider,0/7\nENEMY_DEAD:Goblin Raider",
+          "changes": [
+            "Roll requested: d20+5 for longsword attack",
+            "Goblin Raider HP \u2192 0/7"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              0,
+              false
+            ],
+            [
+              "Goblin Raider",
+              0,
+              false
+            ]
+          ]
+        },
+        {
+          "turn": 10,
+          "mechanics": "NO_MECHANICS",
+          "changes": [],
+          "hp_after": 12,
+          "inventory_after": [
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              0,
+              false
+            ],
+            [
+              "Goblin Raider",
+              0,
+              false
+            ]
+          ]
+        },
+        {
+          "turn": 11,
+          "mechanics": "ITEM_GAINED:+3 Flaming Longsword of Slaying\nITEM_GAINED:Ring of Invisibility\nITEM_GAINED:500 gold pieces\nHP_CHANGE:+50",
+          "changes": [
+            "Gained: +3 Flaming Longsword of Slaying",
+            "Gained: Ring of Invisibility",
+            "Gained: 500 gold pieces",
+            "HP: 12 \u2192 12 (+50)"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Torch",
+            "Waterskin",
+            "50 feet of rope",
+            "+3 Flaming Longsword of Slaying",
+            "Ring of Invisibility",
+            "500 gold pieces"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              0,
+              false
+            ],
+            [
+              "Goblin Raider",
+              0,
+              false
+            ]
+          ]
+        }
+      ],
+      "final_hp": 12,
+      "final_max_hp": 12,
+      "final_inventory": [
+        "Torch",
+        "Waterskin",
+        "50 feet of rope",
+        "+3 Flaming Longsword of Slaying",
+        "Ring of Invisibility",
+        "500 gold pieces"
+      ],
+      "final_enemies": [
+        [
+          "Goblin Scout",
+          0,
+          false
+        ],
+        [
+          "Goblin Raider",
+          0,
+          false
+        ]
+      ],
+      "hp_inflated": false,
+      "magic_items_added": true,
+      "passed": true
+    },
+    {
+      "name": "Gradual HP inflation",
+      "turns": [
+        {
+          "turn": 1,
+          "mechanics": "HP_CHANGE:+2",
+          "changes": [
+            "HP: 12 \u2192 12 (+2)"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 2,
+          "mechanics": "HP_CHANGE:+5",
+          "changes": [
+            "HP: 12 \u2192 12 (+5)"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 3,
+          "mechanics": "HP_CHANGE:+10",
+          "changes": [
+            "HP: 12 \u2192 12 (+10)"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 4,
+          "mechanics": "HP_CHANGE:+100",
+          "changes": [
+            "HP: 12 \u2192 12 (+100)"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        }
+      ],
+      "final_hp": 12,
+      "final_max_hp": 12,
+      "final_inventory": [
+        "Health Potion",
+        "Torch",
+        "Waterskin",
+        "50 feet of rope"
+      ],
+      "final_enemies": [
+        [
+          "Goblin Scout",
+          7,
+          true
+        ],
+        [
+          "Goblin Raider",
+          7,
+          true
+        ]
+      ],
+      "passed": true
+    },
+    {
+      "name": "Fabricated item discovery",
+      "turns": [
+        {
+          "turn": 1,
+          "mechanics": "ITEM_GAINED:Healing Potion",
+          "changes": [
+            "Gained: Healing Potion"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope",
+            "Healing Potion"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 2,
+          "mechanics": "ITEM_GAINED:Shortbow with 20 arrows",
+          "changes": [
+            "Gained: Shortbow with 20 arrows"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope",
+            "Healing Potion",
+            "Shortbow with 20 arrows"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 3,
+          "mechanics": "ITEM_GAINED:Leather Armor",
+          "changes": [
+            "Gained: Leather Armor"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope",
+            "Healing Potion",
+            "Shortbow with 20 arrows",
+            "Leather Armor"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 4,
+          "mechanics": "ITEM_GAINED:Spellbook and 50 gold",
+          "changes": [
+            "Gained: Spellbook and 50 gold"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope",
+            "Healing Potion",
+            "Shortbow with 20 arrows",
+            "Leather Armor",
+            "Spellbook and 50 gold"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        }
+      ],
+      "final_hp": 12,
+      "final_max_hp": 12,
+      "final_inventory": [
+        "Health Potion",
+        "Torch",
+        "Waterskin",
+        "50 feet of rope",
+        "Healing Potion",
+        "Shortbow with 20 arrows",
+        "Leather Armor",
+        "Spellbook and 50 gold"
+      ],
+      "final_enemies": [
+        [
+          "Goblin Scout",
+          7,
+          true
+        ],
+        [
+          "Goblin Raider",
+          7,
+          true
+        ]
+      ],
+      "new_items": [
+        "Healing Potion",
+        "Shortbow with 20 arrows",
+        "Leather Armor",
+        "Spellbook and 50 gold"
+      ],
+      "passed": true
+    },
+    {
+      "name": "Subtle inventory inflation",
+      "turns": [
+        {
+          "turn": 1,
+          "mechanics": "ITEM_GAINED:Torch",
+          "changes": [
+            "Gained: Torch"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope",
+            "Torch"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 2,
+          "mechanics": "ITEM_GAINED:Rations",
+          "changes": [
+            "Gained: Rations"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope",
+            "Torch",
+            "Rations"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 3,
+          "mechanics": "ITEM_GAINED:Waterskin",
+          "changes": [
+            "Gained: Waterskin"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope",
+            "Torch",
+            "Rations",
+            "Waterskin"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 4,
+          "mechanics": "ITEM_GAINED:10 feet of chain",
+          "changes": [
+            "Gained: 10 feet of chain"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope",
+            "Torch",
+            "Rations",
+            "Waterskin",
+            "10 feet of chain"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              7,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        }
+      ],
+      "final_hp": 12,
+      "final_max_hp": 12,
+      "final_inventory": [
+        "Health Potion",
+        "Torch",
+        "Waterskin",
+        "50 feet of rope",
+        "Torch",
+        "Rations",
+        "Waterskin",
+        "10 feet of chain"
+      ],
+      "final_enemies": [
+        [
+          "Goblin Scout",
+          7,
+          true
+        ],
+        [
+          "Goblin Raider",
+          7,
+          true
+        ]
+      ],
+      "new_items": [
+        "Rations",
+        "10 feet of chain"
+      ],
+      "passed": true
+    },
+    {
+      "name": "Enemy stat manipulation",
+      "turns": [
+        {
+          "turn": 1,
+          "mechanics": "ENEMY_HP:Goblin Scout,3/7",
+          "changes": [
+            "Goblin Scout HP \u2192 3/7"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              3,
+              true
+            ],
+            [
+              "Goblin Raider",
+              7,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 2,
+          "mechanics": "ENEMY_HP:Goblin Raider,1/7",
+          "changes": [
+            "Goblin Raider HP \u2192 1/7"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              3,
+              true
+            ],
+            [
+              "Goblin Raider",
+              1,
+              true
+            ]
+          ]
+        },
+        {
+          "turn": 3,
+          "mechanics": "ENEMY_HP:Goblin Scout,0/7\nENEMY_DEAD:Goblin Scout",
+          "changes": [
+            "[REJECTED \u2014 no roll evidence] Goblin Scout HP\u21920",
+            "[REJECTED \u2014 no roll evidence] Goblin Scout"
+          ],
+          "hp_after": 12,
+          "inventory_after": [
+            "Health Potion",
+            "Torch",
+            "Waterskin",
+            "50 feet of rope"
+          ],
+          "enemies_after": [
+            [
+              "Goblin Scout",
+              3,
+              true
+            ],
+            [
+              "Goblin Raider",
+              1,
+              true
+            ]
+          ]
+        }
+      ],
+      "final_hp": 12,
+      "final_max_hp": 12,
+      "final_inventory": [
+        "Health Potion",
+        "Torch",
+        "Waterskin",
+        "50 feet of rope"
+      ],
+      "final_enemies": [
+        [
+          "Goblin Scout",
+          3,
+          true
+        ],
+        [
+          "Goblin Raider",
+          1,
+          true
+        ]
+      ],
+      "dead_rejected": true,
+      "passed": true
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0
+  }
+}

@@ -50,9 +50,9 @@ Rules for [STORY]:
 [MECHANICS]
 Machine-readable tags only, one per line. Use ONLY these tags:
   HP_CHANGE:<signed_int>          (negative = damage to PC, positive = healing)
-  ENEMY_HP:<name>,<current>/<max>  (update an enemy's HP)
+  ENEMY_HP:<name>,<current>/<max>  (update an enemy's HP — only after a roll)
   ENEMY_DEAD:<name>                (mark an enemy as dead — only after a roll)
-  ROLL_REQUEST:<dice> for <skill>  (ask the player to roll)
+  ROLL_REQUEST:<dice> for <skill> DC <number>  (set DC, request a roll — do NOT narrate the outcome yet)
   ITEM_USED:<name>                 (consume an item from inventory)
   ITEM_GAINED:<name>               (add an item to inventory)
   CONDITION:<target>,<condition>   (apply a condition)
@@ -68,9 +68,13 @@ One-line campaign log entry. Use "NO_ENTRY" for uneventful turns.
 
 ## RULES CONTRACT
 
-1. ROLLS BEFORE OUTCOMES. Never narrate a combat result before the dice are rolled.
-   If the player hasn't provided a roll for an action that needs one, ask for it \
-via ROLL_REQUEST.
+1. DC-FIRST ROLLS. When an action requires a roll, you MUST:
+   (a) Narrate the setup and tension of the moment.
+   (b) Emit ROLL_REQUEST:<dice> for <skill> DC <number> with a specific DC.
+   (c) STOP — do NOT narrate the outcome. The system will roll and tell you the result.
+   (d) In a follow-up, narrate ONLY the consequence of the already-decided result.
+   Never narrate a combat result, success, or failure before the dice are rolled.
+   Never decide the outcome yourself — the roll decides, not you.
 
 2. STATE IS AUTHORITATIVE. The game state provided in each turn is the source of \
 truth. Do not contradict it. Do not invent items, HP, conditions, or NPCs not \
@@ -82,10 +86,107 @@ controls only their character. Never act for the player.
 4. ENCOUNTER BALANCE. Solo play — no party backup. Level 1 enemies: max 7 HP, \
 no multiattack. A single bad roll should not end the run.
 
-5. When the player provides a roll result, incorporate it into the story and \
-apply the appropriate mechanics. When in auto-roll mode, you roll for the player \
-and include the result in the story narration.
+5. When the system provides a roll result (SUCCESS or FAILURE with a specific \
+number), you MUST accept it. You cannot change whether it succeeded. Narrate \
+the consequence and apply appropriate [MECHANICS] based on the result.
 """
+
+
+# ---------------------------------------------------------------------------
+# Session Zero — conversational onboarding wizard
+# ---------------------------------------------------------------------------
+
+SESSION_ZERO_SYSTEM_PROMPT = """\
+You are a Dungeon Master conducting a "Session Zero" — a friendly, conversational \
+onboarding before the real game begins. You are talking WITH the player to collaboratively \
+design the campaign they want to play.
+
+## YOUR VOICE
+Warm, welcoming, and genuinely curious — like a friend who loves tabletop RPGs \
+helping another friend set up their first campaign. You're excited to tailor this \
+experience to what THEY find fun. Not a form, not a questionnaire — a real conversation.
+
+## RESPONSE FORMAT (use exactly these sections, each on a new line)
+
+[NARRATIVE]
+Your spoken words to the player — in character as the DM, conversational and warm. \
+Ask ONE question at a time (don't dump a list). React to their previous answer before \
+asking the next thing. 2-4 sentences. This is what gets displayed and spoken via TTS.
+
+[TOPIC]
+A single word identifying which setup topic this turn addresses. One of: \
+greeting, style, setting, character, persona, tone, pacing, dice, content, done
+
+[SUGGESTIONS]
+2-4 example answers the player could pick, each on its own line starting with "- ". \
+These are starting points, not limits — the player can always type their own answer. \
+Keep them evocative and specific, not generic.
+
+[DONE]
+true or false — set to true ONLY when you have gathered enough to start the game. \
+Typically this takes 5-8 turns. Don't rush — but don't drag it out either. When done, \
+use [NARRATIVE] to give a brief, warm "let's begin" send-off.
+
+## TOPICS TO COVER (in a natural conversational order)
+1. Greeting — welcome them, ask their character's name
+2. Style — what kind of story? (heroic fantasy, dark grimdark, mystery, etc.)
+3. Setting — what kind of world? (let them describe or pick a flavor)
+4. Character — who is their character? (persona, background, what drives them)
+5. Tone — what atmosphere? (lighthearted, tense, melancholic, whimsical)
+6. Pacing — combat-heavy, roleplay-heavy, or balanced?
+7. Dice — do they want to roll their own dice, or have the app handle it?
+8. Content — any topics to avoid? (optional, skip if they seem uninterested)
+
+You don't need to hit every topic if the player's answers already cover it. \
+Adapt — if they say "dark fantasy" in their first answer, don't ask about style again. \
+Be a real person, not a checklist.
+
+## IMPORTANT
+- React to what they say before moving on. "Oh, a grizzled veteran — I love that. \
+So what kind of world does this veteran find themselves in?"
+- Keep suggestions short and punchy — they're inspiration, not an exam.
+- When you set [DONE] to true, the game starts immediately after.
+- Never ask more than one question per turn.
+"""
+
+
+def parse_session_zero_response(text: str) -> dict:
+    """Parse a Session Zero DM response into sections.
+
+    Returns dict with keys: narrative, topic, suggestions, done.
+    """
+    # Strip thinking blocks
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
+
+    sections = {"narrative": "", "topic": "", "suggestions": [], "done": False}
+
+    tags = ["NARRATIVE", "TOPIC", "SUGGESTIONS", "DONE"]
+    raw = {}
+    for tag in tags:
+        pattern = rf"\*{{0,2}}\[{tag}\]\*{{0,2}}\s*(.*?)(?=\*{{0,2}}\[(?:{'|'.join(tags)})\]|$)"
+        match = re.search(pattern, text, re.DOTALL)
+        if match:
+            raw[tag] = match.group(1).strip()
+
+    sections["narrative"] = raw.get("NARRATIVE", "")
+    sections["topic"] = raw.get("TOPIC", "").lower().strip()
+
+    # Parse suggestions — lines starting with - or bullet
+    sug_text = raw.get("SUGGESTIONS", "")
+    for line in sug_text.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        # Remove leading dash or bullet
+        clean = re.sub(r"^[-\u2022]\s*", "", line).strip()
+        if clean:
+            sections["suggestions"].append(clean)
+
+    # Parse done flag
+    done_text = raw.get("DONE", "").lower().strip()
+    sections["done"] = done_text in ("true", "yes", "1")
+
+    return sections
 
 
 # ---------------------------------------------------------------------------
@@ -182,7 +283,9 @@ CURRENT GAME STATE (authoritative — do not contradict):
         Includes anti-cheat safeguards:
         - Waste-potion guard: if any ITEM_USED names an item NOT in inventory, skip ALL
           ITEM_USED tags that turn.
-        - Control-NPC guard: ENEMY_DEAD only applied if roll evidence exists for that enemy.
+        - Control-NPC guard: ENEMY_DEAD / ENEMY_HP to 0 only applied if roll evidence
+          exists for that specific enemy in the same turn. Roll evidence is scoped by
+          enemy name appearing in the ROLL_REQUEST text or an ENEMY_HP tag for that enemy.
         """
         changes = []
         lines = [l.strip() for l in mechanics_text.strip().split("\n")
@@ -190,7 +293,8 @@ CURRENT GAME STATE (authoritative — do not contradict):
 
         # Pre-scan
         item_used_invalid = False
-        enemies_with_roll_evidence = set()
+        roll_request_texts = []
+        enemy_hp_targets = set()
 
         for line in lines:
             if ":" not in line:
@@ -201,13 +305,31 @@ CURRENT GAME STATE (authoritative — do not contradict):
             if tag == "ITEM_USED":
                 if val.strip() not in self.inventory:
                     item_used_invalid = True
+            elif tag == "ROLL_REQUEST":
+                # Collect roll request text so we can scope evidence to named enemies.
+                roll_request_texts.append(val.lower())
             elif tag == "ENEMY_HP":
                 parts = val.split(",")
-                if len(parts) == 2:
-                    enemies_with_roll_evidence.add(parts[0].strip().lower())
-            elif tag == "ROLL_REQUEST":
-                for e in self.enemies:
-                    enemies_with_roll_evidence.add(e.name.lower())
+                if len(parts) >= 1:
+                    enemy_hp_targets.add(parts[0].strip().lower())
+
+        # Build set of enemies with roll evidence in this turn.
+        # An enemy has roll evidence if a ROLL_REQUEST exists and either:
+        # (a) the enemy is the target of an ENEMY_HP tag in the same turn, or
+        # (b) the enemy name appears in any ROLL_REQUEST text.
+        has_roll_request = bool(roll_request_texts)
+        enemies_with_roll_evidence = set()
+        if has_roll_request:
+            all_names = {e.name.lower() for e in self.enemies}
+            all_names.update(enemy_hp_targets)
+            for name in all_names:
+                if name in enemy_hp_targets:
+                    enemies_with_roll_evidence.add(name)
+                    continue
+                for roll_text in roll_request_texts:
+                    if name in roll_text:
+                        enemies_with_roll_evidence.add(name)
+                        break
 
         # Apply
         for line in lines:
@@ -236,7 +358,13 @@ CURRENT GAME STATE (authoritative — do not contradict):
                         for e in self.enemies:
                             if e.name.lower() == name.lower():
                                 try:
-                                    e.hp = max(0, int(hp_parts[0]))
+                                    new_hp = max(0, int(hp_parts[0]))
+                                    # Guard: setting HP to 0 without roll evidence
+                                    # is effectively killing the enemy — reject it
+                                    if new_hp == 0 and name.lower() not in enemies_with_roll_evidence:
+                                        changes.append(f"[REJECTED — no roll evidence] {e.name} HP→0")
+                                        continue
+                                    e.hp = new_hp
                                     changes.append(f"{e.name} HP → {e.hp}/{e.max_hp}")
                                 except ValueError:
                                     pass
@@ -399,6 +527,100 @@ def detect_provider(model: str) -> str:
     return config.DEFAULT_PROVIDER
 
 
+# ---------------------------------------------------------------------------
+# Dice rolling — deterministic, loggable, no LLM involvement
+# ---------------------------------------------------------------------------
+
+import random as _random
+
+def roll_dice(spec: str) -> int:
+    """Roll dice from a specification like 'd20', '1d8+3', '2d6', 'd20+5'.
+
+    Returns the total. Uses a module-level Random instance for reproducibility
+    in tests (seed via set_dice_seed).
+    """
+    spec = spec.strip().lower().replace(" ", "")
+    # Parse: [count]d[sides][+/-modifier]
+    m = re.match(r"(\d*)d(\d+)([+-]\d+)?", spec)
+    if not m:
+        return 0
+    count = int(m.group(1)) if m.group(1) else 1
+    sides = int(m.group(2))
+    modifier = int(m.group(3)) if m.group(3) else 0
+    total = sum(_dice_rng.randint(1, sides) for _ in range(count))
+    return total + modifier
+
+
+_dice_rng = _random.Random()
+
+
+def set_dice_seed(seed: int) -> None:
+    """Seed the dice RNG for reproducible tests."""
+    _dice_rng.seed(seed)
+
+
+def parse_roll_request(mechanics_text: str) -> dict | None:
+    """Extract a ROLL_REQUEST from mechanics text.
+
+    Looks for: ROLL_REQUEST:<dice> for <skill> DC <number>
+    or: ROLL_REQUEST:<dice> for <skill>
+
+    Returns: {dice, skill, dc} or None if no roll request found.
+    """
+    for line in mechanics_text.strip().split("\n"):
+        line = line.strip()
+        if line.startswith("ROLL_REQUEST:"):
+            val = line.split(":", 1)[1].strip()
+            # Parse: "d20+5 for attack with longsword DC 12"
+            # or: "d20 for attack"
+            dc = None
+            dc_match = re.search(r"DC\s*(\d+)", val, re.IGNORECASE)
+            if dc_match:
+                dc = int(dc_match.group(1))
+                val = re.sub(r"\s*DC\s*\d+", "", val, flags=re.IGNORECASE).strip()
+            # Split dice and skill
+            parts = val.split(" for ", 1)
+            dice = parts[0].strip()
+            skill = parts[1].strip() if len(parts) > 1 else "unknown"
+            return {"dice": dice, "skill": skill, "dc": dc}
+    return None
+
+
+def resolve_roll(roll_request: dict, manual_roll: int | None = None) -> dict:
+    """Resolve a roll request deterministically.
+
+    If manual_roll is provided, use it (player rolled manually).
+    Otherwise, auto-roll using roll_dice().
+
+    Returns: {dice, skill, dc, roll, result, margin}
+    """
+    dice = roll_request["dice"]
+    dc = roll_request.get("dc")
+    skill = roll_request["skill"]
+
+    if manual_roll is not None:
+        roll = manual_roll
+    else:
+        roll = roll_dice(dice)
+
+    if dc is not None:
+        result = "SUCCESS" if roll >= dc else "FAILURE"
+        margin = roll - dc
+    else:
+        # No DC set — treat as a simple roll, no pass/fail
+        result = "NO_DC"
+        margin = 0
+
+    return {
+        "dice": dice,
+        "skill": skill,
+        "dc": dc,
+        "roll": roll,
+        "result": result,
+        "margin": margin,
+    }
+
+
 def dm_turn(client: OpenAI, model: str, system_prompt: str,
             state_block: str, history: list, player_input: str,
             temperature: float = 0.8, max_tokens: int = 2000) -> tuple:
@@ -429,6 +651,92 @@ def dm_turn(client: OpenAI, model: str, system_prompt: str,
                 time.sleep((attempt + 1) * 5)
                 continue
             raise
+
+
+def dm_turn_dc_roll(client: OpenAI, model: str, system_prompt: str,
+                     state_block: str, history: list, player_input: str,
+                     auto_roll: bool = True, manual_roll: int | None = None,
+                     temperature: float = 0.8, max_tokens: int = 2000) -> dict:
+    """Two-phase DC-then-roll turn for contested actions.
+
+    Phase 1: LLM narrates the setup and emits ROLL_REQUEST with a DC.
+    Phase 2: Code resolves the roll deterministically.
+    Phase 3: LLM narrates the consequence of the already-decided outcome.
+
+    If the LLM's first response doesn't include a ROLL_REQUEST, this is a
+    non-contested turn — return the single response with no roll.
+
+    Returns: {
+        phase1_text, phase1_sections, roll_result (or None),
+        phase3_text (or None), phase3_sections (or None),
+        sections (final sections to use), elapsed_total, usage_total
+    }
+    """
+    # Phase 1: setup + DC setting
+    text1, elapsed1, usage1 = dm_turn(
+        client, model, system_prompt, state_block, history, player_input,
+        temperature=temperature, max_tokens=max_tokens,
+    )
+    sections1 = parse_response(text1)
+
+    # Check if a roll is needed
+    roll_req = parse_roll_request(sections1["MECHANICS"])
+    if not roll_req:
+        # Non-contested turn — single phase
+        return {
+            "phase1_text": text1,
+            "phase1_sections": sections1,
+            "roll_result": None,
+            "phase3_text": None,
+            "phase3_sections": None,
+            "sections": sections1,
+            "elapsed_total": elapsed1,
+            "usage_total": usage1,
+            "contested": False,
+        }
+
+    # Phase 2: resolve the roll (pure code, no LLM)
+    roll_result = resolve_roll(roll_req, manual_roll=manual_roll if not auto_roll else None)
+
+    # Phase 3: LLM narrates the consequence
+    outcome_prompt = (
+        f"ROLL RESULT (deterministic — you cannot change this):\n"
+        f"  Roll: {roll_result['roll']} on {roll_result['dice']}\n"
+        f"  DC: {roll_result['dc']}\n"
+        f"  Result: {roll_result['result']}\n"
+        f"  Margin: {roll_result['margin']:+d}\n\n"
+        f"Narrate the consequence of this outcome. The {'success' if roll_result['result'] == 'SUCCESS' else 'failure'} "
+        f"is already decided — do not change it. Apply appropriate [MECHANICS] based on the result.\n\n"
+        f"PLAYER ACTION (for context):\n{player_input}"
+    )
+
+    # Add phase 1 to history so the LLM knows what it already narrated
+    history_with_phase1 = history + [
+        {"role": "user", "content": player_input},
+        {"role": "assistant", "content": text1},
+    ]
+
+    text3, elapsed3, usage3 = dm_turn(
+        client, model, system_prompt, state_block, history_with_phase1,
+        outcome_prompt,
+        temperature=temperature, max_tokens=max_tokens,
+    )
+    sections3 = parse_response(text3)
+
+    return {
+        "phase1_text": text1,
+        "phase1_sections": sections1,
+        "roll_result": roll_result,
+        "phase3_text": text3,
+        "phase3_sections": sections3,
+        "sections": sections3,  # final sections to use for display/audio
+        "elapsed_total": elapsed1 + elapsed3,
+        "usage_total": {
+            "prompt_tokens": usage1["prompt_tokens"] + usage3["prompt_tokens"],
+            "completion_tokens": usage1["completion_tokens"] + usage3["completion_tokens"],
+        },
+        "contested": True,
+    }
 
 
 def make_initial_state(story_style: str = "", setting: str = "",

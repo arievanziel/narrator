@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrator — D&D Story Engine</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Intro screen — landing page with two entry options -->
+<div id="intro-overlay">
+  <div class="intro-card">
+    <h1>Narrator</h1>
+    <div class="subtitle">A D&D story engine that reads to you</div>
+    <button class="intro-start" id="intro-session-zero-btn" onclick="openSessionZero()">Begin Session Zero</button>
+    <div style="text-align:center; color:var(--ink-faint); font-size:13px; margin:0.8rem 0;">A conversational setup with your DM — recommended</div>
+    <hr style="border:none; border-top:1px solid var(--rule); margin:1.5rem 0;">
+    <div style="text-align:center; color:var(--ink-faint); font-size:13px; margin-bottom:0.8rem;">Or use the quick form:</div>
+    <div class="intro-field">
+      <label>Story Style</label>
+      <select id="intro-style">
+        <option value="classic fantasy">Classic Fantasy</option>
+        <option value="dark fantasy">Dark Fantasy</option>
+        <option value="grimdark">Grimdark</option>
+        <option value="high fantasy">High Fantasy</option>
+        <option value="sword and sorcery">Sword & Sorcery</option>
+        <option value="gothic horror">Gothic Horror</option>
+        <option value="mystery investigation">Mystery & Investigation</option>
+      </select>
+    </div>
+    <div class="intro-field">
+      <label>Setting</label>
+      <input type="text" id="intro-setting" placeholder="e.g. A remote mountain village beset by strange happenings">
+    </div>
+    <div class="intro-field">
+      <label>Your Character's Name</label>
+      <input type="text" id="intro-name" placeholder="e.g. Kael" value="Kael">
+    </div>
+    <div class="intro-field">
+      <label>Character Persona</label>
+      <input type="text" id="intro-persona" placeholder="e.g. A grizzled veteran seeking redemption">
+    </div>
+    <div class="intro-field">
+      <label>Atmosphere</label>
+      <select id="intro-atmosphere">
+        <option value="adventurous">Adventurous</option>
+        <option value="mysterious">Mysterious</option>
+        <option value="tense">Tense</option>
+        <option value="melancholic">Melancholic</option>
+        <option value="whimsical">Whimsical</option>
+      </select>
+    </div>
+    <div class="intro-field">
+      <label>Inspired by (books, movies, games)</label>
+      <input type="text" id="intro-inspiration" placeholder="e.g. Lord of the Rings, The Witcher, D&D">
+    </div>
+    <div class="intro-field">
+      <label>Dice Mode</label>
+      <select id="intro-dicemode">
+        <option value="auto">Automatic — the app rolls for me</option>
+        <option value="manual">Manual — I roll my own dice</option>
+      </select>
+    </div>
+    <button class="intro-start" id="intro-start-btn" onclick="startGame()">Quick Start</button>
+    <button class="intro-skip" onclick="startGame({skip:true})">Skip — use defaults</button>
+  </div>
+</div>
+
+<!-- Session Zero wizard overlay -->
+<div id="session-zero-overlay">
+  <div class="sz-container">
+    <div class="sz-header">
+      <h1>Session Zero</h1>
+      <div class="sz-subtitle">Let's craft your adventure together</div>
+      <div class="sz-progress" id="sz-progress"></div>
+    </div>
+    <div class="sz-conversation" id="sz-conversation"></div>
+    <div class="sz-controls">
+      <div class="sz-model-pick">
+        <span>DM:</span>
+        <select id="sz-model" onchange="szChangeModel(this.value)">
+          <option value="gemini-3.5-flash-lite">Gemini Flash (free)</option>
+          <option value="openai/gpt-oss-120b">GPT-OSS 120B (free)</option>
+          <option value="claude-haiku-4-5">Claude Haiku (paid)</option>
+        </select>
+      </div>
+      <button class="sz-skip-btn" onclick="szSkipToGame()">Skip to game with defaults</button>
+    </div>
+    <div class="sz-input-area">
+      <input type="text" id="sz-input" placeholder="Type your answer..." onkeydown="if(event.key==='Enter')szSendAnswer()" autocomplete="off">
+      <button id="sz-send-btn" onclick="szSendAnswer()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Voice assignment overlay -->
+<div id="voice-overlay">
+  <div class="voice-container">
+    <div class="voice-header">
+      <h2>Voice Assignment</h2>
+      <p>Customize how each character sounds. Defaults are pre-assigned.</p>
+    </div>
+    <div id="voice-entries"></div>
+    <div class="voice-actions">
+      <button class="voice-skip" onclick="closeVoiceScreen(false)">Skip</button>
+      <button class="voice-save" onclick="closeVoiceScreen(true)">Save & Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main app -->
+<div id="app">
+
+  <!-- Top bar -->
+  <div class="topbar ui-font">
+    <div class="topbar-circle" id="tab-left" onclick="togglePanel('left')" title="Character panel">☰</div>
+    <div class="topbar-center">
+      <div class="stat"><span class="stat-label">HP</span><span class="stat-val" id="tb-hp">12/12</span><div class="hp-bar"><div class="hp-fill" id="tb-hpfill"></div></div></div>
+      <span class="sep">|</span>
+      <div class="stat"><span class="stat-label">AC</span><span class="stat-val" id="tb-ac">16</span></div>
+      <span class="sep">|</span>
+      <div class="stat"><span class="stat-label">Turn</span><span class="stat-val" id="tb-turn">0</span></div>
+      <span class="sep">|</span>
+      <div class="stat"><span class="stat-label">Location</span><span class="stat-val" id="tb-loc">—</span></div>
+      <span class="sep">|</span>
+      <div class="stat"><span class="stat-label">Mood</span><span class="stat-val" id="tb-mood">—</span></div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <span id="model-label" class="stat-val" style="font-size:11px;">Loading...</span>
+      <div class="topbar-circle" id="tab-settings" onclick="togglePanel('settings')" title="Settings">⚙</div>
+    </div>
+  </div>
+
+  <!-- Circle tabs for panels -->
+  <div class="float-controls">
+    <div class="circle-tab circle-tab-left" id="ctab-left" onclick="togglePanel('left')">☰</div>
+    <div class="circle-tab circle-tab-right" id="ctab-settings" onclick="togglePanel('settings')">⚙</div>
+  </div>
+  <div class="circle-tab-top" onclick="toggleBar()" title="Toggle top bar"></div>
+
+  <!-- Left panel: character info -->
+  <div class="left-panel ui-font">
+    <div class="panel-section">
+      <div class="panel-h">Character</div>
+      <div id="char-info"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-h">Enemies</div>
+      <div id="enemy-list"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-h">Inventory</div>
+      <div id="inv-list"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-h">Dice Roller</div>
+      <div class="dice-roller">
+        <button class="dice-btn" onclick="rollDice(this,20)">d20</button>
+        <button class="dice-btn" onclick="rollDice(this,12)">d12</button>
+        <button class="dice-btn" onclick="rollDice(this,10)">d10</button>
+        <button class="dice-btn" onclick="rollDice(this,8)">d8</button>
+        <button class="dice-btn" onclick="rollDice(this,6)">d6</button>
+        <button class="dice-btn" onclick="rollDice(this,4)">d4</button>
+        <button class="dice-btn" onclick="rollDice(this,100)">d100</button>
+      </div>
+      <div class="dice-result" id="dice-result"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-h">Chronicle</div>
+      <div id="chronicle-list" style="font-size:13px;color:var(--ink-light);max-height:200px;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- Main story area -->
+  <div class="main-area" id="main-area">
+    <div class="story-content" id="story-content">
+      <!-- Story content appears here -->
+    </div>
+  </div>
+
+  <!-- Settings panel (right) -->
+  <div class="settings-panel ui-font">
+    <div class="setting-group">
+      <div class="panel-h">Story AI</div>
+      <div class="setting-row">
+        <span>Model</span>
+        <select id="set-model" onchange="changeModel(this.value)">
+          <optgroup label="Google Gemini (free)">
+            <option value="gemini-3.5-flash-lite">Gemini Flash-Lite</option>
+            <option value="gemini-3.5-flash">Gemini Flash</option>
+          </optgroup>
+          <optgroup label="Groq (free, fast)">
+            <option value="openai/gpt-oss-120b">GPT-OSS 120B</option>
+            <option value="groq/compound-mini">Compound Mini</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="setting-row">
+        <span>Auto-roll dice</span>
+        <div class="setting-toggle on" id="set-autoroll" onclick="toggleSetting('autoroll',this)"></div>
+      </div>
+      <div id="provider-status" style="font-size:11px;color:var(--ink-light);padding:0.3rem 0;"></div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Voice & TTS</div>
+      <div class="setting-row">
+        <span>TTS Engine</span>
+        <select id="set-tts" onchange="changeTTS(this.value)">
+          <option value="kokoro">Kokoro (faithful, fast)</option>
+          <option value="qwen3">Qwen3 VoiceDesign (expressive, may paraphrase)</option>
+          <option value="auto">Automatic (Kokoro for short, Qwen3 for long)</option>
+          <option value="silent">Silent (text only)</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <span>Speed</span>
+        <input type="range" min="0.5" max="2" step="0.1" value="1" oninput="changeSpeed(this.value)">
+        <span class="val" id="speed-val">1.0x</span>
+      </div>
+      <div class="setting-row">
+        <span>Narration volume</span>
+        <input type="range" min="0" max="1" step="0.01" value="1" oninput="changeNarrationVol(this.value)">
+        <span class="val" id="narrvol-val">100%</span>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Music</div>
+      <div class="setting-row">
+        <span>Background music</span>
+        <div class="setting-toggle on" id="set-music" onclick="toggleSetting('music',this)"></div>
+      </div>
+      <div class="setting-row">
+        <span>Music source</span>
+        <select id="set-musicsrc" onchange="changeMusicSrc(this.value)">
+          <option value="library">Library (curated tracks)</option>
+          <option value="procedural">Procedural (synthesized)</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <span>Music volume</span>
+        <input type="range" min="0" max="1" step="0.01" value="0.12" oninput="changeMusicVol(this.value)">
+        <span class="val" id="musicvol-val">12%</span>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Budget (paid APIs)</div>
+      <div class="setting-row">
+        <span>Spent</span>
+        <span class="val" id="budget-spent">$0.00</span>
+      </div>
+      <div class="budget-bar"><div class="budget-fill" id="budget-fill" style="width:0%"></div></div>
+      <div class="budget-text" id="budget-text">$0.00 / $5.00</div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Session</div>
+      <div class="setting-row">
+        <button onclick="newGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">New Story</button>
+        <button onclick="saveGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">Save</button>
+        <button onclick="loadGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">Load</button>
+      </div>
+      <div class="setting-row" style="margin-top:6px;">
+        <button onclick="openVoiceScreen()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">Voice Assignment</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Theme</div>
+      <div class="setting-row">
+        <span>Appearance</span>
+        <select id="set-theme" onchange="setTheme(this.value)">
+          <option value="light">Light (paper)</option>
+          <option value="dark">Dark (ink)</option>
+          <option value="sepia">Sepia</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio bar -->
+  <div class="audio-bar ui-font">
+    <button class="audio-play-btn" id="audio-play" onclick="toggleAudio()" disabled>▶</button>
+    <button class="audio-play-btn" onclick="replayAudio()" title="Replay narration" style="width:24px;height:24px;font-size:12px;">↻</button>
+    <div class="audio-progress" id="audio-progress" onclick="seekAudio(event)">
+      <div class="audio-gen-bar" id="audio-gen-bar" style="display:none;"><div class="audio-gen-fill" id="audio-gen-fill"></div></div>
+      <div class="audio-progress-fill" id="audio-fill"></div>
+    </div>
+    <span class="audio-label" id="audio-label">No audio</span>
+    <span class="audio-time" id="audio-time">0:00 / 0:00</span>
+    <span class="audio-status" id="audio-status"></span>
+  </div>
+</div>
+
+<!-- Hidden audio elements -->
+<audio id="audio-player" preload="auto"></audio>
+<audio id="bg-music-player" preload="auto" loop></audio>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

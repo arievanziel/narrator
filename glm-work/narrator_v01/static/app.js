@@ -1,0 +1,1039 @@
+// State
+let history = [];
+let turnCount = 0;
+let currentAudio = null;
+let audioPollTimer = null;
+let isPlaying = false;
+let audioDuration = 0;
+let audioPosition = 0;
+let audioUpdateTimer = null;
+let settings = { autoroll: true, music: true, tts: 'kokoro', speed: 1.0, musicVol: 0.12, musicSrc: 'library', model: 'gemini-3.5-flash-lite', narrationVol: 1.0 };
+let currentMood = 'exploration';
+let bgMusicPlaying = false;
+
+// v0.4a: Segment queue state
+let queueState = null;       // last queue status from server
+let currentSegIndex = 0;     // which segment is currently playing
+let queuePollTimer = null;   // timer for queue polling
+let freetextDebounceTimer = null;
+let freetextGenId = null;
+
+// Panel toggling
+function togglePanel(name) {
+  const app = document.getElementById('app');
+  if (name === 'left') {
+    app.classList.toggle('show-left');
+    document.getElementById('tab-left').classList.toggle('active');
+    document.getElementById('ctab-left').classList.toggle('active');
+  } else if (name === 'settings') {
+    app.classList.toggle('show-settings');
+    document.getElementById('tab-settings').classList.toggle('active');
+    document.getElementById('ctab-settings').classList.toggle('active');
+  }
+}
+function toggleBar() {
+  document.getElementById('app').classList.toggle('hide-topbar');
+}
+
+// Settings
+function toggleSetting(name, el) {
+  el.classList.toggle('on');
+  settings[name] = el.classList.contains('on');
+  if (name === 'music') { updateBgMusic(); }
+}
+function changeModel(val) { settings.model = val; }
+function changeTTS(val) { settings.tts = val; }
+function changeSpeed(val) { settings.speed = parseFloat(val); document.getElementById('speed-val').textContent = val + 'x'; }
+function changeMusicVol(val) { settings.musicVol = parseFloat(val); document.getElementById('musicvol-val').textContent = Math.round(val*100) + '%'; updateBgMusic(); }
+function changeNarrationVol(val) {
+  settings.narrationVol = parseFloat(val);
+  document.getElementById('narrvol-val').textContent = Math.round(val*100) + '%';
+  const player = document.getElementById('audio-player');
+  player.volume = settings.narrationVol;
+}
+function changeMusicSrc(val) { settings.musicSrc = val; updateBgMusic(); }
+
+function updateBgMusic() {
+  const player = document.getElementById('bg-music-player');
+  if (!settings.music) {
+    player.pause();
+    bgMusicPlaying = false;
+    return;
+  }
+  const url = `/api/music?mood=${currentMood}&source=${settings.musicSrc}`;
+  if (player.src.indexOf(url) === -1) {
+    player.src = url;
+    player.volume = settings.musicVol;
+    if (bgMusicPlaying) player.play().catch(()=>{});
+  } else {
+    player.volume = settings.musicVol;
+  }
+}
+
+function setMood(mood) {
+  if (mood && mood !== currentMood) {
+    currentMood = mood;
+    document.getElementById('tb-mood').textContent = mood;
+    updateBgMusic();
+  }
+}
+
+function setTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'dark') {
+    root.style.setProperty('--bg', '#1a1a1e');
+    root.style.setProperty('--bg-soft', '#22222a');
+    root.style.setProperty('--bg-panel', '#26262e');
+    root.style.setProperty('--ink', '#d8d6d2');
+    root.style.setProperty('--ink-mid', '#a8a6a2');
+    root.style.setProperty('--ink-light', '#78767a');
+    root.style.setProperty('--ink-faint', '#504e52');
+    root.style.setProperty('--rule', '#38383e');
+    root.style.setProperty('--rule-soft', '#2e2e34');
+    root.style.setProperty('--accent', '#c8a040');
+    root.style.setProperty('--accent-soft', 'rgba(200,160,64,0.15)');
+    root.style.setProperty('--hp-good', '#5a9a5a');
+    root.style.setProperty('--hp-bad', '#c05050');
+    root.style.setProperty('--hp-mid', '#d8a830');
+  } else if (theme === 'sepia') {
+    root.style.setProperty('--bg', '#f0e6d2');
+    root.style.setProperty('--bg-soft', '#e8dcc4');
+    root.style.setProperty('--bg-panel', '#e2d6be');
+    root.style.setProperty('--ink', '#3a2e1e');
+    root.style.setProperty('--ink-mid', '#5a4e3e');
+    root.style.setProperty('--ink-light', '#8a7e6e');
+    root.style.setProperty('--ink-faint', '#b0a490');
+    root.style.setProperty('--rule', '#d0c4a8');
+    root.style.setProperty('--rule-soft', '#d8ccb0');
+    root.style.setProperty('--accent', '#8b6914');
+    root.style.setProperty('--accent-soft', 'rgba(139,105,20,0.12)');
+    root.style.setProperty('--hp-good', '#4a7a4a');
+    root.style.setProperty('--hp-bad', '#a04040');
+    root.style.setProperty('--hp-mid', '#b8860b');
+  } else {
+    // Light (default)
+    root.style.setProperty('--bg', '#e6e4e0');
+    root.style.setProperty('--bg-soft', '#dedcd8');
+    root.style.setProperty('--bg-panel', '#d8d6d2');
+    root.style.setProperty('--ink', '#1c1c1a');
+    root.style.setProperty('--ink-mid', '#4a4a48');
+    root.style.setProperty('--ink-light', '#8a8a86');
+    root.style.setProperty('--ink-faint', '#b0b0ac');
+    root.style.setProperty('--rule', '#c4c2be');
+    root.style.setProperty('--rule-soft', '#d0ceca');
+    root.style.setProperty('--accent', '#8b6914');
+    root.style.setProperty('--accent-soft', 'rgba(139,105,20,0.1)');
+    root.style.setProperty('--hp-good', '#4a7a4a');
+    root.style.setProperty('--hp-bad', '#a04040');
+    root.style.setProperty('--hp-mid', '#b8860b');
+  }
+}
+
+// Dice roller
+function rollDice(btn, sides) {
+  btn.classList.add('rolling');
+  setTimeout(() => btn.classList.remove('rolling'), 300);
+  const result = Math.floor(Math.random() * sides) + 1;
+  const el = document.getElementById('dice-result');
+  el.innerHTML = `<span class="roll-val">${result}</span> <span style="color:var(--ink-faint)">on d${sides}</span>`;
+  // Add to input
+  const input = document.querySelector('.input-block input');
+  if (input) input.value += ` I rolled a ${result} on d${sides}.`;
+}
+
+// Start game from intro
+async function startGame(opts = {}) {
+  const overlay = document.getElementById('intro-overlay');
+  const startBtn = document.getElementById('intro-start-btn');
+  if (startBtn) { startBtn.disabled = true; startBtn.textContent = 'Starting...'; }
+  const params = opts.skip ? {} : {
+    style: document.getElementById('intro-style').value,
+    setting: document.getElementById('intro-setting').value,
+    name: document.getElementById('intro-name').value || 'Kael',
+    persona: document.getElementById('intro-persona').value,
+    atmosphere: document.getElementById('intro-atmosphere').value,
+    inspiration: document.getElementById('intro-inspiration').value,
+    dicemode: document.getElementById('intro-dicemode').value,
+  };
+  overlay.classList.add('hidden');
+  // Show left panel by default
+  document.getElementById('app').classList.add('show-left');
+  document.getElementById('tab-left').classList.add('active');
+  document.getElementById('ctab-left').classList.add('active');
+  await newGame(params);
+  if (startBtn) { startBtn.disabled = false; startBtn.textContent = 'Begin Your Story'; }
+}
+
+// New game
+async function newGame(params = {}) {
+  history = [];
+  turnCount = 0;
+  document.getElementById('story-content').innerHTML = '';
+  const typing = showTyping();
+  try {
+    const resp = await fetch('/api/newgame', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(params),
+    });
+    const data = await resp.json();
+    typing.remove();
+    if (data.error) { addError(data.error); return; }
+    document.getElementById('model-label').textContent = data.model;
+    settings.autoroll = data.auto_roll;
+    updateSettingsUI();
+    updateState(data.state);
+    if (data.story) addStoryTurn(data, true);
+    if (data.audio_enabled) pollAudio(data.audio_turn_id);
+    updateBudget(data.budget);
+    fetchChronicle();
+    // Start/restart background music
+    if (settings.music) {
+      bgMusicPlaying = true;
+      if (data.scene) currentMood = data.scene;
+      updateBgMusic();
+      document.getElementById('bg-music-player').play().catch(()=>{});
+    }
+    fetchProviderStatus();
+  } catch(e) { typing.remove(); addError('Connection error: ' + e.message); }
+}
+
+// Send action
+async function sendAction() {
+  const input = document.querySelector('.input-block input');
+  if (!input) return;
+  const action = input.value.trim();
+  if (!action) return;
+  input.value = '';
+  const btn = document.querySelector('.input-block button');
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+
+  addPlayerAction(action);
+  const typing = showTyping();
+
+  try {
+    const resp = await fetch('/api/turn', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action, settings: { autoroll: settings.autoroll, music: settings.music, tts: settings.tts, speed: settings.speed, musicVol: settings.musicVol, musicSrc: settings.musicSrc, model: settings.model, narrationVol: settings.narrationVol } }),
+    });
+    const data = await resp.json();
+    typing.remove();
+    if (data.error) { addError(data.error); }
+    else {
+      updateState(data.state);
+      if (data.model) {
+        document.getElementById('model-label').textContent = data.model;
+        settings.model = data.model;
+        document.getElementById('set-model').value = data.model;
+      }
+      addStoryTurn(data);
+      if (data.audio_enabled && data.audio_turn_id) pollAudio(data.audio_turn_id);
+      updateBudget(data.budget);
+      if (data.fallback_used) {
+        showFallbackWarning(data.original_model, data.model);
+      }
+      fetchChronicle();
+      fetchProviderStatus();
+    }
+  } catch(e) { typing.remove(); addError('Connection error: ' + e.message); }
+  if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
+  if (input) input.focus();
+}
+
+// Add story turn to display
+function addStoryTurn(data, isFirst = false) {
+  turnCount = data.turn || turnCount + 1;
+  const container = document.getElementById('story-content');
+
+  // Update background music mood
+  if (data.scene) setMood(data.scene);
+
+  // Turn mark
+  const mark = document.createElement('div');
+  mark.className = 'turn-mark';
+  mark.textContent = toRoman(turnCount);
+  container.appendChild(mark);
+
+  // Story segments (word-for-word = what's spoken)
+  if (data.segments && data.segments.length) {
+    for (const seg of data.segments) {
+      const passage = document.createElement('div');
+      passage.className = 'story-passage';
+      if (seg.kind === 'narrator') {
+        passage.innerHTML = `<div class="narrator-text">${escapeHtml(seg.text)}</div>`;
+      } else {
+        passage.innerHTML = `<div class="speaker-label">${escapeHtml(seg.speaker)}</div><div class="dialogue-text">"${escapeHtml(seg.text)}"</div>`;
+      }
+      container.appendChild(passage);
+    }
+  } else if (data.response) {
+    // Fallback: show raw response
+    const passage = document.createElement('div');
+    passage.className = 'story-passage';
+    passage.innerHTML = `<div class="narrator-text">${escapeHtml(data.response)}</div>`;
+    container.appendChild(passage);
+  }
+
+  // State changes
+  if (data.changes && data.changes.length) {
+    const changes = document.createElement('div');
+    changes.className = 'state-changes';
+    const label = document.createElement('div');
+    label.className = 'state-changes-label';
+    label.textContent = 'Mechanics';
+    changes.appendChild(label);
+    data.changes.forEach(c => {
+      const span = document.createElement('div');
+      let cls = 'state-change';
+      if (c.includes('REJECTED')) cls += ' rejected';
+      else if (c.includes('→') && c.includes('-')) cls += ' hp-down';
+      else if (c.includes('→') && c.includes('+')) cls += ' hp-up';
+      else if (c.includes('Gained:')) cls += ' gained';
+      else if (c.includes('Roll requested')) cls += ' roll';
+      span.className = cls;
+      span.textContent = c;
+      changes.appendChild(span);
+    });
+    container.appendChild(changes);
+  }
+
+  // Choices
+  if (data.suggestions && data.suggestions.length) {
+    const choices = document.createElement('div');
+    choices.className = 'choices-block';
+    choices.innerHTML = '<div class="choices-label">What do you do?</div>';
+    data.suggestions.forEach((s, i) => {
+      const letter = String.fromCharCode(65 + i);
+      const item = document.createElement('div');
+      item.className = 'choice-item';
+      item.innerHTML = `<span class="choice-letter">${i+1}</span><span>${escapeHtml(s.text)}</span>${s.roll ? '<span class="choice-roll">🎲 roll</span>' : ''}`;
+      item.onclick = () => useChoice(s.text);
+      choices.appendChild(item);
+    });
+    container.appendChild(choices);
+
+    // v0.4a: Pre-generate audio for all choices
+    preGenerateChoices(data.suggestions.map(s => s.text));
+  }
+
+  // Input area
+  if (!isFirst) {
+    // Remove old input areas
+    document.querySelectorAll('.input-block').forEach(el => el.remove());
+  }
+  const inputArea = document.createElement('div');
+  inputArea.className = 'input-block';
+  inputArea.innerHTML = `<input type="text" placeholder="What do you do?" onkeypress="if(event.key==='Enter')sendAction()" autofocus><button onclick="sendAction()">Send</button>`;
+  container.appendChild(inputArea);
+
+  // v0.4a: Debounced free-text audio generation
+  const inputEl = inputArea.querySelector('input');
+  if (inputEl) {
+    inputEl.addEventListener('input', onFreeTextInput);
+    inputEl.addEventListener('blur', () => {
+      // Don't cancel on blur — the text might still be sent
+    });
+  }
+
+  // Add a subtle hint about keyboard shortcuts
+  if (isFirst) {
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:11px;color:var(--ink-faint);text-align:center;padding:0.5rem;font-style:italic;';
+    hint.textContent = 'Press 1-9 to choose, Enter to send, Esc to close panels';
+    container.appendChild(hint);
+  }
+
+  // Scroll to bottom smoothly
+  const mainArea = document.getElementById('main-area');
+  mainArea.scrollTo({ top: mainArea.scrollHeight, behavior: 'smooth' });
+  if (inputArea.querySelector('input')) inputArea.querySelector('input').focus();
+}
+
+function useChoice(text) {
+  const input = document.querySelector('.input-block input');
+  if (input) { input.value = text; sendAction(); }
+}
+
+function addPlayerAction(text) {
+  const container = document.getElementById('story-content');
+  const el = document.createElement('div');
+  el.className = 'player-action';
+  el.textContent = text;
+  container.appendChild(el);
+  document.getElementById('main-area').scrollTop = document.getElementById('main-area').scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('story-content');
+  const el = document.createElement('div');
+  el.className = 'typing-indicator';
+  el.innerHTML = 'The DM is weaving the story <span class="typing-dots"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
+  container.appendChild(el);
+  document.getElementById('main-area').scrollTop = document.getElementById('main-area').scrollHeight;
+  return el;
+}
+
+function addError(msg) {
+  const container = document.getElementById('story-content');
+  const el = document.createElement('div');
+  el.className = 'story-passage';
+  el.style.color = 'var(--hp-bad)';
+  el.textContent = '⚠ ' + msg;
+  container.appendChild(el);
+}
+
+function showFallbackWarning(originalModel, fallbackModel) {
+  const container = document.getElementById('story-content');
+  const el = document.createElement('div');
+  el.className = 'story-passage';
+  el.style.color = 'var(--hp-mid)';
+  el.style.fontSize = '13px';
+  el.style.padding = '0.5rem 1rem';
+  el.style.background = 'rgba(184,134,11,0.1)';
+  el.style.borderRadius = '6px';
+  el.innerHTML = `⚠ Budget limit reached — switched from <b>${escapeHtml(originalModel)}</b> to free model <b>${escapeHtml(fallbackModel)}</b>`;
+  container.appendChild(el);
+  document.getElementById('main-area').scrollTop = document.getElementById('main-area').scrollHeight;
+}
+
+async function saveGame() {
+  try {
+    const resp = await fetch('/api/save', {method: 'POST'});
+    const data = await resp.json();
+    if (data.error) addError('Save failed: ' + data.error);
+    else addError('Game saved (turn ' + data.turn + ')');
+  } catch(e) { addError('Save error: ' + e.message); }
+}
+
+async function loadGame() {
+  try {
+    const resp = await fetch('/api/load', {method: 'POST'});
+    const data = await resp.json();
+    if (data.error) { addError(data.error); return; }
+    updateState(data.state);
+    turnCount = data.turn;
+    document.getElementById('tb-turn').textContent = turnCount;
+    addError('Game loaded (turn ' + data.turn + ')');
+    fetchChronicle();
+  } catch(e) { addError('Load error: ' + e.message); }
+}
+
+async function fetchChronicle() {
+  try {
+    const resp = await fetch('/api/chronicle');
+    const data = await resp.json();
+    const list = document.getElementById('chronicle-list');
+    if (list) {
+      const entries = data.chronicle || [];
+      if (entries.length === 0) {
+        list.innerHTML = '<div style="color:var(--ink-faint);font-style:italic;">No entries yet</div>';
+      } else {
+        list.innerHTML = entries.map((e, i) => `<div style="padding:0.3rem 0;border-bottom:1px solid var(--rule-soft);"><span style="color:var(--ink-faint);font-size:11px;">Turn ${i+1}</span><br>${escapeHtml(e)}</div>`).join('');
+      }
+    }
+  } catch(e) {}
+}
+
+async function fetchProviderStatus() {
+  try {
+    const resp = await fetch('/api/providers');
+    const data = await resp.json();
+    const el = document.getElementById('provider-status');
+    if (el) {
+      const current = data.current_model;
+      const providers = data.providers || [];
+      const lines = providers.map(p => {
+        const isCurrent = p.id === current;
+        const dot = p.available ? (p.free ? '🟢' : '🟡') : '🔴';
+        const label = isCurrent ? `<b>${p.name}</b>` : p.name;
+        const cost = p.free ? 'free' : 'paid';
+        return `${dot} ${label} (${cost})`;
+      });
+      el.innerHTML = lines.join('<br>');
+    }
+  } catch(e) {}
+}
+
+// Update state display
+function updateState(state) {
+  if (!state) return;
+  const hpPct = (state.pc_hp / state.pc_max_hp) * 100;
+  const hpColor = hpPct > 60 ? 'var(--hp-good)' : hpPct > 30 ? 'var(--hp-mid)' : 'var(--hp-bad)';
+
+  // Top bar
+  document.getElementById('tb-hp').textContent = `${state.pc_hp}/${state.pc_max_hp}`;
+  document.getElementById('tb-hpfill').style.width = hpPct + '%';
+  document.getElementById('tb-hpfill').style.background = hpColor;
+  document.getElementById('tb-ac').textContent = state.pc_ac;
+  document.getElementById('tb-turn').textContent = turnCount;
+  document.getElementById('tb-loc').textContent = state.location || '—';
+
+  // Left panel
+  document.getElementById('char-info').innerHTML = `
+    <div class="panel-item"><span>Name</span><span>${escapeHtml(state.pc_name)}</span></div>
+    <div class="panel-item"><span>Class</span><span>Level ${state.pc_level} ${escapeHtml(state.pc_class)}</span></div>
+    <div class="panel-item"><span>HP</span><span>${state.pc_hp}/${state.pc_max_hp}</span></div>
+    <div class="panel-item"><span>AC</span><span>${state.pc_ac}</span></div>
+    <div class="panel-item"><span>STR</span><span>${state.pc_str}</span></div>
+    <div class="panel-item"><span>DEX</span><span>${state.pc_dex}</span></div>
+    <div class="panel-item"><span>CON</span><span>${state.pc_con}</span></div>`;
+
+  document.getElementById('enemy-list').innerHTML = state.enemies.map(e =>
+    `<div class="enemy-item ${e.alive ? '' : 'dead'}"><div class="enemy-dot ${e.alive ? 'alive' : 'dead'}"></div><span>${escapeHtml(e.name)}</span><span class="enemy-status">${e.hp}/${e.max_hp} HP, AC ${e.ac}</span></div>`
+  ).join('') || '<div class="panel-item" style="color:var(--ink-faint)">None</div>';
+
+  document.getElementById('inv-list').innerHTML = state.inventory.map(i =>
+    `<div class="panel-item"><span>${escapeHtml(i)}</span></div>`
+  ).join('') || '<div class="panel-item" style="color:var(--ink-faint)">Empty</div>';
+}
+
+function updateSettingsUI() {
+  const ar = document.getElementById('set-autoroll');
+  if (settings.autoroll) ar.classList.add('on'); else ar.classList.remove('on');
+  document.getElementById('set-model').value = settings.model;
+  document.getElementById('set-tts').value = settings.tts;
+}
+
+function updateBudget(budget) {
+  if (!budget) return;
+  const pct = (budget.spent / budget.budget) * 100;
+  document.getElementById('budget-spent').textContent = '$' + budget.spent.toFixed(2);
+  document.getElementById('budget-fill').style.width = Math.min(pct, 100) + '%';
+  document.getElementById('budget-fill').style.background = pct > 80 ? 'var(--hp-bad)' : pct > 50 ? 'var(--hp-mid)' : 'var(--hp-good)';
+  document.getElementById('budget-text').textContent = `$${budget.spent.toFixed(2)} / $${budget.budget.toFixed(2)}`;
+}
+
+// Audio playback — v0.4a segment queue consumer
+function pollAudio(turnId) {
+  if (!turnId) return;
+  // Show generating indicator
+  document.getElementById('audio-gen-bar').style.display = 'block';
+  document.getElementById('audio-gen-fill').style.width = '5%';
+  document.getElementById('audio-status').textContent = 'generating...';
+  document.getElementById('audio-label').textContent = 'Generating audio';
+
+  if (queuePollTimer) clearInterval(queuePollTimer);
+  currentSegIndex = 0;
+  audioDuration = 0;
+
+  let pollCount = 0;
+  queuePollTimer = setInterval(async () => {
+    pollCount++;
+    if (pollCount > 300) { // 5 min timeout
+      clearInterval(queuePollTimer);
+      document.getElementById('audio-status').textContent = 'timeout';
+      document.getElementById('audio-gen-bar').style.display = 'none';
+      return;
+    }
+    try {
+      const resp = await fetch(`/api/queue_status?turn_id=${turnId}`);
+      const data = await resp.json();
+      if (data.status === 'unknown') {
+        // Fall back to legacy polling
+        clearInterval(queuePollTimer);
+        pollAudioLegacy(turnId);
+        return;
+      }
+      queueState = data;
+
+      // Update progress bar
+      const pct = data.total > 0 ? Math.round((data.ready / data.total) * 100) : 0;
+      document.getElementById('audio-gen-fill').style.width = Math.max(pct, 5) + '%';
+
+      // Update status text
+      const readySegs = data.segments.filter(s => s.state === 'READY').length;
+      const genSegs = data.segments.filter(s => s.state === 'GENERATING' || s.state === 'FALLBACK_GENERATING').length;
+      if (genSegs > 0) {
+        document.getElementById('audio-status').textContent =
+          `segment ${data.ready + 1}/${data.total} generating...`;
+      } else if (readySegs < data.total) {
+        document.getElementById('audio-status').textContent =
+          `${readySegs}/${data.total} segments ready`;
+      }
+
+      // Start playing as soon as the first segment is ready
+      if (readySegs > 0 && !isPlaying && currentSegIndex < data.total) {
+        const seg = data.segments[currentSegIndex];
+        if (seg && seg.state === 'READY' && seg.audio_url) {
+          playSegment(turnId, seg, data);
+        } else if (seg && seg.state === 'FAILED') {
+          // Skip failed segments
+          currentSegIndex++;
+          if (currentSegIndex < data.total) {
+            // Check again immediately
+            pollCount--;
+          }
+        }
+      }
+
+      // All done?
+      if (data.done && currentSegIndex >= data.total) {
+        clearInterval(queuePollTimer);
+        document.getElementById('audio-gen-bar').style.display = 'none';
+        if (!isPlaying) {
+          document.getElementById('audio-status').textContent = 'done';
+        }
+      }
+    } catch(e) {}
+  }, 800);
+}
+
+function playSegment(turnId, seg, qData) {
+  const player = document.getElementById('audio-player');
+  player.src = seg.audio_url;
+  player.volume = settings.narrationVol;
+  audioDuration = seg.duration || 0;
+
+  document.getElementById('audio-play').disabled = false;
+  document.getElementById('audio-label').textContent =
+    `Narrator · turn ${toRoman(turnCount)} · seg ${seg.index + 1}/${qData.total}`;
+  document.getElementById('audio-time').textContent =
+    `0:00 / ${formatTime(seg.duration)}`;
+
+  // Duck background music during narration
+  const bgPlayer = document.getElementById('bg-music-player');
+  if (bgPlayer && bgMusicPlaying) {
+    bgPlayer.volume = settings.musicVol * 0.3;
+  }
+
+  // Hide gen bar once first segment starts playing
+  document.getElementById('audio-gen-bar').style.display = 'none';
+  document.getElementById('audio-status').textContent = '';
+
+  player.play().then(() => {
+    isPlaying = true;
+    document.getElementById('audio-play').textContent = '⏸';
+    startAudioUpdate();
+  }).catch(() => {});
+
+  player.onended = () => {
+    currentSegIndex++;
+    isPlaying = false;
+    document.getElementById('audio-play').textContent = '▶';
+    stopAudioUpdate();
+
+    // Check if next segment is ready
+    if (queueState && currentSegIndex < queueState.total) {
+      const nextSeg = queueState.segments[currentSegIndex];
+      if (nextSeg && nextSeg.state === 'READY' && nextSeg.audio_url) {
+        // Play next segment immediately
+        playSegment(turnId, nextSeg, queueState);
+      } else if (nextSeg && nextSeg.state === 'FAILED') {
+        // Skip failed, try next
+        while (currentSegIndex < queueState.total &&
+               queueState.segments[currentSegIndex].state === 'FAILED') {
+          currentSegIndex++;
+        }
+        if (currentSegIndex < queueState.total) {
+          const skipSeg = queueState.segments[currentSegIndex];
+          if (skipSeg && skipSeg.state === 'READY' && skipSeg.audio_url) {
+            playSegment(turnId, skipSeg, queueState);
+          } else {
+            // Next segment not ready yet — show generating indicator
+            document.getElementById('audio-gen-bar').style.display = 'block';
+            document.getElementById('audio-status').textContent = 'generating next segment...';
+          }
+        } else {
+          // All segments done
+          finishPlayback();
+        }
+      } else {
+        // Next segment not ready yet — show generating indicator
+        document.getElementById('audio-gen-bar').style.display = 'block';
+        document.getElementById('audio-status').textContent = 'generating next segment...';
+      }
+    } else {
+      // All segments done
+      finishPlayback();
+    }
+  };
+}
+
+function finishPlayback() {
+  const bgPlayer = document.getElementById('bg-music-player');
+  if (bgPlayer && bgMusicPlaying) {
+    bgPlayer.volume = settings.musicVol;
+  }
+  document.getElementById('audio-gen-bar').style.display = 'none';
+  document.getElementById('audio-status').textContent = '';
+  document.getElementById('audio-label').textContent = `Narrator · turn ${toRoman(turnCount)} · done`;
+}
+
+// Legacy fallback: if queue endpoint returns unknown, use old single-file polling
+function pollAudioLegacy(turnId) {
+  document.getElementById('audio-gen-bar').style.display = 'block';
+  document.getElementById('audio-gen-fill').style.width = '30%';
+  document.getElementById('audio-status').textContent = 'generating...';
+  document.getElementById('audio-label').textContent = 'Generating audio';
+
+  if (audioPollTimer) clearInterval(audioPollTimer);
+  let pollCount = 0;
+  audioPollTimer = setInterval(async () => {
+    pollCount++;
+    if (pollCount > 180) {
+      clearInterval(audioPollTimer);
+      document.getElementById('audio-status').textContent = 'timeout';
+      document.getElementById('audio-gen-bar').style.display = 'none';
+      return;
+    }
+    try {
+      const resp = await fetch(`/api/audio_status?turn_id=${turnId}`);
+      const data = await resp.json();
+      if (data.status === 'ready') {
+        clearInterval(audioPollTimer);
+        document.getElementById('audio-gen-bar').style.display = 'none';
+        loadAudioLegacy(data.audio_url, data.duration);
+      } else if (data.status === 'error') {
+        clearInterval(audioPollTimer);
+        document.getElementById('audio-gen-bar').style.display = 'none';
+        document.getElementById('audio-status').textContent = 'error: ' + (data.error || 'unknown');
+      } else if (data.status === 'generating') {
+        const pct = data.progress || Math.min(30 + pollCount * 2, 90);
+        document.getElementById('audio-gen-fill').style.width = pct + '%';
+        if (data.segment_info) {
+          document.getElementById('audio-status').textContent = data.segment_info;
+        }
+      }
+    } catch(e) {}
+  }, 1000);
+}
+
+function loadAudioLegacy(url, duration) {
+  const player = document.getElementById('audio-player');
+  player.src = url;
+  audioDuration = duration;
+  document.getElementById('audio-play').disabled = false;
+  document.getElementById('audio-label').textContent = `Narrator · turn ${toRoman(turnCount)}`;
+  document.getElementById('audio-time').textContent = `0:00 / ${formatTime(duration)}`;
+  document.getElementById('audio-status').textContent = '';
+  const bgPlayer = document.getElementById('bg-music-player');
+  if (bgPlayer && bgMusicPlaying) {
+    bgPlayer.volume = settings.musicVol * 0.3;
+  }
+  player.volume = settings.narrationVol;
+  player.play().then(() => {
+    isPlaying = true;
+    document.getElementById('audio-play').textContent = '⏸';
+    startAudioUpdate();
+  }).catch(() => {});
+  player.onended = () => {
+    isPlaying = false;
+    document.getElementById('audio-play').textContent = '▶';
+    stopAudioUpdate();
+    if (bgPlayer && bgMusicPlaying) {
+      bgPlayer.volume = settings.musicVol;
+    }
+  };
+}
+
+function toggleAudio() {
+  const player = document.getElementById('audio-player');
+  if (player.paused) {
+    player.play().then(() => { isPlaying = true; document.getElementById('audio-play').textContent = '⏸'; startAudioUpdate(); }).catch(()=>{});
+  } else {
+    player.pause(); isPlaying = false; document.getElementById('audio-play').textContent = '▶'; stopAudioUpdate();
+  }
+}
+
+function replayAudio() {
+  const player = document.getElementById('audio-player');
+  if (!player.src) return;
+  player.currentTime = 0;
+  player.play().then(() => { isPlaying = true; document.getElementById('audio-play').textContent = '⏸'; startAudioUpdate(); }).catch(()=>{});
+}
+
+function startAudioUpdate() {
+  if (audioUpdateTimer) clearInterval(audioUpdateTimer);
+  audioUpdateTimer = setInterval(() => {
+    const player = document.getElementById('audio-player');
+    if (player.duration) {
+      const pct = (player.currentTime / player.duration) * 100;
+      document.getElementById('audio-fill').style.width = pct + '%';
+      document.getElementById('audio-time').textContent = `${formatTime(player.currentTime)} / ${formatTime(player.duration)}`;
+    }
+    if (player.ended) { isPlaying = false; document.getElementById('audio-play').textContent = '▶'; stopAudioUpdate(); }
+  }, 200);
+}
+function stopAudioUpdate() { if (audioUpdateTimer) { clearInterval(audioUpdateTimer); audioUpdateTimer = null; } }
+
+function seekAudio(e) {
+  const player = document.getElementById('audio-player');
+  if (!player.duration) return;
+  const bar = e.currentTarget;
+  const pct = (e.clientX - bar.getBoundingClientRect().left) / bar.offsetWidth;
+  player.currentTime = pct * player.duration;
+}
+
+// --- Session Zero wizard ---
+let szActive = false;
+let szTurnCount = 0;
+const szMaxProgressDots = 8;
+
+async function openSessionZero() {
+  const intro = document.getElementById('intro-overlay');
+  const sz = document.getElementById('session-zero-overlay');
+  intro.classList.add('hidden');
+  sz.classList.add('active');
+  szActive = true;
+  szTurnCount = 0;
+  document.getElementById('sz-conversation').innerHTML = '';
+  updateSzProgress();
+  await szStart();
+}
+
+async function szStart() {
+  const model = document.getElementById('sz-model').value;
+  addSzTyping();
+  try {
+    const resp = await fetch('/api/session_zero/start', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({model}),
+    });
+    const data = await resp.json();
+    removeSzTyping();
+    if (data.error) { addSzMsg('dm', 'Error: ' + data.error); return; }
+    szTurnCount = data.turn || 1;
+    addSzMsg('dm', data.narrative, data.suggestions);
+    updateSzProgress();
+    updateBudget(data.budget);
+  } catch(e) { removeSzTyping(); addSzMsg('dm', 'Connection error: ' + e.message); }
+}
+
+async function szSendAnswer(answer) {
+  if (!szActive) return;
+  const input = document.getElementById('sz-input');
+  if (!answer) {
+    answer = input.value.trim();
+    if (!answer) return;
+    input.value = '';
+  }
+  addSzMsg('player', answer);
+  const btn = document.getElementById('sz-send-btn');
+  btn.disabled = true;
+  addSzTyping();
+  try {
+    const resp = await fetch('/api/session_zero/turn', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({answer}),
+    });
+    const data = await resp.json();
+    removeSzTyping();
+    btn.disabled = false;
+    if (data.error) { addSzMsg('dm', 'Error: ' + data.error); return; }
+    szTurnCount = data.turn || szTurnCount + 1;
+    addSzMsg('dm', data.narrative, data.suggestions);
+    updateSzProgress();
+    updateBudget(data.budget);
+    if (data.done) {
+      setTimeout(() => szFinish(), 1500);
+    }
+  } catch(e) { removeSzTyping(); btn.disabled = false; addSzMsg('dm', 'Connection error: ' + e.message); }
+  document.getElementById('sz-input').focus();
+}
+
+async function szFinish() {
+  if (!szActive) return;
+  szActive = false;
+  addSzMsg('dm', 'Starting your adventure...');
+  addSzTyping();
+  try {
+    const resp = await fetch('/api/session_zero/finish', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({}),
+    });
+    const data = await resp.json();
+    removeSzTyping();
+    if (data.error) { addSzMsg('dm', 'Error starting game: ' + data.error); return; }
+    document.getElementById('session-zero-overlay').classList.remove('active');
+    document.getElementById('app').classList.add('show-left');
+    document.getElementById('tab-left').classList.add('active');
+    document.getElementById('ctab-left').classList.add('active');
+    document.getElementById('model-label').textContent = data.model;
+    settings.autoroll = data.auto_roll;
+    updateSettingsUI();
+    updateState(data.state);
+    if (data.story) addStoryTurn(data, true);
+    if (data.audio_enabled) pollAudio(data.audio_turn_id);
+    updateBudget(data.budget);
+    fetchChronicle();
+    if (settings.music) {
+      bgMusicPlaying = true;
+      if (data.scene) currentMood = data.scene;
+      updateBgMusic();
+      document.getElementById('bg-music-player').play().catch(()=>{});
+    }
+    fetchProviderStatus();
+  } catch(e) { removeSzTyping(); addSzMsg('dm', 'Connection error: ' + e.message); }
+}
+
+function szSkipToGame() {
+  if (!confirm('Skip Session Zero and start with default settings?')) return;
+  szActive = false;
+  startGame({skip: true});
+  document.getElementById('session-zero-overlay').classList.remove('active');
+}
+
+function szChangeModel(model) {
+  settings.model = model;
+}
+
+function addSzMsg(role, text, suggestions) {
+  const conv = document.getElementById('sz-conversation');
+  const msg = document.createElement('div');
+  msg.className = 'sz-msg ' + role;
+  let html = `<div class="sz-bubble">${escapeHtml(text)}</div>`;
+  if (suggestions && suggestions.length) {
+    html += '<div class="sz-suggestions">';
+    suggestions.forEach(s => {
+      html += `<button class="sz-suggestion-btn" onclick="szSendAnswer('${escapeAttr(s)}')">${escapeHtml(s)}</button>`;
+    });
+    html += '</div>';
+  }
+  msg.innerHTML = html;
+  conv.appendChild(msg);
+  conv.scrollTop = conv.scrollHeight;
+}
+
+function addSzTyping() {
+  const conv = document.getElementById('sz-conversation');
+  const t = document.createElement('div');
+  t.className = 'sz-msg dm';
+  t.id = 'sz-typing-indicator';
+  t.innerHTML = '<div class="sz-typing">DM is thinking</div>';
+  conv.appendChild(t);
+  conv.scrollTop = conv.scrollHeight;
+}
+
+function removeSzTyping() {
+  const t = document.getElementById('sz-typing-indicator');
+  if (t) t.remove();
+}
+
+function updateSzProgress() {
+  const dots = document.getElementById('sz-progress');
+  dots.innerHTML = '';
+  for (let i = 0; i < szMaxProgressDots; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'sz-progress-dot';
+    if (i < szTurnCount) dot.classList.add('done');
+    else if (i === szTurnCount) dot.classList.add('active');
+    dots.appendChild(dot);
+  }
+}
+
+// --- Voice assignment screen ---
+let voiceCastData = null;
+
+async function openVoiceScreen() {
+  const overlay = document.getElementById('voice-overlay');
+  overlay.classList.add('active');
+  try {
+    const resp = await fetch('/api/voice/list', {method: 'POST'});
+    const data = await resp.json();
+    if (data.error) { console.error('Voice list error:', data.error); return; }
+    voiceCastData = data.cast || {};
+    renderVoiceEntries(data.cast, data.defaults || {});
+  } catch(e) { console.error('Voice screen error:', e); }
+}
+
+function renderVoiceEntries(cast, defaults) {
+  const container = document.getElementById('voice-entries');
+  container.innerHTML = '';
+  const keys = Object.keys(cast).filter(k => !k.startsWith('_'));
+  keys.forEach(name => {
+    const entry = document.createElement('div');
+    entry.className = 'voice-entry';
+    const isNarrator = name === 'narrator';
+    const hint = isNarrator ? 'The storytelling voice for all narration' : 'Voice description for this character';
+    entry.innerHTML = `
+      <div class="voice-entry-name">${escapeHtml(name)}</div>
+      <textarea id="voice-${escapeAttr(name)}" placeholder="Describe the voice...">${escapeHtml(cast[name])}</textarea>
+      <div class="voice-hint">${hint}</div>
+    `;
+    container.appendChild(entry);
+  });
+  const addSection = document.createElement('div');
+  addSection.className = 'voice-entry';
+  addSection.style.borderStyle = 'dashed';
+  addSection.innerHTML = `
+    <div class="voice-entry-name">+ Add new character voice</div>
+    <input type="text" id="voice-new-name" placeholder="Character name..." style="width:100%;background:var(--bg);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;color:var(--ink);font-size:14px;font-family:inherit;margin-bottom:6px;outline:none;">
+    <textarea id="voice-new-desc" placeholder="Describe the voice..."></textarea>
+    <button class="sz-suggestion-btn" style="margin-top:6px;" onclick="addNewVoiceField()">Add</button>
+  `;
+  container.appendChild(addSection);
+}
+
+function addNewVoiceField() {
+  const name = document.getElementById('voice-new-name').value.trim();
+  const desc = document.getElementById('voice-new-desc').value.trim();
+  if (!name || !desc) return;
+  const container = document.getElementById('voice-entries');
+  const entry = document.createElement('div');
+  entry.className = 'voice-entry';
+  entry.innerHTML = `
+    <div class="voice-entry-name">${escapeHtml(name)}</div>
+    <textarea id="voice-${escapeAttr(name)}" placeholder="Describe the voice...">${escapeHtml(desc)}</textarea>
+    <div class="voice-hint">Voice description for this character</div>
+  `;
+  const addSection = container.lastElementChild;
+  container.insertBefore(entry, addSection);
+  document.getElementById('voice-new-name').value = '';
+  document.getElementById('voice-new-desc').value = '';
+}
+
+async function closeVoiceScreen(save) {
+  if (save && voiceCastData) {
+    const keys = Object.keys(voiceCastData).filter(k => !k.startsWith('_'));
+    for (const name of keys) {
+      const ta = document.getElementById('voice-' + name);
+      if (ta && ta.value.trim() !== voiceCastData[name]) {
+        await fetch('/api/voice/assign', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name, voice: ta.value.trim()}),
+        });
+      }
+    }
+    document.querySelectorAll('.voice-entry textarea[id^="voice-"]').forEach(ta => {
+      const name = ta.id.replace('voice-', '');
+      if (!voiceCastData[name] && ta.value.trim()) {
+        fetch('/api/voice/assign', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name, voice: ta.value.trim()}),
+        });
+      }
+    });
+  }
+  document.getElementById('voice-overlay').classList.remove('active');
+}
+
+// Utilities
+function escapeHtml(s) { if(!s) return ''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function formatTime(s) { if(!s) return '0:00'; const m=Math.floor(s/60); const sec=Math.floor(s%60); return `${m}:${sec.toString().padStart(2,'0')}`; }
+function toRoman(n) { const r=['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX']; return r[n] || n.toString(); }
+function escapeAttr(s) { return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '\\r'); }
+
+// Keyboard shortcuts: Enter to send, 1-9 for choices, Esc to close panels
+document.addEventListener('keydown', (e) => {
+  // Enter to send (when in input field)
+  if (e.key === 'Enter' && document.activeElement.tagName === 'INPUT' && document.activeElement.closest('.input-block')) {
+    sendAction();
+    return;
+  }
+  // Number keys 1-9 to select choices (only when not typing in an input)
+  if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    const num = parseInt(e.key);
+    if (num >= 1 && num <= 9) {
+      const choices = document.querySelectorAll('.choice-item');
+      if (choices[num - 1]) {
+        choices[num - 1].click();
+        return;
+      }
+    }
+  }
+  // Escape to close all panels
+  if (e.key === 'Escape') {
+    document.getElementById('app').classList.remove('show-settings');
+    document.getElementById('tab-settings').classList.remove('active');
+    document.getElementById('ctab-settings').classList.remove('active');
+  }
+});
