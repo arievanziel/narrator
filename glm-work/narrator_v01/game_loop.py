@@ -216,9 +216,11 @@ def handle_newgame(data: dict) -> dict:
     inspiration = data.get("inspiration", "")
     auto_roll = data.get("dicemode", "auto") == "auto"
 
+    # v0.5c: Use procedural mode — no hardcoded goblins
     session.state = make_initial_state(
         story_style=story_style, setting=setting, persona=persona,
         atmosphere=atmosphere, inspiration=inspiration, auto_roll=auto_roll,
+        procedural=True,
     )
     if name:
         session.state.pc_name = name
@@ -229,7 +231,14 @@ def handle_newgame(data: dict) -> dict:
     session.init_client()
 
     state_block = session.state.to_prompt_block()
-    opening = f"Start the story. The player character ({session.state.pc_name}) enters the scene for the first time. Set the scene, introduce the atmosphere, and present the initial situation."
+    opening = (
+        f"Start the story. The player character ({session.state.pc_name}) enters "
+        f"the scene for the first time. Set the scene, introduce the atmosphere, "
+        f"and present the initial situation. "
+        f"Generate the opening location and any NPCs or encounters procedurally — "
+        f"do NOT use a fixed scenario. Use ENTITY_NEW tags to introduce any new "
+        f"NPCs, locations, or items you create."
+    )
 
     text, elapsed, usage = dm_turn(
         session.client, session.model, SYSTEM_PROMPT,
@@ -515,6 +524,7 @@ def handle_session_zero_finish(data: dict) -> dict:
     session.state = make_initial_state(
         story_style=story_style, setting=setting, persona=persona,
         atmosphere=tone, auto_roll=auto_roll,
+        procedural=True, campaign_meta=meta,
     )
     if char_name:
         session.state.pc_name = char_name
@@ -524,10 +534,15 @@ def handle_session_zero_finish(data: dict) -> dict:
     session.init_client()
 
     state_block = session.state.to_prompt_block()
-    opening = (f"Start the story. The player character ({session.state.pc_name}) "
-               f"enters the scene for the first time. Set the scene, introduce the "
-               f"atmosphere, and present the initial situation. This is the opening "
-               f"chapter - take your time to establish the world.")
+    opening = (
+        f"Start the story. The player character ({session.state.pc_name}) "
+        f"enters the scene for the first time. Set the scene, introduce the "
+        f"atmosphere, and present the initial situation. This is the opening "
+        f"chapter - take your time to establish the world. "
+        f"Generate the opening location and any NPCs or encounters procedurally — "
+        f"do NOT use a fixed scenario. Use ENTITY_NEW tags to introduce any new "
+        f"NPCs, locations, or items you create."
+    )
 
     text, elapsed, usage = dm_turn(
         session.client, session.model, SYSTEM_PROMPT,

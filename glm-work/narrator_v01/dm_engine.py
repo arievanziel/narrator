@@ -21,6 +21,8 @@ from . import config
 # System prompt — the rules contract + story format
 # ---------------------------------------------------------------------------
 
+PROMPT_VERSION = "v10"
+
 SYSTEM_PROMPT = """\
 You are an expert D&D 5e Dungeon Master running a solo campaign for one player.
 
@@ -56,6 +58,10 @@ Machine-readable tags only, one per line. Use ONLY these tags:
   ITEM_USED:<name>                 (consume an item from inventory)
   ITEM_GAINED:<name>               (add an item to inventory)
   CONDITION:<target>,<condition>   (apply a condition)
+  ENTITY_NEW:<type>,<name>,<summary>  (introduce a new NPC/location/item/faction/quest)
+  ENTITY_UPDATE:<name>,<field>,<value>  (update an entity's field — writes a revision)
+  ALIAS:<alt name> -> <canonical name>  (record an alias for entity matching)
+  QUEST_UPDATE:<name>,<status>     (update quest status: active/completed/failed)
   NO_MECHANICS                     (use when no mechanical change this turn)
 
 [SUGGESTIONS]
@@ -89,6 +95,20 @@ no multiattack. A single bad roll should not end the run.
 5. When the system provides a roll result (SUCCESS or FAILURE with a specific \
 number), you MUST accept it. You cannot change whether it succeeded. Narrate \
 the consequence and apply appropriate [MECHANICS] based on the result.
+
+6. PROCEDURAL WORLD. Generate NPCs, locations, and encounters that fit the \
+story style and setting. NEVER reuse a fixed scenario. Every NPC, location, \
+and item should be unique to this campaign. Use ENTITY_NEW to introduce new \
+entities as they appear in the story. Refer to entities by NAME only — never \
+invent or emit ID strings.
+
+7. KNOWN/NEW ENTITIES. Entities marked [KNOWN] in your context have already \
+been met. Do not re-introduce them as if new. Use ENTITY_NEW only for genuinely \
+new entities.
+
+8. RECALL. If you need to reference an entity not in your context, emit \
+RECALL:<name> as a mechanics tag. The system will look it up and provide its \
+full record in the next turn. Use this sparingly — it costs one re-run.
 """
 
 
@@ -211,6 +231,18 @@ class Enemy:
 
 @dataclass
 class GameState:
+    """Game state — the authoritative state model.
+
+    v0.4d: Now supports an optional WorldStore backend. When ``world_store``
+    is set, ``apply_mechanics`` delegates to the store's
+    ``apply_turn_mechanics``, and the flat attributes (pc_hp, inventory,
+    enemies, etc.) are synced from the store after each mechanics application.
+
+    This is the strangler-fig facade: the external interface (attributes,
+    to_dict, to_prompt_block, apply_mechanics) stays identical, but the
+    authoritative storage gradually moves to the WorldStore. Existing call
+    sites in game_loop.py and app.py work unmodified.
+    """
     pc_name: str = "Kael"
     pc_class: str = "Fighter"
     pc_level: int = 1
@@ -239,6 +271,80 @@ class GameState:
     atmosphere: str = ""
     inspiration: str = ""
     auto_roll: bool = True  # auto-roll dice for player
+    # v0.4d: optional WorldStore backend (strangler-fig facade)
+    world_store: object = None  # WorldStore or None
+    _turn_counter: int = 0
+
+    def attach_world_store(self, store) -> None:
+        """Attach a WorldStore and sync state from it."""
+        self.world_store = store
+        self._sync_from_store()
+
+    def _sync_from_store(self) -> None:
+        """Sync flat attributes from the WorldStore's PC entity."""
+        if not self.world_store:
+            return
+        pc = self.world_store._get_pc()
+        if pc:
+            self.pc_hp = pc.attributes.get("hp", self.pc_hp)
+            self.pc_max_hp = pc.attributes.get("max_hp", self.pc_max_hp)
+            # Inventory: convert entity IDs back to names for legacy compat
+            inv_ids = pc.attributes.get("inventory", [])
+            inv_names = []
+            for iid in inv_ids:
+                if isinstance(iid, str) and iid in self.world_store.entities:
+                    inv_names.append(self.world_store.entities[iid].name)
+                elif isinstance(iid, str):
+                    inv_names.append(iid)  # already a name (legacy)
+            self.inventory = inv_names
+
+        # Sync enemies from store's NPC entities
+        store_enemies = []
+        for entity in self.world_store.entities.values():
+            if entity.type == "npc" and entity.alive:
+                store_enemies.append(Enemy(
+                    name=entity.name,
+                    hp=entity.attributes.get("hp", 0),
+                    max_hp=entity.attributes.get("max_hp", 0),
+                    ac=entity.attributes.get("ac", 10),
+                ))
+        if store_enemies:
+            self.enemies = store_enemies
+
+    def _sync_to_store(self) -> None:
+        """Sync flat attributes to the WorldStore's PC entity."""
+        if not self.world_store:
+            return
+        pc = self.world_store._get_pc()
+        if not pc:
+            # Create PC entity in store if it doesn't exist
+            pc, _, _ = self.world_store.resolve_or_create(
+                self.pc_name, "pc",
+                {"hp": self.pc_hp, "max_hp": self.pc_max_hp,
+                 "disposition": "friendly", "voice_description": "player",
+                 "inventory": list(self.inventory), "stats": {
+                     "STR": self.pc_str, "DEX": self.pc_dex, "CON": self.pc_con,
+                     "INT": self.pc_int, "WIS": self.pc_wis, "CHA": self.pc_cha,
+                 }},
+                current_turn=self._turn_counter,
+            )
+        else:
+            pc.attributes["hp"] = self.pc_hp
+            pc.attributes["max_hp"] = self.pc_max_hp
+            pc.attributes["inventory"] = list(self.inventory)
+
+        # Sync enemies to store
+        for enemy in self.enemies:
+            entity, created, _ = self.world_store.resolve_or_create(
+                enemy.name, "npc",
+                {"hp": enemy.hp, "max_hp": enemy.max_hp, "ac": enemy.ac,
+                 "disposition": "hostile", "voice_description": "enemy"},
+                current_turn=self._turn_counter,
+            )
+            entity.attributes["hp"] = enemy.hp
+            entity.attributes["max_hp"] = enemy.max_hp
+            if not enemy.alive:
+                entity.alive = False
 
     def to_prompt_block(self) -> str:
         enemies_str = "\n  ".join(str(e) for e in self.enemies) if self.enemies else "None"
@@ -280,6 +386,10 @@ CURRENT GAME STATE (authoritative — do not contradict):
     def apply_mechanics(self, mechanics_text: str) -> list:
         """Parse [MECHANICS] tags and apply them deterministically. Returns log of changes.
 
+        v0.4d: If a WorldStore is attached, delegates to
+        ``world_store.apply_turn_mechanics`` and syncs the flat attributes
+        from the store afterward. Otherwise, uses the legacy flat-state logic.
+
         Includes anti-cheat safeguards:
         - Waste-potion guard: if any ITEM_USED names an item NOT in inventory, skip ALL
           ITEM_USED tags that turn.
@@ -287,6 +397,21 @@ CURRENT GAME STATE (authoritative — do not contradict):
           exists for that specific enemy in the same turn. Roll evidence is scoped by
           enemy name appearing in the ROLL_REQUEST text or an ENEMY_HP tag for that enemy.
         """
+        # v0.4d: delegate to WorldStore if attached
+        if self.world_store is not None:
+            self._turn_counter += 1
+            # Sync current state to store before applying
+            self._sync_to_store()
+            # Parse mechanics text into tag list
+            lines = [l.strip() for l in mechanics_text.strip().split("\n")
+                     if l.strip() and l.strip() != "NO_MECHANICS"]
+            changes = self.world_store.apply_turn_mechanics(
+                lines, current_turn=self._turn_counter)
+            # Sync back from store
+            self._sync_from_store()
+            return changes
+
+        # Legacy flat-state path (no WorldStore attached)
         changes = []
         lines = [l.strip() for l in mechanics_text.strip().split("\n")
                  if l.strip() and l.strip() != "NO_MECHANICS"]
@@ -741,8 +866,40 @@ def dm_turn_dc_roll(client: OpenAI, model: str, system_prompt: str,
 
 def make_initial_state(story_style: str = "", setting: str = "",
                        persona: str = "", atmosphere: str = "",
-                       inspiration: str = "", auto_roll: bool = True) -> GameState:
-    """Create initial game state with optional story style settings."""
+                       inspiration: str = "", auto_roll: bool = True,
+                       procedural: bool = False,
+                       campaign_meta: dict = None) -> GameState:
+    """Create initial game state with optional story style settings.
+
+    v0.5c: When procedural=True, no hardcoded enemies are created. The opening
+    narration from the LLM will propose entities via ENTITY_NEW tags, which
+    the WorldStore will create dynamically. This kills the hardcoded two-goblin
+    encounter that Arie specifically flagged.
+
+    When procedural=False (default, for backward compat), the legacy hardcoded
+    goblins are used. This preserves behavior for existing sessions.
+    """
+    if procedural:
+        # Procedural mode: no hardcoded enemies or location
+        # The LLM will generate everything via ENTITY_NEW tags
+        state = GameState(
+            enemies=[],  # empty — LLM will populate
+            location="",  # empty — LLM will set via narration
+            light="",
+            time="",
+            story_style=story_style, setting=setting, persona=persona,
+            atmosphere=atmosphere, inspiration=inspiration, auto_roll=auto_roll,
+        )
+        if campaign_meta:
+            # Apply campaign meta as story style if provided
+            state.story_style = state.story_style or campaign_meta.get("style", "")
+            state.setting = state.setting or campaign_meta.get("setting", "")
+            state.persona = state.persona or campaign_meta.get("persona", "")
+            state.atmosphere = state.atmosphere or campaign_meta.get("tone",
+                                                                    campaign_meta.get("atmosphere", ""))
+        return state
+
+    # Legacy mode: hardcoded goblins (backward compat for existing sessions)
     state = GameState(
         enemies=[
             Enemy("Goblin Scout", hp=7, max_hp=7, ac=15),

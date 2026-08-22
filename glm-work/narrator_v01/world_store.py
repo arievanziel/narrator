@@ -423,11 +423,17 @@ class WorldStore:
                 pc = self._get_pc()
                 if pc:
                     inv = pc.attributes.get("inventory", [])
-                    # Items are stored as entity IDs; check by name
+                    # Items may be stored as entity IDs or as plain names (legacy)
                     item_found = False
-                    for item_id in inv:
-                        if item_id in self.entities:
-                            if self.entities[item_id].name.lower() == v.lower():
+                    for item_ref in inv:
+                        if isinstance(item_ref, str):
+                            if item_ref in self.entities:
+                                # It's an entity ID — check by name
+                                if self.entities[item_ref].name.lower() == v.lower():
+                                    item_found = True
+                                    break
+                            elif item_ref.lower() == v.lower():
+                                # It's a plain name (legacy compat)
                                 item_found = True
                                 break
                     if not item_found:
@@ -494,9 +500,14 @@ class WorldStore:
                     pc = self._get_pc()
                     if pc:
                         inv = pc.attributes.get("inventory", [])
-                        for i, item_id in enumerate(inv):
-                            if item_id in self.entities:
-                                if self.entities[item_id].name.lower() == v.lower():
+                        for i, item_ref in enumerate(inv):
+                            if isinstance(item_ref, str):
+                                if item_ref in self.entities:
+                                    if self.entities[item_ref].name.lower() == v.lower():
+                                        inv.pop(i)
+                                        changes.append(f"Used: {v}")
+                                        break
+                                elif item_ref.lower() == v.lower():
                                     inv.pop(i)
                                     changes.append(f"Used: {v}")
                                     break
@@ -642,6 +653,142 @@ class WorldStore:
         """Exit current scene."""
         self.current_scene = None
 
+    # --- Consistency guards (spec §5) ---
+
+    def presence_liveness_guard(self, narrative: str,
+                                 current_turn: int = 0) -> dict:
+        """Guard 3: Presence-and-liveness check (spec §5.3).
+
+        Post-generation, pre-display: every speaker name in the narrative
+        must resolve to an entity that is alive AND in scene.present_entity_ids
+        (or is narrator/PC). Returns a dict with:
+          - 'violations': list of {speaker, reason} dicts
+          - 'correction_prompt': str to append if regenerating, or '' if clean
+        On violation: caller should regenerate once with the correction message,
+        then fail open with a visible warning — never block the turn entirely.
+        """
+        violations = []
+        if not self.current_scene:
+            return {"violations": [], "correction_prompt": ""}
+
+        # Extract speaker names from [SpeakerName] tags in the narrative
+        import re
+        speakers = re.findall(r"\[([A-Za-z][A-Za-z\s]*?)\]", narrative)
+        # Filter out non-speaker tags
+        non_speaker_tags = {"narrator", "SFX", "SCENE", "STORY", "MECHANICS",
+                            "SUGGESTIONS", "CHRONICLE", "AUDIO", "NEW", "KNOWN",
+                            "RECALL", "REJECTED"}
+        speakers = [s for s in speakers if s.lower() not in non_speaker_tags]
+
+        pc = self._get_pc()
+        pc_name = pc.name.lower() if pc else ""
+
+        for speaker in speakers:
+            speaker_lower = speaker.lower()
+            # Skip narrator and PC
+            if speaker_lower == "narrator" or speaker_lower == pc_name:
+                continue
+
+            # Resolve speaker to an entity
+            entity = None
+            for eid, e in self.entities.items():
+                if e.name.lower() == speaker_lower or e.norm_name == normalize_name(speaker):
+                    entity = e
+                    break
+
+            if entity is None:
+                violations.append({
+                    "speaker": speaker,
+                    "reason": f"Speaker '{speaker}' not found in world store"
+                })
+            elif not entity.alive:
+                violations.append({
+                    "speaker": speaker,
+                    "reason": f"Speaker '{speaker}' is dead"
+                })
+            elif entity.id not in self.current_scene.present_entity_ids:
+                violations.append({
+                    "speaker": speaker,
+                    "reason": f"Speaker '{speaker}' is not present in the current scene"
+                })
+
+        correction = ""
+        if violations:
+            correction_lines = [f"INCONSISTENCY DETECTED — please correct:"]
+            for v in violations:
+                correction_lines.append(f"- {v['reason']}")
+            correction_lines.append(
+                "Only include dialogue from characters who are alive AND present "
+                "in the current scene. Regenerate the narrative with this correction."
+            )
+            correction = "\n".join(correction_lines)
+
+        return {"violations": violations, "correction_prompt": correction}
+
+    def handle_recall(self, recall_query: str,
+                      current_turn: int = 0) -> dict:
+        """Handle [RECALL:name] from the LLM (spec §6).
+
+        Resolve against directory + aliases. If found, return the full entity
+        record to inject into context. If not found, return a message for the
+        LLM. Hard cap: only one recall per turn — caller must enforce this.
+
+        Returns:
+          - {'found': True, 'entity_id': str, 'context_text': str} if found
+          - {'found': False, 'message': str} if not found
+        """
+        norm = normalize_name(recall_query)
+
+        # Direct alias lookup
+        if norm in self.aliases:
+            eid = self.aliases[norm]
+            entity = self.entities.get(eid)
+            if entity:
+                return {
+                    "found": True,
+                    "entity_id": eid,
+                    "context_text": self._entity_to_context_str(entity, mark="[RECALLED]"),
+                }
+
+        # Fuzzy match against all entity names
+        best_ratio = 0.0
+        best_entity = None
+        for eid, entity in self.entities.items():
+            ratio = difflib.SequenceMatcher(None, norm, entity.norm_name).ratio()
+            if ratio > best_ratio:
+                best_ratio = ratio
+                best_entity = entity
+
+        if best_entity and best_ratio >= 0.7:
+            return {
+                "found": True,
+                "entity_id": best_entity.id,
+                "context_text": self._entity_to_context_str(best_entity, mark="[RECALLED]"),
+            }
+
+        return {
+            "found": False,
+            "message": f"No entity matching '{recall_query}' was found in the world directory.",
+        }
+
+    def check_contradiction(self, entity: Entity, field: str,
+                            new_value: Any) -> Optional[str]:
+        """Check if an ENTITY_UPDATE contradicts a previous value (spec §4.2).
+
+        Returns a warning string if there's a contradiction, None otherwise.
+        Contradictions are applied (not blocked) but logged visibly.
+        """
+        # Check revisions for this field
+        for rev in reversed(entity.revisions):
+            if rev.field == field:
+                old_value = str(rev.new)  # last set value
+                if str(new_value).lower() != old_value.lower():
+                    return (f"CONTRADICTION: {entity.name}.{field} was "
+                            f"'{old_value}', now set to '{new_value}' — "
+                            f"applied but logged.")
+                break
+        return None
+
     # --- Roll recording ---
 
     def record_roll(self, roll: RollRecord) -> None:
@@ -732,56 +879,218 @@ class WorldStore:
 
     # --- Context assembly (simplified for v0.4c — full version is v0.5a) ---
 
+    # --- Working-set scoring (spec §6) ---
+
+    SCORE_WEIGHTS = {
+        "pinned": 100,            # PC, active-quest entities, current location
+        "present_in_scene": 50,
+        "named_in_player_input": 40,
+        "named_in_last_narration": 30,
+        "one_graph_hop": 20,       # via Link
+        "linked_to_active_quest": 15,
+        "recency_max": 10,          # decays with (current_turn - last_seen_turn)
+    }
+
+    def _score_entity(self, entity: Entity, player_input: str,
+                      last_narration: str, current_turn: int,
+                      pinned_ids: set, scene: Scene = None) -> int:
+        """Score an entity for working-set inclusion (spec §6)."""
+        score = 0
+        norm_input = player_input.lower()
+        norm_narr = last_narration.lower()
+
+        if entity.id in pinned_ids:
+            score += self.SCORE_WEIGHTS["pinned"]
+
+        if scene and entity.id in scene.present_entity_ids:
+            score += self.SCORE_WEIGHTS["present_in_scene"]
+
+        if entity.name.lower() in norm_input or entity.norm_name in norm_input:
+            score += self.SCORE_WEIGHTS["named_in_player_input"]
+
+        if entity.name.lower() in norm_narr or entity.norm_name in norm_narr:
+            score += self.SCORE_WEIGHTS["named_in_last_narration"]
+
+        # One graph hop: linked to a pinned entity
+        for link in entity.links:
+            if link.target_id in pinned_ids:
+                score += self.SCORE_WEIGHTS["one_graph_hop"]
+                break
+
+        # Linked to active quest
+        for e in self.entities.values():
+            if e.type == "quest" and e.attributes.get("status") == "active":
+                for link in e.links:
+                    if link.target_id == entity.id:
+                        score += self.SCORE_WEIGHTS["linked_to_active_quest"]
+                        break
+
+        # Recency (decays)
+        turns_away = max(0, current_turn - entity.last_seen_turn)
+        recency = max(0, self.SCORE_WEIGHTS["recency_max"] - turns_away)
+        score += recency
+
+        return score
+
     def get_context_for_turn(self, player_input: str = "",
                              budget: TokenBudget = None,
-                             current_scene: Scene = None) -> ContextBundle:
-        """Assemble context for the LLM. Simplified version — full layered
-        assembly with scoring is v0.5a."""
+                             current_scene: Scene = None,
+                             last_narration: str = "",
+                             system_prompt: str = "",
+                             rules_text: str = "",
+                             recent_turns: list = None) -> ContextBundle:
+        """Assemble context for the LLM using layered assembly (spec §6).
+
+        STABLE PREFIX (cacheable — byte-identical across turns when content allows):
+          L0  system prompt
+          L1  campaign_meta
+          L2  world directory (id | name | type | summary per entity)
+          L3  pinned entities, full records (PC, active quests, current location)
+
+        VOLATILE SUFFIX (never cached):
+          L4  working set: full records for scored-in entities
+          L5  scene block
+          L6  "since you were last here" digest
+          L7  last N turns verbatim + rolling chronicle
+          L8  just-in-time rules
+          L9  player action + resolved roll facts
+        """
         budget = budget or TokenBudget()
         scene = current_scene or self.current_scene
+        current_turn = self._turn_count + 1
+        recent_turns = recent_turns or []
 
-        # Build a simple context string
-        lines = []
         included = []
         dropped = []
 
-        # PC is always included
+        # Determine pinned entities (score >= 100 unconditional)
+        pinned_ids = set()
         pc = self._get_pc()
         if pc:
-            lines.append(f"PC: {pc.name} | HP: {pc.attributes.get('hp')}/{pc.attributes.get('max_hp')}")
-            included.append(pc.id)
+            pinned_ids.add(pc.id)
+        if scene:
+            pinned_ids.add(scene.location_id)
+        for e in self.entities.values():
+            if e.type == "quest" and e.attributes.get("status") == "active":
+                pinned_ids.add(e.id)
 
-        # Current scene
+        # --- STABLE PREFIX ---
+
+        # L0: System prompt
+        l0 = system_prompt[:budget.l0_system] if system_prompt else ""
+
+        # L1: Campaign meta
+        meta_lines = []
+        for k, v in self.campaign_meta.items():
+            meta_lines.append(f"  {k}: {v}")
+        l1 = "\n".join(meta_lines)[:budget.l1_campaign_meta]
+
+        # L2: World directory (compact: id | name | type | summary)
+        dir_entries = []
+        for eid, entity in sorted(self.entities.items(),
+                                   key=lambda x: x[1].last_seen_turn, reverse=True):
+            entry = f"{eid} | {entity.name} | {entity.type} | {entity.summary[:60]}"
+            dir_entries.append(entry)
+        l2 = "\n".join(dir_entries)[:budget.l2_directory]
+
+        # L3: Pinned entities, full records
+        pinned_lines = []
+        for eid in pinned_ids:
+            entity = self.entities.get(eid)
+            if entity:
+                pinned_lines.append(self._entity_to_context_str(entity, mark="[KNOWN]"))
+                included.append(eid)
+        l3 = "\n".join(pinned_lines)[:budget.l3_pinned]
+
+        stable_prefix = "\n".join(filter(None, [l0, l1, l2, l3]))
+
+        # --- VOLATILE SUFFIX ---
+
+        # L4: Working set — score all non-pinned entities, fill budget
+        scored = []
+        for eid, entity in self.entities.items():
+            if eid in pinned_ids:
+                continue
+            score = self._score_entity(
+                entity, player_input, last_narration, current_turn,
+                pinned_ids, scene)
+            if score > 0:
+                scored.append((score, eid, entity))
+
+        # Sort by score descending
+        scored.sort(key=lambda x: x[0], reverse=True)
+
+        # Take everything scoring >= 100 unconditionally; fill by score descending
+        working_set_lines = []
+        working_set_budget = budget.l4_working_set
+        for score, eid, entity in scored:
+            entry = self._entity_to_context_str(entity, mark="[KNOWN]" if score >= 50 else "[NEW]")
+            if len("\n".join(working_set_lines + [entry])) <= working_set_budget:
+                working_set_lines.append(entry)
+                included.append(eid)
+            else:
+                dropped.append(eid)
+
+        l4 = "\n".join(working_set_lines)
+
+        # L5: Scene block
+        scene_lines = []
         if scene:
             loc = self.entities.get(scene.location_id)
             if loc:
-                lines.append(f"Location: {loc.name} - {loc.summary}")
-                included.append(loc.id)
+                scene_lines.append(f"Location: {loc.name}")
+            scene_lines.append(f"Present: {', '.join(
+                self.entities[eid].name for eid in scene.present_entity_ids
+                if eid in self.entities)}")
+            if scene.encounter:
+                scene_lines.append(f"Round: {scene.encounter.round}")
+            scene_lines.append(f"Light: {scene.light}, Time: {scene.time_of_day}")
+        l5 = "\n".join(scene_lines)[:budget.l5_scene]
 
-            # Present entities
-            for eid in scene.present_entity_ids:
-                entity = self.entities.get(eid)
-                if entity and entity.alive:
-                    lines.append(f"  {entity.type}: {entity.name} - {entity.summary}")
-                    included.append(eid)
+        # L6: "Since you were last here" digest
+        l6 = ""  # Generated by enter_scene() — stored in campaign_meta temporarily
+        digest = self.campaign_meta.pop("_last_digest", "")
+        if digest:
+            l6 = digest[:budget.l6_digest]
 
-        # Recent entities (last 3 turns)
-        for eid, entity in self.entities.items():
-            if eid in included:
-                continue
-            if entity.last_seen_turn >= (self._turn_count - 3):
-                lines.append(f"[recent] {entity.type}: {entity.name} - {entity.summary}")
-                included.append(eid)
+        # L7: Last N turns verbatim
+        turn_lines = []
+        for tr in recent_turns[-10:]:  # last 10 turns
+            if isinstance(tr, dict):
+                turn_lines.append(f"Turn {tr.get('turn', '?')}: {tr.get('player_input', '')} -> {tr.get('narrative', '')[:100]}")
+            elif isinstance(tr, str):
+                turn_lines.append(tr)
+        l7 = "\n".join(turn_lines)[:budget.l7_recent_turns]
 
-        stable = "\n".join(lines[:10])  # crude budget approximation
-        volatile = f"\n\nPLAYER ACTION:\n{player_input}" if player_input else ""
+        # L8: Just-in-time rules
+        l8 = rules_text[:budget.l8_rules] if rules_text else ""
+
+        # L9: Player action
+        l9 = f"PLAYER ACTION:\n{player_input}"[:budget.l9_input] if player_input else ""
+
+        volatile_suffix = "\n".join(filter(None, [l4, l5, l6, l7, l8, l9]))
 
         return ContextBundle(
-            stable_prefix=stable,
-            volatile_suffix=volatile,
+            stable_prefix=stable_prefix,
+            volatile_suffix=volatile_suffix,
             included_entity_ids=included,
             dropped_entity_ids=dropped,
         )
+
+    def _entity_to_context_str(self, entity: Entity, mark: str = "") -> str:
+        """Format an entity for context inclusion."""
+        lines = []
+        marker = f"{mark} " if mark else ""
+        lines.append(f"{marker}{entity.type.upper()}: {entity.name}")
+        if entity.summary:
+            lines.append(f"  Summary: {entity.summary}")
+        # Key attributes
+        for key in ("hp", "max_hp", "ac", "disposition", "status"):
+            if key in entity.attributes:
+                lines.append(f"  {key}: {entity.attributes[key]}")
+        if not entity.alive:
+            lines.append("  [DEAD]")
+        return "\n".join(lines)
 
     # --- Directory (for context assembler L2) ---
 
