@@ -766,10 +766,14 @@ function playSegment(turnId, seg, qData) {
   document.getElementById('audio-gen-bar').style.display = 'none';
   document.getElementById('audio-status').textContent = '';
 
+  // v0.8: Fade-in at segment start (50ms)
+  player.volume = 0;
   player.play().then(() => {
     isPlaying = true;
     document.getElementById('audio-play').textContent = '⏸';
     startAudioUpdate();
+    // Smooth fade-in
+    _fadeInVolume(player, settings.narrationVol, 50);
   }).catch(() => {});
 
   player.onended = () => {
@@ -910,12 +914,19 @@ function replayAudio() {
 
 function startAudioUpdate() {
   if (audioUpdateTimer) clearInterval(audioUpdateTimer);
+  let fadeOutStarted = false;
   audioUpdateTimer = setInterval(() => {
     const player = document.getElementById('audio-player');
     if (player.duration) {
       const pct = (player.currentTime / player.duration) * 100;
       document.getElementById('audio-fill').style.width = pct + '%';
       document.getElementById('audio-time').textContent = `${formatTime(player.currentTime)} / ${formatTime(player.duration)}`;
+      // v0.8: Fade out in last 100ms for smooth segment transition
+      const remaining = player.duration - player.currentTime;
+      if (!fadeOutStarted && remaining < 0.1 && remaining > 0) {
+        fadeOutStarted = true;
+        _fadeOutVolume(player, 0, 80);
+      }
     }
     if (player.ended) { isPlaying = false; document.getElementById('audio-play').textContent = '▶'; stopAudioUpdate(); }
   }, 200);
@@ -1177,6 +1188,41 @@ async function closeVoiceScreen(save) {
 function escapeHtml(s) { if(!s) return ''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 function formatTime(s) { if(!s) return '0:00'; const m=Math.floor(s/60); const sec=Math.floor(s%60); return `${m}:${sec.toString().padStart(2,'0')}`; }
 function toRoman(n) { const r=['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX']; return r[n] || n.toString(); }
+
+// v0.8: Audio fade helpers for smooth crossfade between segments
+function _fadeInVolume(player, targetVol, ms) {
+  const steps = 10;
+  const stepTime = ms / steps;
+  const volStep = targetVol / steps;
+  let step = 0;
+  const fade = setInterval(() => {
+    step++;
+    if (step >= steps) {
+      player.volume = targetVol;
+      clearInterval(fade);
+    } else {
+      player.volume = volStep * step;
+    }
+  }, stepTime);
+}
+
+function _fadeOutVolume(player, targetVol, ms, callback) {
+  const startVol = player.volume;
+  const steps = 10;
+  const stepTime = ms / steps;
+  const volStep = startVol / steps;
+  let step = 0;
+  const fade = setInterval(() => {
+    step++;
+    if (step >= steps) {
+      player.volume = 0;
+      clearInterval(fade);
+      if (callback) callback();
+    } else {
+      player.volume = startVol - (volStep * step);
+    }
+  }, stepTime);
+}
 function escapeAttr(s) { return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '\\r'); }
 
 // Keyboard shortcuts: Enter to send, 1-9 for choices, Esc to close panels
