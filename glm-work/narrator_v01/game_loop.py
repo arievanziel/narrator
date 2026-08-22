@@ -524,7 +524,8 @@ def handle_turn(data: dict) -> dict:
         phase1_story = dc_result["phase1_sections"].get("STORY", "")
         phase3_story = sections.get("STORY", "")
         if phase1_story and phase3_story:
-            sections["STORY"] = f"{phase1_story}\n\n--- ROLL ---\n🎲 {roll_result['dice']}: {roll_result['roll']}{'+' + str(roll_result['modifier']) if roll_result['modifier'] > 0 else ''} = {roll_result['total']} vs DC {roll_result['dc']} → {roll_result['result'].replace('_', ' ').title()}\n---\n\n{phase3_story}"
+            # Combine stories — the roll result is shown as a separate UI element
+            sections["STORY"] = f"{phase1_story}\n\n{phase3_story}"
 
     # v0.5: Check for RECALL tags — one re-run max
     recall_query = _check_recall(sections["MECHANICS"])

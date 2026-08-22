@@ -53,6 +53,9 @@ function changeNarrationVol(val) {
 }
 function changeMusicSrc(val) { settings.musicSrc = val; updateBgMusic(); }
 
+// v0.8: Music crossfade — use a second hidden audio element for smooth transitions
+let bgMusicCrossfading = false;
+
 function updateBgMusic() {
   const player = document.getElementById('bg-music-player');
   if (!settings.music) {
@@ -62,12 +65,60 @@ function updateBgMusic() {
   }
   const url = `/api/music?mood=${currentMood}&source=${settings.musicSrc}`;
   if (player.src.indexOf(url) === -1) {
-    player.src = url;
-    player.volume = settings.musicVol;
-    if (bgMusicPlaying) player.play().catch(()=>{});
+    // v0.8: Crossfade if music is already playing
+    if (bgMusicPlaying && !player.paused) {
+      crossfadeMusic(url);
+    } else {
+      player.src = url;
+      player.volume = settings.musicVol;
+      if (bgMusicPlaying) player.play().catch(()=>{});
+    }
   } else {
     player.volume = settings.musicVol;
   }
+}
+
+// v0.8: Crossfade between old and new music tracks over ~2 seconds
+function crossfadeMusic(newUrl) {
+  if (bgMusicCrossfading) return;  // don't stack crossfades
+  bgMusicCrossfading = true;
+
+  const oldPlayer = document.getElementById('bg-music-player');
+  const newPlayer = document.getElementById('bg-music-player-2');
+
+  // Set up new player
+  newPlayer.src = newUrl;
+  newPlayer.volume = 0;
+  newPlayer.loop = true;
+
+  const targetVol = settings.musicVol;
+  const fadeDuration = 2000;  // 2 seconds
+  const steps = 20;
+  const stepTime = fadeDuration / steps;
+  const volStep = targetVol / steps;
+  let step = 0;
+
+  newPlayer.play().catch(()=>{});
+
+  const fadeInterval = setInterval(() => {
+    step++;
+    const newVol = Math.min(step * volStep, targetVol);
+    const oldVol = Math.max(targetVol - step * volStep, 0);
+
+    newPlayer.volume = Math.min(newVol, 1);
+    oldPlayer.volume = Math.min(oldVol, 1);
+
+    if (step >= steps) {
+      clearInterval(fadeInterval);
+      // Swap: make new player the primary
+      oldPlayer.pause();
+      oldPlayer.src = '';
+      // Swap IDs so the rest of the code still finds the active player
+      oldPlayer.id = 'bg-music-player-2';
+      newPlayer.id = 'bg-music-player';
+      bgMusicCrossfading = false;
+    }
+  }, stepTime);
 }
 
 function setMood(mood) {
@@ -130,15 +181,29 @@ function setTheme(theme) {
 }
 
 // Dice roller
+let diceRollHistory = [];
+
 function rollDice(btn, sides) {
   btn.classList.add('rolling');
   setTimeout(() => btn.classList.remove('rolling'), 300);
   const result = Math.floor(Math.random() * sides) + 1;
   const el = document.getElementById('dice-result');
   el.innerHTML = `<span class="roll-val">${result}</span> <span style="color:var(--ink-faint)">on d${sides}</span>`;
+  // Add to history
+  diceRollHistory.unshift({sides, result, time: new Date()});
+  if (diceRollHistory.length > 10) diceRollHistory.pop();
+  updateDiceHistory();
   // Add to input
   const input = document.querySelector('.input-block input');
   if (input) input.value += ` I rolled a ${result} on d${sides}.`;
+}
+
+function updateDiceHistory() {
+  const el = document.getElementById('dice-history');
+  if (!el) return;
+  el.innerHTML = diceRollHistory.map(r =>
+    `<div class="dice-history-item">d${r.sides}: <span class="dice-history-val">${r.result}</span></div>`
+  ).join('');
 }
 
 // Start game from intro
@@ -273,6 +338,27 @@ function addStoryTurn(data, isFirst = false) {
     container.appendChild(passage);
   }
 
+  // v0.4b: Roll result display (dice roll indicator)
+  if (data.roll && data.contested) {
+    const rollDiv = document.createElement('div');
+    rollDiv.className = 'roll-result-display';
+    const isSuccess = data.roll.result === 'SUCCESS' || data.roll.result === 'CRITICAL_SUCCESS';
+    const isCrit = data.roll.result === 'CRITICAL_SUCCESS';
+    const isFumble = data.roll.result === 'CRITICAL_FAILURE';
+    let resultClass = isSuccess ? 'roll-success' : 'roll-failure';
+    if (isCrit) resultClass = 'roll-crit';
+    if (isFumble) resultClass = 'roll-fumble';
+    let resultText = data.roll.result.replace(/_/g, ' ');
+    rollDiv.className = `roll-result-display ${resultClass}`;
+    rollDiv.innerHTML = `
+      <div class="roll-dice">${escapeHtml(data.roll.dice)}</div>
+      <div class="roll-roll">${data.roll.roll}${data.roll.modifier ? (data.roll.modifier > 0 ? ' + ' + data.roll.modifier : ' ' + data.roll.modifier) : ''} = <strong>${data.roll.total}</strong></div>
+      <div class="roll-dc">DC ${data.roll.dc}</div>
+      <div class="roll-outcome">${escapeHtml(resultText)}</div>
+    `;
+    container.appendChild(rollDiv);
+  }
+
   // State changes
   if (data.changes && data.changes.length) {
     const changes = document.createElement('div');
@@ -351,6 +437,52 @@ function addStoryTurn(data, isFirst = false) {
 function useChoice(text) {
   const input = document.querySelector('.input-block input');
   if (input) { input.value = text; sendAction(); }
+}
+
+// v0.4a: Pre-generate choice audio as soon as suggestions arrive
+async function preGenerateChoices(choiceTexts) {
+  if (!settings.tts || settings.tts === 'silent') return;
+  try {
+    await fetch('/api/choices/pre_generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ choices: choiceTexts }),
+    });
+  } catch(e) { /* silent fail — pre-generation is best-effort */ }
+}
+
+// v0.4a: Debounced free-text audio generation
+// Trigger after ~2-3 words or ~1 second of no typing
+function onFreeTextInput(e) {
+  const text = e.target.value.trim();
+  if (!text || text.length < 3) return;  // too short to bother
+  if (!settings.tts || settings.tts === 'silent') return;
+
+  // Cancel any in-flight generation
+  if (freetextDebounceTimer) clearTimeout(freetextDebounceTimer);
+  if (freetextGenId) {
+    fetch('/api/freetext/cancel', { method: 'POST' }).catch(()=>{});
+    freetextGenId = null;
+  }
+
+  // Debounce: wait ~1 second of no typing
+  freetextDebounceTimer = setTimeout(async () => {
+    // Check if text is still the same (player might have kept typing)
+    const currentText = e.target.value.trim();
+    if (currentText !== text || currentText.length < 3) return;
+
+    try {
+      const resp = await fetch('/api/freetext/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ text: currentText }),
+      });
+      const data = await resp.json();
+      if (data.gen_id) {
+        freetextGenId = data.gen_id;
+      }
+    } catch(e) { /* silent fail */ }
+  }, 1000);
 }
 
 function addPlayerAction(text) {
