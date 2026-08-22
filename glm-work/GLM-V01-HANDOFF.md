@@ -210,3 +210,125 @@ Then open http://localhost:5102 in your browser.
 - The rules lawyer in `apply_mechanics()` includes anti-cheat safeguards:
   - Waste-potion guard: invalid item claims block all item use that turn
   - Control-NPC guard: ENEMY_DEAD requires roll evidence (ENEMY_HP or ROLL_REQUEST)
+
+---
+
+## Instance D — v0.3 stability / regression sweep
+
+**Date:** 2026-08-22  
+**Scope:** General regression sweep of the v0.3 checkpoint before v0.4 work starts. Per `docs/V1-PLAN.md`, the long-session (30+ turn) stress test is intentionally deferred until the v0.4 changes settle.
+
+### Tests run
+
+| Test | Command | Result |
+|---|---|---|
+| Trickster unit tests (rules lawyer) | `python -m narrator_v01.test_trickster` | **16/16 PASS** |
+| App startup (text-only, no API calls) | `python -m narrator_v01.app --no-audio --port 5199` | **HTTP 200 on root, /api/providers OK** |
+| Theme CSS verification | Visual comparison of `setTheme()` values | **Sepia (#f0e6d2) distinct from dark (#1a1a1e) and light (#e6e4e0)** |
+
+### Bug found and fixed
+
+1. **Roll-evidence scoping bug in `narrator_v01/dm_engine.py` (`apply_mechanics`)**
+   - **Problem:** A `ROLL_REQUEST` granted roll evidence to *all* enemies, not the target. A roll for "Goblin Scout" could kill a different "Goblin Raider" on the same turn.
+   - **Fix:** Roll evidence is now scoped. An enemy gets evidence only if:
+     - an `ENEMY_HP:<enemy>,...` for that enemy exists in the same mechanics block, OR
+     - the enemy name appears in the `ROLL_REQUEST` text.
+   - **New test:** Added "Roll scoped to target enemy only" to `narrator_v01/test_trickster.py`.
+   - **Result:** All 16 trickster tests pass.
+
+### Observations (not fixed, out of scope for v0.3)
+
+1. **Hardcoded opening encounter:** `make_initial_state()` always spawns the same two goblins. Addressed by `docs/WORLD-ENGINE-DESIGN.md` v0.5.
+2. **Prompt-caching issue:** `dm_turn()` uses `history[-10:]`, which changes the prompt prefix every turn after turn 10. Addressed by `docs/WORLD-ENGINE-REVIEW-OPUS.md` §3.3 (v0.5 context assembler).
+3. **Long-session stress test:** Deferred per `docs/V1-PLAN.md` — app is about to change substantially in v0.4/v0.5.
+
+---
+
+## Update 2026-08-22 — v0.3.5 through v0.5c (Instance A)
+
+**Author:** GLM (Instance A — Rules & World Engine)
+**Commits:** `91af954` (v0.3.5+v0.4c), `3f96def` (v0.4d+v0.5a/b/c)
+**Branch:** `glm-phase1`
+
+### v0.3.5 — File restructuring (behavior-preserving)
+
+Split `app.py` from 2,245 lines to 288 lines:
+- `templates/index.html` — HTML structure
+- `static/style.css` — all CSS (168 lines)
+- `static/app.js` — all JavaScript (627 lines)
+- `game_loop.py` — turn orchestration, Session, BudgetTracker, all handlers (523 lines)
+- `app.py` — thin HTTP server + routing only (288 lines)
+
+Fixed double-thread-start bug in audio generation. Verified with Playwright:
+13 screenshots, 0 console errors, audio working.
+
+### v0.4c — World Store (standalone, unit-tested)
+
+`world_store.py` (793 lines) with:
+- `Entity`, `Link`, `Revision`, `Fact`, `Scene`, `Encounter`, `RollRecord`,
+  `TurnRecord`, `TokenBudget`, `ContextBundle` dataclasses
+- `resolve_or_create()`: 8-step duplicate resolution (exact/alias/fuzzy/token/policy)
+- `apply_turn_mechanics()`: generalized rules lawyer with all tag types
+- Atomic persistence (write to .tmp, os.replace)
+- Append-only JSONL turn log
+- Entity validation per type (required attrs, HP clamping, quest status)
+- 15/15 unit tests pass
+
+### v0.4d — GameState facade (behavior-neutral)
+
+`GameState` now supports optional `WorldStore` backend:
+- `attach_world_store()` syncs flat attributes to/from entity store
+- `apply_mechanics()` delegates to `world_store.apply_turn_mechanics()` when attached
+- Legacy path preserved when no store attached
+- 11/11 facade tests pass — verified behavior-neutral
+
+### v0.5a — Context assembler
+
+Full layered assembly (L0-L9) with token budgets:
+- Stable prefix (cacheable): system prompt, campaign meta, world directory, pinned entities
+- Volatile suffix (never cached): working set, scene, digest, recent turns, rules, player action
+- Working-set scoring: pinned(100)/present(50)/named-in-input(40)/named-in-narration(30)/graph-hop(20)/quest-linked(15)/recency(0-10)
+- [KNOWN]/[NEW] markers, dropped entity tracking
+- 9/9 context assembler tests pass
+
+### v0.5b — Consistency guards + RECALL
+
+- Presence-and-liveness guard: detects dead/absent speakers in narrative
+- RECALL handler: resolves entity by name/alias/fuzzy, returns full record
+- Contradiction detection: flags contradictory ENTITY_UPDATEs
+- "Since you were last here" digest in enter_scene()
+- 9/9 guard tests pass
+
+### v0.5c — Procedural opening (kills hardcoded goblins)
+
+- `make_initial_state(procedural=True)` creates empty state — no hardcoded enemies
+- `game_loop.py` uses procedural mode for new games and Session Zero
+- System prompt updated: PROCEDURAL WORLD, KNOWN/NEW, RECALL clauses
+- New tags: ENTITY_NEW, ENTITY_UPDATE, ALIAS, QUEST_UPDATE
+- `PROMPT_VERSION = "v10"`
+- Playwright confirms: LLM generates unique locations/NPCs (e.g. "Oakhaven", "Innkeeper Silas")
+- 7/7 procedural tests pass
+
+### Test summary
+
+| Suite | Command | Result |
+|---|---|---|
+| Trickster (16 scenarios) | `python -m narrator_v01.test_trickster` | **16/16 PASS** |
+| World Store (15 tests) | `python -m narrator_v01.test_world_store` | **15/15 PASS** |
+| Facade (11 tests) | `python -m narrator_v01.test_facade` | **11/11 PASS** |
+| Context Assembler (9 tests) | `python -m narrator_v01.test_context` | **9/9 PASS** |
+| Guards (9 tests) | `python -m narrator_v01.test_guards` | **9/9 PASS** |
+| Procedural (7 tests) | `python -m narrator_v01.test_procedural` | **7/7 PASS** |
+| Playwright (browser) | `node playwright_test.js` | **13 screenshots, 0 errors** |
+| **Total** | | **67/67 PASS** |
+
+### What's next (Instance A)
+
+Per `docs/V1-PLAN.md` build order:
+- **v0.4b (DC-then-roll)**: waits for Instance B's audio queue (v0.4a) to land first
+- **v0.5a context assembler integration**: wire `get_context_for_turn()` into the live turn flow
+  (currently the context assembler exists but isn't called from `game_loop.py` yet — the
+  existing `history[-10:]` sliding window is still in use)
+- **v0.5b guard integration**: wire `presence_liveness_guard()` into the post-generation flow
+- **Opus review**: three World Engine retrieval/consistency questions remain open per
+  `sonnet-work/OPUS-BRIEF-WORLD-ENGINE.md`
