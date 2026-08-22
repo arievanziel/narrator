@@ -1,17 +1,20 @@
-"""Narrator v0.3.5 — Game loop orchestration.
+"""Narrator v0.5 — Game loop orchestration with World Engine integration.
 
 This module sits between the HTTP layer (app.py) and the domain logic
-(dm_engine.py, audio_engine.py). It handles:
+(dm_engine.py, audio_engine.py, world_store.py). It handles:
 - New game creation and opening narration
-- Turn processing (player action -> DM response -> mechanics -> audio)
+- Turn processing (player action -> context assembly -> DM response ->
+  consistency guards -> mechanics -> audio)
 - Save/load
 - Session Zero wizard turns
 
-This was extracted from app.py in v0.3.5 to allow parallel instances to
-work on different aspects of the turn flow without conflicting on the
-same monolithic file.
+v0.5 integration: WorldStore is attached on new game, context assembler
+replaces the history[-10:] sliding window, presence/liveness guard runs
+after each DM response, RECALL is handled with one re-run max, TurnRecords
+are logged to JSONL, and chronicle compaction runs every 20 turns.
 """
 import json
+import re
 import time
 import threading
 from pathlib import Path
@@ -27,6 +30,9 @@ from .audio_queue import (
     AudioQueue, ChoiceAudioQueue, FreeTextGenerator,
     register_queue, get_queue, remove_queue,
     freetext_generator,
+)
+from .world_store import (
+    WorldStore, TurnRecord, TokenBudget, ContextBundle,
 )
 
 
@@ -92,6 +98,10 @@ class Session:
         self.session_zero_history: list = []
         self.session_zero_turn = 0
         self.campaign_meta: dict = {}
+        # v0.5: World Engine integration
+        self.world_store: WorldStore = None
+        self.last_narration: str = ""  # for context assembler scoring
+        self.recall_used_this_turn: bool = False
 
     def init_client(self):
         if self.client is None or self.model != getattr(self, '_last_model', None):
@@ -108,13 +118,118 @@ class Session:
                 self.cast = {}
         return self.cast
 
+    def init_world_store(self, campaign_id: str = None):
+        """Create and attach a WorldStore for this campaign."""
+        cid = campaign_id or f"game_{self.game_id}"
+        self.world_store = WorldStore(campaign_id=cid)
+        # Set campaign meta from state
+        if self.state:
+            self.world_store.campaign_meta = {
+                "style": self.state.story_style,
+                "setting": self.state.setting,
+                "persona": self.state.persona,
+                "atmosphere": self.state.atmosphere,
+                "inspiration": self.state.inspiration,
+            }
+        # Attach to GameState (this syncs PC + enemies into the store)
+        self.state.attach_world_store(self.world_store)
+
+    def build_context(self, player_input: str) -> str:
+        """Build the full context for the LLM using the World Engine assembler.
+
+        Returns a single string that combines the stable prefix and volatile
+        suffix. If no WorldStore is attached, falls back to the legacy
+        state_block + history approach.
+        """
+        if self.world_store is None:
+            # Legacy fallback
+            return self.state.to_prompt_block()
+
+        # Use the context assembler
+        recent_turns = []
+        for i in range(0, len(self.history), 2):
+            if i + 1 < len(self.history):
+                recent_turns.append({
+                    "turn": i // 2 + 1,
+                    "player_input": self.history[i].get("content", ""),
+                    "narrative": self.history[i + 1].get("content", "")[:200],
+                })
+
+        bundle = self.world_store.get_context_for_turn(
+            player_input=player_input,
+            budget=TokenBudget(),
+            last_narration=self.last_narration,
+            system_prompt=SYSTEM_PROMPT,
+            recent_turns=recent_turns,
+        )
+
+        # Log context assembly for debugging
+        print(f"[world-engine] Context: {len(bundle.included_entity_ids)} included, "
+              f"{len(bundle.dropped_entity_ids)} dropped")
+
+        # Combine stable + volatile into the prompt
+        return f"{bundle.stable_prefix}\n\n{bundle.volatile_suffix}"
+
 
 session = Session()
 
 
 # ---------------------------------------------------------------------------
-# Audio generation (background thread)
+# World Engine integration helpers
 # ---------------------------------------------------------------------------
+
+def _check_recall(mechanics_text: str) -> str | None:
+    """Extract a RECALL query from mechanics tags, if present.
+
+    Returns the entity name to recall, or None.
+    """
+    for line in mechanics_text.strip().split("\n"):
+        line = line.strip()
+        if line.upper().startswith("RECALL:"):
+            return line.split(":", 1)[1].strip()
+    return None
+
+
+def _run_consistency_guard(narrative: str) -> dict:
+    """Run the presence-and-liveness guard on the DM's narrative.
+
+    Returns {'violations': [...], 'correction_prompt': str}.
+    If violations exist, the caller should regenerate once with the
+    correction prompt appended, then fail open.
+    """
+    if session.world_store is None:
+        return {"violations": [], "correction_prompt": ""}
+
+    return session.world_store.presence_liveness_guard(
+        narrative, current_turn=session.turn_counter)
+
+
+def _log_turn_record(player_input: str, narrative: str,
+                     mechanics_applied: list) -> None:
+    """Append a TurnRecord to the WorldStore's JSONL log."""
+    if session.world_store is None:
+        return
+
+    record = TurnRecord(
+        turn=session.turn_counter,
+        player_input=player_input,
+        narrative=narrative[:500],  # truncate for log
+        mechanics_applied=mechanics_applied,
+    )
+    session.world_store.append_turn_record(record)
+
+
+def _maybe_compact_chronicle() -> None:
+    """Run chronicle compaction every 20 turns."""
+    if session.world_store is None:
+        return
+    session.world_store.compact_chronicle(session.turn_counter, k=20)
+
+
+def _sync_state_from_store() -> None:
+    """Sync flat attributes from the WorldStore back to GameState for UI."""
+    if session.state and session.state.world_store is not None:
+        session.state._sync_from_store()
 
 def generate_audio_async(segments: list, scene_mood: str, turn_id: str):
     """Generate audio in background thread."""
@@ -230,7 +345,9 @@ def handle_newgame(data: dict) -> dict:
     session.model = data.get("model", session.model)
     session.init_client()
 
-    state_block = session.state.to_prompt_block()
+    # v0.5: Initialize and attach WorldStore
+    session.init_world_store()
+
     opening = (
         f"Start the story. The player character ({session.state.pc_name}) enters "
         f"the scene for the first time. Set the scene, introduce the atmosphere, "
@@ -240,9 +357,12 @@ def handle_newgame(data: dict) -> dict:
         f"NPCs, locations, or items you create."
     )
 
+    # v0.5: Use context assembler instead of flat state_block
+    context_block = session.build_context(opening)
+
     text, elapsed, usage = dm_turn(
         session.client, session.model, SYSTEM_PROMPT,
-        state_block, [], opening,
+        context_block, [], opening,
     )
     print(f"[server] DM response: {len(text)} chars in {elapsed:.1f}s")
 
@@ -250,6 +370,25 @@ def handle_newgame(data: dict) -> dict:
                                    usage["prompt_tokens"], usage["completion_tokens"])
 
     sections = parse_response(text)
+
+    # v0.5: Run presence/liveness guard — regenerate once if violations
+    guard_result = _run_consistency_guard(sections["STORY"])
+    if guard_result["violations"]:
+        print(f"[world-engine] Guard violations: {len(guard_result['violations'])} — regenerating")
+        correction = guard_result["correction_prompt"]
+        corrected_input = f"{opening}\n\n{correction}"
+        context_block = session.build_context(corrected_input)
+        text2, elapsed2, usage2 = dm_turn(
+            session.client, session.model, SYSTEM_PROMPT,
+            context_block, [], corrected_input,
+        )
+        session.budget.add_cost(session.provider, session.model,
+                                usage2["prompt_tokens"], usage2["completion_tokens"])
+        sections = parse_response(text2)
+        text = text2
+        # Log the correction
+        sections["STORY"] += "\n\n[Note: This response was regenerated due to a consistency violation.]"
+
     changes = session.state.apply_mechanics(sections["MECHANICS"])
     segments = parse_story(sections["STORY"], sections.get("AUDIO", ""))
     suggestions = parse_suggestions(sections["SUGGESTIONS"])
@@ -260,6 +399,11 @@ def handle_newgame(data: dict) -> dict:
     session.history.append({"role": "user", "content": opening})
     session.history.append({"role": "assistant", "content": text})
     session.turn_counter = 1
+    session.last_narration = sections["STORY"]
+
+    # v0.5: Log turn record and sync state
+    _log_turn_record(opening, sections["STORY"], changes)
+    _sync_state_from_store()
 
     audio_turn_id = f"g{session.game_id}_turn_{session.turn_counter:03d}"
     if session.audio_enabled and segments:
@@ -282,7 +426,11 @@ def handle_newgame(data: dict) -> dict:
 
 
 def handle_turn(data: dict) -> dict:
-    """Process a player action and return the DM response."""
+    """Process a player action and return the DM response.
+
+    v0.5: Full World Engine integration — context assembler, presence guard,
+    RECALL loop, TurnRecord logging, chronicle compaction.
+    """
     if not session.state:
         return {"error": "No game in progress. Start a new game first."}
 
@@ -318,17 +466,57 @@ def handle_turn(data: dict) -> dict:
         session.init_client()
         fallback_used = True
 
-    state_block = session.state.to_prompt_block()
+    # v0.5: Reset per-turn flags
+    session.recall_used_this_turn = False
+
+    # v0.5: Use context assembler instead of flat state_block + history[-10:]
+    context_block = session.build_context(action)
 
     text, elapsed, usage = dm_turn(
         session.client, session.model, SYSTEM_PROMPT,
-        state_block, session.history, action,
+        context_block, session.history, action,
     )
 
     cost = session.budget.add_cost(session.provider, session.model,
                                    usage["prompt_tokens"], usage["completion_tokens"])
 
     sections = parse_response(text)
+
+    # v0.5: Check for RECALL tags — one re-run max
+    recall_query = _check_recall(sections["MECHANICS"])
+    if recall_query and not session.recall_used_this_turn and session.world_store:
+        session.recall_used_this_turn = True
+        recall_result = session.world_store.handle_recall(recall_query)
+        print(f"[world-engine] RECALL '{recall_query}': found={recall_result['found']}")
+        if recall_result["found"]:
+            # Re-run with the recalled entity injected into context
+            recall_context = f"{action}\n\n[RECALLED ENTITY]\n{recall_result['context_text']}\n\nNow continue with the player's action, using this recalled information."
+            context_block = session.build_context(recall_context)
+            text, elapsed, usage = dm_turn(
+                session.client, session.model, SYSTEM_PROMPT,
+                context_block, session.history, recall_context,
+            )
+            session.budget.add_cost(session.provider, session.model,
+                                    usage["prompt_tokens"], usage["completion_tokens"])
+            sections = parse_response(text)
+
+    # v0.5: Run presence/liveness guard — regenerate once if violations
+    guard_result = _run_consistency_guard(sections["STORY"])
+    if guard_result["violations"]:
+        print(f"[world-engine] Guard violations: {len(guard_result['violations'])} — regenerating")
+        correction = guard_result["correction_prompt"]
+        corrected_input = f"{action}\n\n{correction}"
+        context_block = session.build_context(corrected_input)
+        text2, elapsed2, usage2 = dm_turn(
+            session.client, session.model, SYSTEM_PROMPT,
+            context_block, session.history, corrected_input,
+        )
+        session.budget.add_cost(session.provider, session.model,
+                                usage2["prompt_tokens"], usage2["completion_tokens"])
+        sections = parse_response(text2)
+        text = text2
+        sections["STORY"] += "\n\n[Note: This response was regenerated due to a consistency violation.]"
+
     changes = session.state.apply_mechanics(sections["MECHANICS"])
     segments = parse_story(sections["STORY"], sections.get("AUDIO", ""))
     suggestions = parse_suggestions(sections["SUGGESTIONS"])
@@ -339,6 +527,12 @@ def handle_turn(data: dict) -> dict:
     session.history.append({"role": "user", "content": action})
     session.history.append({"role": "assistant", "content": text})
     session.turn_counter += 1
+    session.last_narration = sections["STORY"]
+
+    # v0.5: Log turn record, compact chronicle, sync state
+    _log_turn_record(action, sections["STORY"], changes)
+    _maybe_compact_chronicle()
+    _sync_state_from_store()
 
     audio_turn_id = f"g{session.game_id}_turn_{session.turn_counter:03d}"
     if session.audio_enabled and segments:
@@ -372,10 +566,15 @@ def handle_save() -> dict:
         "turn_counter": session.turn_counter,
         "model": session.model,
         "timestamp": time.time(),
+        # v0.5: Save WorldStore campaign ID for re-attachment
+        "world_campaign_id": session.world_store.campaign_id if session.world_store else None,
     }
     save_path = config.OUTPUT_DIR / "save.json"
     with open(save_path, "w") as f:
         json.dump(save_data, f, indent=2)
+    # v0.5: Also save the WorldStore
+    if session.world_store:
+        session.world_store.save()
     return {"saved": True, "path": str(save_path), "turn": session.turn_counter}
 
 
@@ -403,6 +602,12 @@ def handle_load() -> dict:
     session.history = data.get("history", [])
     session.turn_counter = data.get("turn_counter", 0)
     session.model = data.get("model", session.model)
+    # v0.5: Re-attach WorldStore if it was saved
+    world_cid = data.get("world_campaign_id")
+    if world_cid:
+        session.world_store = WorldStore(campaign_id=world_cid)
+        session.world_store.load()
+        session.state.attach_world_store(session.world_store)
     session.init_client()
     return {"loaded": True, "turn": session.turn_counter,
             "state": session.state.to_dict()}
@@ -533,7 +738,9 @@ def handle_session_zero_finish(data: dict) -> dict:
     session.game_id = str(int(time.time()))
     session.init_client()
 
-    state_block = session.state.to_prompt_block()
+    # v0.5: Initialize and attach WorldStore
+    session.init_world_store()
+
     opening = (
         f"Start the story. The player character ({session.state.pc_name}) "
         f"enters the scene for the first time. Set the scene, introduce the "
@@ -544,14 +751,35 @@ def handle_session_zero_finish(data: dict) -> dict:
         f"NPCs, locations, or items you create."
     )
 
+    # v0.5: Use context assembler
+    context_block = session.build_context(opening)
+
     text, elapsed, usage = dm_turn(
         session.client, session.model, SYSTEM_PROMPT,
-        state_block, [], opening,
+        context_block, [], opening,
     )
     cost = session.budget.add_cost(session.provider, session.model,
                                    usage["prompt_tokens"], usage["completion_tokens"])
 
     sections = parse_response(text)
+
+    # v0.5: Run presence/liveness guard — regenerate once if violations
+    guard_result = _run_consistency_guard(sections["STORY"])
+    if guard_result["violations"]:
+        print(f"[world-engine] Guard violations: {len(guard_result['violations'])} — regenerating")
+        correction = guard_result["correction_prompt"]
+        corrected_input = f"{opening}\n\n{correction}"
+        context_block = session.build_context(corrected_input)
+        text2, elapsed2, usage2 = dm_turn(
+            session.client, session.model, SYSTEM_PROMPT,
+            context_block, [], corrected_input,
+        )
+        session.budget.add_cost(session.provider, session.model,
+                                usage2["prompt_tokens"], usage2["completion_tokens"])
+        sections = parse_response(text2)
+        text = text2
+        sections["STORY"] += "\n\n[Note: This response was regenerated due to a consistency violation.]"
+
     changes = session.state.apply_mechanics(sections["MECHANICS"])
     segments = parse_story(sections["STORY"], sections.get("AUDIO", ""))
     suggestions = parse_suggestions(sections["SUGGESTIONS"])
@@ -562,6 +790,11 @@ def handle_session_zero_finish(data: dict) -> dict:
     session.history.append({"role": "user", "content": opening})
     session.history.append({"role": "assistant", "content": text})
     session.turn_counter = 1
+    session.last_narration = sections["STORY"]
+
+    # v0.5: Log turn record and sync state
+    _log_turn_record(opening, sections["STORY"], changes)
+    _sync_state_from_store()
 
     audio_turn_id = f"g{session.game_id}_turn_{session.turn_counter:03d}"
     if session.audio_enabled and segments:
