@@ -101,6 +101,25 @@ class Scene:
 
 
 @dataclass
+class Chapter:
+    """A chapter of the book. Code owns numbering; the LLM only proposes a title.
+
+    v1.0: chapters are the reader-facing unit of structure. A chapter opens when
+    the location changes or when the narrator explicitly proposes a title.
+    """
+    number: int
+    title: str
+    scene_setting: str = ""       # the opening descriptive paragraph
+    start_turn: int = 0
+    location_id: str = ""
+    location_name: str = ""
+    mood: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass
 class RollRecord:
     turn: int
     action: str
@@ -226,6 +245,64 @@ class WorldStore:
         self._entity_counter = 0
         self._rng = _random.Random()
         self._turn_count = 0
+        # v1.0: book structure. Code owns numbering; the LLM proposes titles.
+        self.chapters: list[Chapter] = []
+
+    # --- Book structure (v1.0) ---
+
+    @property
+    def current_chapter(self) -> Optional[Chapter]:
+        return self.chapters[-1] if self.chapters else None
+
+    def maybe_start_chapter(self, proposed_title: str, scene_setting: str,
+                            current_turn: int, mood: str = "") -> Optional[Chapter]:
+        """Open a new chapter if warranted. Returns the new Chapter, or None.
+
+        A chapter opens when:
+          * there is no chapter yet (the book has to start somewhere), or
+          * the narrator proposed a title AND we are not still in the chapter
+            that opened this same turn (guards against double-opening across
+            the two calls of a contested turn), or
+          * the current location differs from the chapter's location.
+
+        The title is the narrator's; the number is ours.
+        """
+        loc_id = self.current_scene.location_id if self.current_scene else ""
+        loc_name = ""
+        if loc_id and loc_id in self.entities:
+            loc_name = self.entities[loc_id].name
+
+        cur = self.current_chapter
+        location_changed = bool(cur and loc_id and cur.location_id and
+                                loc_id != cur.location_id)
+
+        if cur is None:
+            reason = "first"
+        elif proposed_title and cur.start_turn != current_turn:
+            reason = "proposed"
+        elif location_changed and cur.start_turn != current_turn:
+            reason = "location"
+        else:
+            # Still in the same chapter. Backfill a location if we learned one.
+            if cur is not None and loc_id and not cur.location_id:
+                cur.location_id, cur.location_name = loc_id, loc_name
+            return None
+
+        title = (proposed_title or loc_name or "Onward").strip()
+        chapter = Chapter(
+            number=len(self.chapters) + 1,
+            title=title,
+            scene_setting=scene_setting.strip(),
+            start_turn=current_turn,
+            location_id=loc_id,
+            location_name=loc_name,
+            mood=mood,
+        )
+        self.chapters.append(chapter)
+        return chapter
+
+    def chapters_as_dicts(self) -> list[dict]:
+        return [c.to_dict() for c in self.chapters]
 
     # --- ID generation ---
 
@@ -752,6 +829,49 @@ class WorldStore:
 
         return {"violations": violations, "correction_prompt": correction}
 
+    # --- Player-voice guard (v1.0) ---
+
+    @staticmethod
+    def player_voice_guard(segments: list[dict], pc_name: str) -> dict:
+        """Strip any dialogue the narrator put in the listener's own mouth.
+
+        Arie's rule: the listener speaks for themselves. The system prompt
+        forbids this, and models violate it anyway — so this is enforced
+        deterministically rather than by asking again (which costs a call and
+        often fails the same way).
+
+        Rather than deleting the line outright (which can leave a hole in the
+        scene), a stripped line is converted into a neutral narrator beat only
+        if it carried no information; otherwise it is dropped. Either way the
+        listener never hears their character speak words they didn't choose.
+
+        Returns {'segments': [...], 'violations': [str]} — non-destructive:
+        the caller decides what to log.
+        """
+        if not pc_name:
+            return {"segments": segments, "violations": []}
+
+        target = normalize_name(pc_name)
+        kept, violations = [], []
+        for seg in segments:
+            if seg.get("kind") == "dialogue":
+                spk = normalize_name(seg.get("speaker", ""))
+                # Match the whole name or the first token ("Vess" vs "Vess Marrow")
+                if spk == target or spk.split("_")[0] == target.split("_")[0]:
+                    violations.append(
+                        f"Removed dialogue attributed to {seg.get('speaker')} — "
+                        f"the narrator may not speak for you"
+                    )
+                    continue
+            kept.append(seg)
+
+        # Never hand back an empty passage; if the guard ate everything, keep
+        # the original and let the reader see a slightly wrong scene rather
+        # than a blank one (fail-open, same policy as the presence guard).
+        if not kept and segments:
+            return {"segments": segments, "violations": violations}
+        return {"segments": kept, "violations": violations}
+
     def handle_recall(self, recall_query: str,
                       current_turn: int = 0) -> dict:
         """Handle [RECALL:name] from the LLM (spec §6).
@@ -849,7 +969,8 @@ class WorldStore:
             "aliases": self.aliases,
             "turn_count": self._turn_count,
             "entity_counter": self._entity_counter,
-            "schema_version": 1,
+            "chapters": [c.to_dict() for c in self.chapters],
+            "schema_version": 2,
         }
 
         tmp_path = path.with_suffix(".tmp")
@@ -883,13 +1004,18 @@ class WorldStore:
         for eid, ed in data.get("entities", {}).items():
             self.entities[eid] = Entity.from_dict(ed)
 
+        self.chapters = [Chapter(**c) for c in data.get("chapters", [])]
+
         return self
 
     def migrate(self, data: dict) -> dict:
         """Apply schema migrations if needed."""
         version = data.get("schema_version", 1)
-        # Currently only version 1 exists
-        # Future: if version < 2: apply migration; version = 2; etc.
+        if version < 2:
+            # v2 added book chapters. Old saves simply have none — the next
+            # passage opens Chapter One.
+            data.setdefault("chapters", [])
+            data["schema_version"] = 2
         return data
 
     # --- Turn log persistence (append-only JSONL) ---

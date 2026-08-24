@@ -176,6 +176,14 @@ class NarratorHandler(BaseHTTPRequestHandler):
         elif parsed.path == "/api/music":
             self._serve_music(parsed)
 
+        # v1.0: table of contents
+        elif parsed.path == "/api/chapters":
+            ws = getattr(session, "world_store", None)
+            if ws is not None:
+                self._json({"chapters": ws.chapters_as_dicts()})
+            else:
+                self._json({"chapters": []})
+
         # Chronicle
         elif parsed.path == "/api/chronicle":
             if session.state:

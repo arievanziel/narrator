@@ -249,6 +249,80 @@ def _sync_state_from_store() -> None:
     if session.state and session.state.world_store is not None:
         session.state._sync_from_store()
 
+
+# ---------------------------------------------------------------------------
+# v1.0 book structure (Opus) — chapters, character generation, reader-safe log
+# ---------------------------------------------------------------------------
+
+# Engine phrases that must never reach the reader verbatim.
+_ENGINE_NOISE = (
+    "no match within policy window", "created new:", "resolve_or_create",
+    "entity_id", "policy window", "schema", "norm_name",
+)
+
+
+def reader_notes(changes: list) -> list:
+    """Translate the mechanics log into something printable in a book.
+
+    The raw strings stay available for the storyteller's-notes view; this is
+    the version shown when that view is off. Anything that leaks engine
+    internals is dropped rather than prettified.
+    """
+    out = []
+    for c in changes:
+        low = str(c).lower()
+        if any(n in low for n in _ENGINE_NOISE):
+            # Keep the fact, drop the machinery: "Created: Mirel (...)" -> nothing.
+            continue
+        if "REJECTED" in str(c):
+            out.append("The story tried to run ahead of itself; it was held back.")
+            continue
+        out.append(str(c))
+    return out
+
+
+def finalize_passage(sections: dict, segments: list, changes: list) -> tuple:
+    """Apply v1.0 book structure to a freshly parsed DM response.
+
+    Runs, in order:
+      1. [CHARACTER] — invent the listener's sheet on the opening passage.
+      2. player_voice_guard — strip dialogue the narrator wrote for the listener.
+      3. maybe_start_chapter — open a chapter if warranted.
+
+    Returns (segments, changes, chapter_dict_or_None).
+    """
+    # 1. Character generation (opening passage only)
+    if sections.get("CHARACTER") and not session.state.character_generated:
+        changes = list(changes) + session.state.apply_character_block(
+            sections["CHARACTER"])
+
+    # 2. Player-voice guard — deterministic, no extra LLM call
+    if session.world_store is not None:
+        guarded = session.world_store.player_voice_guard(
+            segments, session.state.pc_name)
+        if guarded["violations"]:
+            print(f"[book] player-voice guard: {len(guarded['violations'])} stripped")
+            segments = guarded["segments"]
+            changes = list(changes) + guarded["violations"]
+
+    # 3. Chapter
+    chapter = None
+    if session.world_store is not None:
+        ch = session.world_store.maybe_start_chapter(
+            proposed_title=sections.get("CHAPTER", ""),
+            scene_setting=sections.get("SCENE_SETTING", ""),
+            current_turn=session.turn_counter,
+            mood=sections.get("SCENE", ""),
+        )
+        if ch is not None:
+            chapter = ch.to_dict()
+            chapter["is_new"] = True
+        elif session.world_store.current_chapter is not None:
+            chapter = session.world_store.current_chapter.to_dict()
+            chapter["is_new"] = False
+
+    return segments, changes, chapter
+
 def generate_audio_async(segments: list, scene_mood: str, turn_id: str):
     """Generate audio in background thread."""
     result = {"done": False, "audio_path": None, "duration": 0, "error": None,
@@ -410,6 +484,8 @@ def handle_newgame(data: dict) -> dict:
     changes = session.state.apply_mechanics(sections["MECHANICS"])
     segments = parse_story(sections["STORY"], sections.get("AUDIO", ""))
     suggestions = parse_suggestions(sections["SUGGESTIONS"])
+    # v1.0: character generation, player-voice guard, chapter opening
+    segments, changes, chapter = finalize_passage(sections, segments, changes)
 
     if sections["CHRONICLE"] and sections["CHRONICLE"] != "NO_ENTRY":
         session.state.chronicle.append(sections["CHRONICLE"])
@@ -436,6 +512,10 @@ def handle_newgame(data: dict) -> dict:
         "state": session.state.to_dict(),
         "turn": session.turn_counter,
         "scene": sections.get("SCENE", "exploration"),
+        # v1.0 book structure
+        "chapter": chapter,
+        "scene_setting": sections.get("SCENE_SETTING", "") if (chapter and chapter.get("is_new")) else "",
+        "reader_notes": reader_notes(changes),
         "audio_enabled": session.audio_enabled,
         "audio_turn_id": audio_turn_id if segments else None,
         "auto_roll": session.state.auto_roll,
@@ -564,6 +644,8 @@ def handle_turn(data: dict) -> dict:
     changes = session.state.apply_mechanics(sections["MECHANICS"])
     segments = parse_story(sections["STORY"], sections.get("AUDIO", ""))
     suggestions = parse_suggestions(sections["SUGGESTIONS"])
+    # v1.0: character generation, player-voice guard, chapter opening
+    segments, changes, chapter = finalize_passage(sections, segments, changes)
 
     if sections["CHRONICLE"] and sections["CHRONICLE"] != "NO_ENTRY":
         session.state.chronicle.append(sections["CHRONICLE"])
@@ -591,6 +673,10 @@ def handle_turn(data: dict) -> dict:
         "state": session.state.to_dict(),
         "turn": session.turn_counter,
         "scene": sections.get("SCENE", "exploration"),
+        # v1.0 book structure
+        "chapter": chapter,
+        "scene_setting": sections.get("SCENE_SETTING", "") if (chapter and chapter.get("is_new")) else "",
+        "reader_notes": reader_notes(changes),
         "audio_enabled": session.audio_enabled,
         "audio_turn_id": audio_turn_id if segments else None,
         "budget": session.budget.to_dict(),
@@ -831,6 +917,8 @@ def handle_session_zero_finish(data: dict) -> dict:
     changes = session.state.apply_mechanics(sections["MECHANICS"])
     segments = parse_story(sections["STORY"], sections.get("AUDIO", ""))
     suggestions = parse_suggestions(sections["SUGGESTIONS"])
+    # v1.0: character generation, player-voice guard, chapter opening
+    segments, changes, chapter = finalize_passage(sections, segments, changes)
 
     if sections["CHRONICLE"] and sections["CHRONICLE"] != "NO_ENTRY":
         session.state.chronicle.append(sections["CHRONICLE"])
@@ -857,6 +945,10 @@ def handle_session_zero_finish(data: dict) -> dict:
         "state": session.state.to_dict(),
         "turn": session.turn_counter,
         "scene": sections.get("SCENE", "exploration"),
+        # v1.0 book structure
+        "chapter": chapter,
+        "scene_setting": sections.get("SCENE_SETTING", "") if (chapter and chapter.get("is_new")) else "",
+        "reader_notes": reader_notes(changes),
         "audio_enabled": session.audio_enabled,
         "audio_turn_id": audio_turn_id if segments else None,
         "auto_roll": session.state.auto_roll,

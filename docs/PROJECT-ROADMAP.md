@@ -143,6 +143,57 @@ The app works without ElevenLabs (procedural fallback). This decision is settled
 **Git state:** All code, docs, notes, and test results committed and pushed to
 `glm-phase1` branch. Audio WAV files are gitignored (regenerable).
 
+## Status as of 2026-08-20 (Sonnet audit of the v0 build)
+
+Verified GLM's `SONNET-HANDOFF.md` against the actual code/files rather than taking it
+at face value. It holds up well — a few corrections/additions:
+
+- **Rules-lawyer hardening (Phase 1 in GLM's proposed plan) has NOT started yet** —
+  checked `test_api_dm.py`'s `apply_mechanics()` (the single source of truth; `narrator_v0/
+  dm_engine.py` imports `GameState` from it, so this is the only place to fix). The two
+  known trickster vulnerabilities ("waste potion", "control NPC") are still open. This is
+  the top-priority next task, not yet done despite being clearly scoped.
+- **GUI exploration has moved past what the handoff doc describes.** The handoff says
+  "6 HTML mockups, Arie prefers `ink-extended.html`" — but as of today there are 8 more
+  variants (`v1-bookmark.html` through `v8-margin-marks.html`) plus `index_v3.html`,
+  built in direct response to Arie's round-3 feedback (`gui_v2/feedback_round3.md`) about
+  bar/tab visibility. No final direction has been picked from these yet.
+- `demo_feedback_v4.md` still has empty sections (interactive demo feedback, general
+  questions) — genuinely needs Arie's input, not just an oversight.
+- Confirmed: `docs/PROJECT-ROADMAP.md`'s and `V0-PLAN.md`'s prior "Status" sections were
+  already updated once by GLM directly (commit `654f1aa`) before I saw them — good
+  initiative, consistent with the shared-docs convention.
+
+**On Opus/Fable — not for a full planning session yet.** Most of what's left (GUI pick,
+audio polish, rules-lawyer fixes) is either waiting on Arie's feedback or is
+well-specified enough for GLM to execute alone. The one place worth reserving Opus for
+is exactly what GLM itself proposed: **a focused rules-lawyer/state-schema review once
+the two known fixes + expanded trickster scenarios land** — that's a "get it right once"
+problem (real D&D 5e rules correctness, edge cases neither GLM nor the trickster test
+thought of), not a breadth problem. I'll trigger it then, not before.
+
+See `sonnet-work/QUESTIONS-FOR-ARIE-2026-08-20.md` for what's needed from Arie now.
+
+## Status as of 2026-08-21 — v0.3 built, functional, extensively tested
+
+GLM built three successive versions (v0.1 → v0.3) into a fresh `narrator_v01/` package
+— a genuinely working app, not a demo. I verified this directly by opening the actual
+Playwright screenshots/videos, not just reading the handoff doc. Full detail and next
+steps in **`docs/V1-PLAN.md`** (new — supersedes `V0-PLAN.md`'s open items, that doc is
+now historical). Headlines:
+
+- Full game loop confirmed working end-to-end: intro → story generation → rules-lawyer
+  enforcement (confirmed visibly working in a live screenshot — `[REJECTED — no roll
+  evidence]` shown inline exactly per Arie's transparency requirement) → TTS + music →
+  choices → repeat.
+- Claude/Anthropic provider wired in correctly, untested only because the account lacks
+  credits (Arie's call whether to add them).
+- One real bug found: sepia theme isn't visually distinct from dark theme.
+- Repo hygiene fixed: `node_modules/` and Playwright test artifacts now gitignored.
+- Opus/Fable trigger point: close but not reached — rules-lawyer fixes are in and
+  confirmed live, but the expanded trickster scenarios I asked for earlier aren't added
+  yet. Do that first, then trigger the review.
+
 ## Decisions log (append here as things get settled)
 
 - 2026-08-17: Arie expanded scope from "TTS narration of externally-authored text" to

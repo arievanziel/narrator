@@ -6,6 +6,35 @@ rules lawyer + audio narration with SFX + user input every turn.
 
 ---
 
+## Scope philosophy (Arie, 2026-08-20 — important, simplifies a lot)
+
+> I think i mainly want the app to stay simple, like an audiobook with some user choices
+> for the main character, but in the base version all DM activity, like dice rolling and
+> character management, should be handled by the app itself. It should be visible to the
+> user though, so they can see what's happening. But for the start it's about narration
+> and user choices, the DM engine and all world building and stat tracking is only to
+> support that in the background. Later we could maybe develop a more full game
+> experience, but that's not the focus right now.
+>
+> the final app should have a sort of opening wizard that guides the user through the
+> setup process. Like the introduction or foreword to a book.
+
+**This changes v0's target shape:** it's an audiobook-with-choices experience first, a
+game second. Concretely:
+- Dice rolling, HP tracking, inventory management: **fully automatic, app-driven** — the
+  rules lawyer handles it silently. The player never rolls dice or manages a sheet.
+- **But visible, not hidden:** the state (HP, inventory, turn log) should be shown
+  somewhere (the v9 GUI's topbar + side panel already does roughly this) so the player
+  can see what the DM engine is doing, even though they don't interact with it directly.
+- Player's actual interaction surface: narration + occasional meaningful choices for
+  their character (matches the `[SUGGESTIONS]` section already in the DM response format
+  — this was already the right shape, just confirms it).
+- **Onboarding wizard** — a guided setup flow (like a book's foreword) instead of a
+  settings panel the player has to figure out alone. Not yet designed; follows from the
+  campaign-config work once the GUI settles.
+- A deeper interactive RPG experience (manual dice, detailed character sheets, etc.) is
+  explicitly a **later phase**, not v0/v0.1. Don't build toward that now.
+
 ## v0 architecture (based on what's already been proven out)
 
 ```

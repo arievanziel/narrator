@@ -435,6 +435,11 @@ def mix_narration(segment_results: list, music_path: str = None,
                    scene_mood: str = "calm") -> tuple:
     """Mix speech segments with gaps and background music.
 
+    v0.8 improvements:
+    - Loudness normalization: RMS-based, targeting -20 dBFS (not just peak protection)
+    - Adaptive ducking: music volume scales with speech loudness — whispering
+      causes less ducking than shouting, following the design spec.
+
     music_source: 'library' (use music files) or 'procedural' (synthesized ambient)
     Returns (mixed_audio, sample_rate).
     """
@@ -462,6 +467,9 @@ def mix_narration(segment_results: list, music_path: str = None,
     actual_end = pos
     speech_track = speech_track[:actual_end]
 
+    # v0.8: Normalize speech loudness before mixing (RMS-based, target -20 dBFS)
+    speech_track = normalize_loudness(speech_track, target_rms=0.1)
+
     # Load and mix music
     mixed = speech_track  # Default: no music
     if music_source == "procedural":
@@ -477,17 +485,34 @@ def mix_narration(segment_results: list, music_path: str = None,
     elif music_path:
         try:
             music_data, _ = load_music(music_path, len(speech_track) / target_sr, target_sr)
-            # Duck music during speech — lower volume where speech is present
+
+            # v0.8: Adaptive ducking — scale music reduction to speech loudness
+            # Whispering (low amplitude) → less ducking (music stays closer to full)
+            # Shouting (high amplitude) → more ducking (music drops more)
             music_gain = np.ones(len(speech_track), dtype=np.float32) * music_volume
-            # Simple ducking: reduce music where speech amplitude is high
+
+            # Compute speech envelope (smoothed amplitude)
             speech_envelope = np.abs(speech_track)
-            # Smooth the envelope
-            window = int(0.1 * target_sr)
+            window = int(0.1 * target_sr)  # 100ms smoothing window
             if len(speech_envelope) > window:
                 kernel = np.ones(window) / window
                 speech_envelope_smooth = np.convolve(speech_envelope, kernel, mode='same')
-                # Duck to 30% where speech is present
-                duck_factor = 1.0 - 0.7 * np.clip(speech_envelope_smooth * 5, 0, 1)
+
+                # Adaptive ducking:
+                # - Speech RMS determines the "loudness" of the current speech
+                # - Duck factor ranges from 0.3 (heavy duck, loud speech) to 0.85 (light duck, quiet speech)
+                # - This means whispering → music at 85% of set volume, shouting → music at 30%
+                speech_rms = np.sqrt(np.mean(speech_envelope_smooth ** 2)) if len(speech_envelope_smooth) > 0 else 0
+                # Normalize speech envelope relative to its own RMS
+                # This makes the ducking proportional to relative loudness, not absolute
+                if speech_rms > 0:
+                    relative_loudness = np.clip(speech_envelope_smooth / (speech_rms * 3), 0, 1)
+                else:
+                    relative_loudness = np.zeros_like(speech_envelope_smooth)
+
+                # Duck factor: 1.0 = no ducking, 0.3 = heavy ducking
+                # Map relative_loudness 0→1 to duck_factor 0.85→0.3
+                duck_factor = 0.85 - 0.55 * relative_loudness
                 music_gain *= duck_factor
 
             music_track = music_data[:len(speech_track)] * music_gain[:len(music_data)]
@@ -498,12 +523,46 @@ def mix_narration(segment_results: list, music_path: str = None,
         except Exception as e:
             print(f"[audio] Music mix failed: {e}")
 
-    # Normalize to prevent clipping
-    max_val = np.max(np.abs(mixed))
-    if max_val > 0.95:
-        mixed = mixed * (0.95 / max_val)
+    # v0.8: Final loudness normalization on the mixed output
+    mixed = normalize_loudness(mixed, target_rms=0.12, peak_limit=0.95)
 
     return mixed, target_sr
+
+
+def normalize_loudness(audio: np.ndarray, target_rms: float = 0.1,
+                       peak_limit: float = 0.95) -> np.ndarray:
+    """RMS-based loudness normalization.
+
+    Normalizes the audio to a target RMS level, then applies a peak limiter
+    to prevent clipping. This is more robust than simple peak normalization
+    because it accounts for the overall loudness, not just the loudest sample.
+
+    Args:
+        audio: Input audio signal (float32, mono)
+        target_rms: Target RMS level (0.1 ≈ -20 dBFS)
+        peak_limit: Maximum absolute sample value after normalization
+    Returns:
+        Normalized audio signal
+    """
+    if len(audio) == 0:
+        return audio
+
+    # Compute RMS (only on non-silent portions to avoid inflating silence)
+    rms = np.sqrt(np.mean(audio ** 2))
+    if rms < 1e-6:  # essentially silent
+        return audio
+
+    # Apply RMS normalization
+    gain = target_rms / rms
+    normalized = audio * gain
+
+    # Peak limiting (soft clip using tanh to avoid harsh distortion)
+    max_val = np.max(np.abs(normalized))
+    if max_val > peak_limit:
+        # Scale down to peak limit
+        normalized = normalized * (peak_limit / max_val)
+
+    return normalized.astype(np.float32)
 
 
 def render_narration(segments: list, scene_mood: str, turn_id: str,

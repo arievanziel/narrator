@@ -63,7 +63,7 @@ def test_procedural_preserves_auto_roll():
 
 def test_prompt_version():
     """Test that PROMPT_VERSION is set."""
-    assert PROMPT_VERSION == "v10"
+    assert PROMPT_VERSION == "v11"
     print(f"PASS: prompt_version ({PROMPT_VERSION})")
 
 

@@ -21,12 +21,19 @@ from . import config
 # System prompt — the rules contract + story format
 # ---------------------------------------------------------------------------
 
-PROMPT_VERSION = "v10"
+PROMPT_VERSION = "v11"
 
 SYSTEM_PROMPT = """\
-You are an expert D&D 5e Dungeon Master running a solo campaign for one player.
+You are the NARRATOR of an interactive novel — an audiobook the listener can steer.
 
-## STORY FORMAT (critical — this is what the player sees AND hears)
+Think of yourself as a novelist reading their own book aloud, not as a game master
+running a session. The listener hears every word you write in [STORY]. They never see
+dice, rules, or statistics unless they ask. Your prose is the product.
+
+Underneath, a rules engine tracks the world and resolves uncertainty. You tell it what
+you need using the machine-readable sections below. Those sections are never read aloud.
+
+## STORY FORMAT (critical — this is what the listener reads AND hears)
 
 Every response MUST contain exactly these sections, each on a new line with the
 section tag in brackets:
@@ -34,6 +41,23 @@ section tag in brackets:
 [SCENE]
 One word describing the mood: combat, tense, horror, mystery, exploration, tavern, \
 emotional, sad, victory, dungeon, calm. This drives background music selection.
+
+[CHAPTER]
+Either the single word NONE, or a short chapter title (2-6 words, evocative, no
+numbering — the system numbers chapters itself).
+Emit a title ONLY when this passage genuinely begins a new chapter: the listener has
+moved to a substantially new place, a major span of time has passed, or the story has
+turned a corner. Most passages are NOT a new chapter — emit NONE for those.
+Good titles: "The Tide Comes In", "What the Cartographer Buried", "Salt and Silence".
+
+[SCENE_SETTING]
+Include this section ONLY when [CHAPTER] is a title (i.e. a new chapter opens);
+otherwise omit the section entirely.
+3-6 sentences of pure scene-setting prose that opens the chapter: the place, the light,
+the sounds, the smell, the weather, the mood. Establish where we are before anything
+happens. No dialogue, no action, no second-person instructions — description only.
+This is read aloud by the narrator voice and printed with a drop cap, so make the first
+sentence worth it.
 
 [STORY]
 The narration — this is EXACTLY what the player reads on screen and what the TTS \
@@ -45,9 +69,12 @@ Rules for [STORY]:
 - Each [narrator] line is 1-3 sentences of narration
 - Each [CharacterName] line is dialogue in quotes
 - The story should flow naturally — narrator sets scenes, characters speak
-- 4-8 lines total per turn (not too long, not too short)
+- 4-8 lines total per passage (not too long, not too short)
 - Do NOT include mechanics, dice results, or meta-text in the story
+- NEVER write a [<player character>] line. See rule 3 — this is the one
+  unbreakable rule. The listener speaks for themselves.
 - The story text is what gets spoken aloud — keep it natural and vivid
+- Write in the narrative voice specified in NARRATIVE VOICE below
 
 [MECHANICS]
 Machine-readable tags only, one per line. Use ONLY these tags:
@@ -72,6 +99,24 @@ Machine-readable tags only, one per line. Use ONLY these tags:
 [CHRONICLE]
 One-line campaign log entry. Use "NO_ENTRY" for uneventful turns.
 
+[CHARACTER]
+Include this section ONLY on the very first passage of a new book (you will be told
+explicitly when that is); otherwise omit it entirely.
+Invent the listener's character from their stated persona and setting. One field per
+line, exactly these keys:
+  VOCATION:<a short role — NOT restricted to D&D classes; e.g. Cartographer, Tide-Reader>
+  STR:<3-18>
+  DEX:<3-18>
+  CON:<3-18>
+  INT:<3-18>
+  WIS:<3-18>
+  CHA:<3-18>
+  MAX_HP:<6-20>
+  EQUIPMENT:<what they carry and wear, one prose line>
+  BELONGINGS:<3-5 items, comma separated>
+Make these fit the persona. A disgraced cartographer carries charts, ink and a lens —
+not a longsword and chain mail. Put their strength where their story is.
+
 ## RULES CONTRACT
 
 1. DC-FIRST ROLLS. When an action requires a roll, you MUST:
@@ -86,8 +131,17 @@ One-line campaign log entry. Use "NO_ENTRY" for uneventful turns.
 truth. Do not contradict it. Do not invent items, HP, conditions, or NPCs not \
 listed in the state.
 
-3. BE THE DM, NOT A PLAYER. You control NPCs, monsters, and the world. The player \
-controls only their character. Never act for the player.
+3. NEVER SPEAK FOR THE LISTENER'S CHARACTER. This is absolute. You control every
+   other character in the world. You do NOT control theirs. You must never write a
+   [<their name>] dialogue line, never put words in their mouth, never decide what
+   they feel, intend, or resolve to do.
+   WRONG:   [Vess] "I'll take the eastern passage."
+   WRONG:   [narrator] Vess decided she would trust the old woman.
+   RIGHT:   [narrator] The eastern passage waited, black and dripping. Mirel watched
+            Vess, saying nothing, letting the choice sit where it belonged.
+   You may describe their body, their circumstances, and what the world does to them.
+   Their choices and their words are the listener's alone. A response containing a
+   dialogue line for their character is a failed response.
 
 4. ENCOUNTER BALANCE. Solo play — no party backup. Level 1 enemies: max 7 HP, \
 no multiattack. A single bad roll should not end the run.
@@ -271,9 +325,73 @@ class GameState:
     atmosphere: str = ""
     inspiration: str = ""
     auto_roll: bool = True  # auto-roll dice for player
+    # v1.0: narrative voice — how the prose is written
+    narrative_voice: str = "third_past"  # third_past | second_present
+    # v1.0: True once a [CHARACTER] block has been applied
+    character_generated: bool = False
     # v0.4d: optional WorldStore backend (strangler-fig facade)
     world_store: object = None  # WorldStore or None
     _turn_counter: int = 0
+
+    # v1.0: literary alias — the app never says "class" to the reader
+    @property
+    def pc_vocation(self) -> str:
+        return self.pc_class
+
+    def apply_character_block(self, character_text: str) -> list:
+        """Apply a [CHARACTER] block from the opening passage.
+
+        The LLM proposes the character; code validates and clamps. Unknown keys
+        are ignored, out-of-range numbers are clamped, and a missing block leaves
+        the (empty) sheet alone rather than falling back to hardcoded values.
+
+        Returns a list of human-readable changes for the storyteller's notes.
+        """
+        if not character_text or not character_text.strip():
+            return []
+
+        def clamp(v, lo, hi, default):
+            try:
+                return max(lo, min(hi, int(str(v).strip())))
+            except (ValueError, TypeError):
+                return default
+
+        stat_fields = {"STR": "pc_str", "DEX": "pc_dex", "CON": "pc_con",
+                       "INT": "pc_int", "WIS": "pc_wis", "CHA": "pc_cha"}
+        changes = []
+        for line in character_text.strip().split("\n"):
+            line = line.strip().lstrip("-").strip()
+            if ":" not in line:
+                continue
+            key, val = line.split(":", 1)
+            key = key.strip().upper()
+            val = val.strip()
+            if not val:
+                continue
+            if key in ("VOCATION", "CLASS"):
+                self.pc_class = val[:40]
+                changes.append(f"Vocation: {self.pc_class}")
+            elif key in stat_fields:
+                setattr(self, stat_fields[key], clamp(val, 3, 18, 10))
+            elif key == "MAX_HP":
+                self.pc_max_hp = clamp(val, 6, 20, 12)
+                self.pc_hp = self.pc_max_hp
+                changes.append(f"Condition: {self.pc_hp}/{self.pc_max_hp}")
+            elif key == "EQUIPMENT":
+                self.equipment = val[:200]
+                changes.append(f"Carried: {self.equipment}")
+            elif key == "BELONGINGS":
+                items = [i.strip() for i in val.split(",") if i.strip()][:6]
+                if items:
+                    self.inventory = items
+                    changes.append("Belongings: " + ", ".join(items))
+
+        if changes:
+            self.character_generated = True
+            # Push the new sheet into the store so the PC entity matches
+            if self.world_store is not None:
+                self._sync_to_store()
+        return changes
 
     def attach_world_store(self, store) -> None:
         """Attach a WorldStore and sync state from it.
@@ -328,6 +446,19 @@ class GameState:
             # Clear enemies if no hostile NPCs in store
             self.enemies = []
 
+        # v1.0: keep `location` in step with the store's current scene, so the
+        # reader's header is never blank when a location demonstrably exists.
+        scene = getattr(self.world_store, "current_scene", None)
+        loc_id = getattr(scene, "location_id", None) if scene else None
+        if loc_id and loc_id in self.world_store.entities:
+            self.location = self.world_store.entities[loc_id].name
+        elif not self.location:
+            # Fall back to the most recently seen location entity
+            locs = [e for e in self.world_store.entities.values()
+                    if e.type == "location"]
+            if locs:
+                self.location = max(locs, key=lambda e: e.last_seen_turn).name
+
     def _sync_to_store(self) -> None:
         """Sync flat attributes to the WorldStore's PC entity."""
         if not self.world_store:
@@ -375,6 +506,21 @@ class GameState:
                     current_turn=self._turn_counter,
                 )
 
+    def voice_block(self) -> str:
+        """The NARRATIVE VOICE directive — how the prose should be written."""
+        if self.narrative_voice == "second_present":
+            return (
+                "NARRATIVE VOICE: second person, present tense — \"You step into the "
+                "nave; the water is cold.\" Address the listener's character directly "
+                "as \"you\". Immersive and immediate."
+            )
+        return (
+            f"NARRATIVE VOICE: third person, past tense, like a published novel — "
+            f"\"{self.pc_name} stepped into the nave. The water was cold.\" Refer to "
+            f"the listener's character as \"{self.pc_name}\" or by pronoun, never as "
+            f"\"you\". Literary and composed."
+        )
+
     def to_prompt_block(self) -> str:
         enemies_str = "\n  ".join(str(e) for e in self.enemies) if self.enemies else "None"
         inv_str = ", ".join(self.inventory) if self.inventory else "Empty"
@@ -389,15 +535,31 @@ STORY STYLE (follow this tone and setting):
   Inspiration: {self.inspiration or "none specified"}
   Dice mode: {"AUTO-ROLL (you roll for the player)" if self.auto_roll else "MANUAL (player rolls dice)"}
 """
+        # v1.0: before the sheet exists, ask for it instead of showing blanks.
+        # A non-empty vocation means a sheet exists (legacy/loaded saves), even
+        # if this process never ran apply_character_block().
+        if not self.character_generated and not self.pc_class:
+            sheet = (
+                f"  Listener's character: {self.pc_name} — not yet detailed.\n"
+                f"  >>> Emit a [CHARACTER] section this passage to invent their "
+                f"vocation, statistics, equipment and belongings from the persona "
+                f"and setting below. Do not describe them as carrying anything until "
+                f"you have declared it there."
+            )
+        else:
+            sheet = (
+                f"  {self.pc_name} — {self.pc_class} | Condition: {self.pc_hp}/{self.pc_max_hp} | Defence: {self.pc_ac}\n"
+                f"  STR {self.pc_str} | DEX {self.pc_dex} | CON {self.pc_con} | INT {self.pc_int} | WIS {self.pc_wis} | CHA {self.pc_cha}\n"
+                f"  Belongings: {inv_str}\n"
+                f"  Carried: {self.equipment}"
+            )
         return f"""\
-CURRENT GAME STATE (authoritative — do not contradict):
-  PC: {self.pc_name}, Level {self.pc_level} {self.pc_class} | HP: {self.pc_hp}/{self.pc_max_hp} | AC: {self.pc_ac}
-  STR {self.pc_str} | DEX {self.pc_dex} | CON {self.pc_con} | INT {self.pc_int} | WIS {self.pc_wis} | CHA {self.pc_cha}
-  Inventory: {inv_str}
-  Equipment: {self.equipment}
-  Enemies:
+CURRENT WORLD STATE (authoritative — do not contradict):
+{sheet}
+  Others present:
   {enemies_str}
-  Scene: {self.location} | Light: {self.light} | Time: {self.time}{style_block}"""
+  Scene: {self.location or "not yet established"} | Light: {self.light or "unspecified"} | Time: {self.time or "unspecified"}{style_block}
+{self.voice_block()}"""
 
     def to_dict(self) -> dict:
         return {
@@ -410,6 +572,9 @@ CURRENT GAME STATE (authoritative — do not contradict):
             "enemies": [e.to_dict() for e in self.enemies],
             "location": self.location, "light": self.light, "time": self.time,
             "chronicle": self.chronicle, "auto_roll": self.auto_roll,
+            "pc_vocation": self.pc_class,
+            "narrative_voice": self.narrative_voice,
+            "character_generated": self.character_generated,
         }
 
     def apply_mechanics(self, mechanics_text: str) -> list:
@@ -572,8 +737,8 @@ def parse_response(text: str) -> dict:
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
 
     # All possible section tags (including legacy ones)
-    all_tags = ["SCENE", "STORY", "NARRATIVE", "MECHANICS", "SUGGESTIONS",
-                "CHRONICLE", "AUDIO"]
+    all_tags = ["SCENE", "CHAPTER", "SCENE_SETTING", "STORY", "NARRATIVE",
+                "MECHANICS", "SUGGESTIONS", "CHRONICLE", "CHARACTER", "AUDIO"]
     raw_sections = {}
     for tag in all_tags:
         pattern = rf"\*{{0,2}}\[{tag}\]\*{{0,2}}\s*(.*?)(?=\*{{0,2}}\[(?:{'|'.join(all_tags)})\]|$)"
@@ -589,7 +754,25 @@ def parse_response(text: str) -> dict:
         "SUGGESTIONS": raw_sections.get("SUGGESTIONS", ""),
         "CHRONICLE": raw_sections.get("CHRONICLE", ""),
         "AUDIO": raw_sections.get("AUDIO", ""),
+        # v1.0 book structure
+        "CHAPTER": raw_sections.get("CHAPTER", ""),
+        "SCENE_SETTING": raw_sections.get("SCENE_SETTING", ""),
+        "CHARACTER": raw_sections.get("CHARACTER", ""),
     }
+
+    # Normalize CHAPTER: "NONE"/"none"/empty all mean "not a new chapter".
+    chap = sections["CHAPTER"].strip().strip('"').strip()
+    if chap.upper() in ("NONE", "N/A", "NULL", "-"):
+        chap = ""
+    # Models sometimes helpfully add their own numbering — strip it.
+    chap = re.sub(r"^(chapter\s+)?[\dIVXLC]+\s*[:.\-—]\s*", "", chap,
+                  flags=re.IGNORECASE).strip()
+    sections["CHAPTER"] = chap[:80]
+
+    # A SCENE_SETTING without a CHAPTER title is a formatting slip, not a new
+    # chapter — keep the prose (it's good narration) but don't open a chapter.
+    if sections["SCENE_SETTING"] and not sections["CHAPTER"]:
+        sections["SCENE_SETTING"] = sections["SCENE_SETTING"]
 
     # Extract scene mood from [SCENE: mood] tag in AUDIO section if SCENE is empty
     if not sections["SCENE"] and sections["AUDIO"]:
@@ -960,13 +1143,18 @@ def make_initial_state(story_style: str = "", setting: str = "",
     goblins are used. This preserves behavior for existing sessions.
     """
     if procedural:
-        # Procedural mode: no hardcoded enemies or location
-        # The LLM will generate everything via ENTITY_NEW tags
+        # Procedural mode: nothing is hardcoded. No enemies, no location, and —
+        # as of v1.0 — no character sheet either. The opening passage's
+        # [CHARACTER] block invents the vocation, stats, equipment and
+        # belongings from the persona; [ENTITY_NEW] tags populate the world.
         state = GameState(
             enemies=[],  # empty — LLM will populate
             location="",  # empty — LLM will set via narration
             light="",
             time="",
+            pc_class="",       # invented by [CHARACTER]
+            equipment="",      # invented by [CHARACTER]
+            inventory=[],      # invented by [CHARACTER]
             story_style=story_style, setting=setting, persona=persona,
             atmosphere=atmosphere, inspiration=inspiration, auto_roll=auto_roll,
         )
