@@ -102,6 +102,34 @@ recommending a second opinion before GLM builds heavily on it. See
 - **`docs/SESSION-ZERO-DESIGN.md`** — replaces the static intro form with a live,
   narrated DM-conversation onboarding (reuses the same turn-loop infrastructure).
 
+## Status update, 2026-08-24 (Opus) — the book layer
+
+Arie's later v1 bullets (book structure with foreword/chapters, per-chapter scene-setting
+paragraphs, literary terminology by default, audiobook-first, no hardcoding, "every
+element works or is removed") are a real reframe, not polish. **The backend half of that
+reframe is now built, tested and committed** (`1474895`): chapters with code-owned
+numbering, `[SCENE_SETTING]` prose, procedurally generated character sheets (the last
+hardcoded island — no more default longsword and chain mail), a deterministic guard
+stopping the narrator speaking for the player, and a reader-safe mechanics log.
+74/74 tests pass; verified live against Groq GPT-OSS 120B.
+
+**The GUI half is not built** — the app still renders a game UI over a book engine.
+That is now the single biggest gap to v1.
+
+- Plan and rationale: `docs/V1-BOOK-EXPERIENCE-PLAN.md`
+- **Execution instructions for GLM: `docs/GLM-V1-FINISH-INSTRUCTIONS.md`** ← start here
+- World Engine review (answers the three open questions): `docs/WORLD-ENGINE-REVIEW-OPUS.md`
+
+Three findings that change assumptions elsewhere in this plan:
+1. **`enter_scene()` is never called from the live turn flow**, so three already-built
+   features are dormant: location tracking, the "since you were last here" digest, and
+   the presence-and-liveness guard. Cheapest high-value backend fix remaining.
+2. **A GUI audit found 16 of 21 controls work end to end.** The four that don't are all
+   small fixes, and one of them *is* the "manual dice-rolling UI" v1 requirement — it's
+   90% built and simply never sends `manual_roll` to the server.
+3. The DM broke "never act for the player" on turn 1 despite the prompt forbidding it.
+   Prompt rules are not enforcement; that guard is now code.
+
 ## Versioning plan — corrected 2026-08-22 after Opus's review
 
 **Opus found a real dependency the original plan missed: audio streaming and DC-then-roll

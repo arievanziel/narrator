@@ -158,3 +158,7 @@ Playwright screenshots: `glm-work/shots/` (see `glm-work/shoot.cjs`).
 ## Progress log
 
 - 07:52 — plan written, baseline defects confirmed by live API call.
+
+- 10:05 — Opus out of quota. P1/P2/P3 DONE + committed (1474895), 74/74 tests pass,
+  verified live. P4/P5/P6 handed to GLM: see `docs/GLM-V1-FINISH-INSTRUCTIONS.md`.
+  GUI audit results are summarised in TASK 2 of that file.
