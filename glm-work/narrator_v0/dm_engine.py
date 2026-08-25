@@ -189,7 +189,7 @@ def make_client_v0(provider: str = None, model: str = None):
         )
 
     from openai import OpenAI
-    return OpenAI(api_key=api_key, base_url=cfg["base_url"])
+    return OpenAI(api_key=api_key, base_url=cfg["base_url"], timeout=60.0)
 
 
 def dm_turn_v0(client, model: str, state: GameState, history: list,

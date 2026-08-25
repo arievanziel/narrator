@@ -1,0 +1,52 @@
+[
+  {
+    "file": "v9-polished_default.png",
+    "state": "Default state (everything collapsed, just reading)",
+    "stateId": "default"
+  },
+  {
+    "file": "v9-polished_left-panel.png",
+    "state": "Left panel open",
+    "stateId": "left-panel"
+  },
+  {
+    "file": "v9-polished_right-panel.png",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel"
+  },
+  {
+    "file": "v9-polished_both-panels.png",
+    "state": "Both side panels open",
+    "stateId": "both-panels"
+  },
+  {
+    "file": "v9-polished_topbar.png",
+    "state": "Top bar visible",
+    "stateId": "topbar"
+  },
+  {
+    "file": "v9-polished_no-topbar.png",
+    "state": "Top bar hidden (max reading space)",
+    "stateId": "no-topbar"
+  },
+  {
+    "file": "v9-polished_audio-expanded.png",
+    "state": "Audio bar expanded (full controls + session metadata)",
+    "stateId": "audio-expanded"
+  },
+  {
+    "file": "v9-polished_left-audio.png",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio"
+  },
+  {
+    "file": "v9-polished_left-no-topbar.png",
+    "state": "Left panel + top bar hidden (toggle anchoring test)",
+    "stateId": "left-no-topbar"
+  },
+  {
+    "file": "v9-polished_everything.png",
+    "state": "Everything open (both panels + top bar + audio)",
+    "stateId": "everything"
+  }
+]

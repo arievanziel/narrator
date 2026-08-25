@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrator — GUI v3 Variants</title>
+<style>
+  body { background: #e6e4e0; color: #1c1c1a; font-family: -apple-system, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+  h1 { font-size: 24px; font-weight: 400; color: #4a4a48; }
+  h2 { font-size: 16px; font-weight: 500; color: #4a4a48; margin-top: 2rem; border-bottom: 1px solid #c4c2be; padding-bottom: 0.3rem; }
+  p { color: #8a8a86; font-size: 14px; }
+  .mockup-link { display: block; background: #dedcd8; border: 1px solid #c4c2be; border-radius: 8px; padding: 16px 20px; margin: 12px 0; text-decoration: none; color: #1c1c1a; transition: border-color 0.2s; }
+  .mockup-link:hover { border-color: #8a8a86; }
+  .mockup-link .name { font-size: 16px; font-weight: 500; }
+  .mockup-link .desc { font-size: 13px; color: #8a8a86; margin-top: 4px; }
+  .mockup-link .approach { font-size: 12px; color: #b0b0ac; margin-top: 6px; font-style: italic; }
+  .tag { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 8px; background: #c4c2be; color: #4a4a48; margin-right: 3px; }
+  .creative { background: #d8d6d2; }
+  .hint { font-size: 13px; color: #8a8a86; margin-top: 20px; padding: 15px; background: #dedcd8; border-radius: 8px; border-left: 3px solid #8a8a86; }
+  a.back { display: inline-block; margin-top: 1rem; color: #8a8a86; text-decoration: none; font-size: 13px; }
+  a.back:hover { color: #1c1c1a; }
+</style>
+</head>
+<body>
+  <h1>Narrator — GUI v3 Control Variants</h1>
+  <p>8 variants exploring different approaches to unobtrusive UI controls for opening/closing panels and bars. All share the same Ink aesthetic, story content, and functionality — only the control UI differs.</p>
+
+  <h2>Standard Variants (5)</h2>
+
+  <a class="mockup-link" href="v1-bookmark.html" target="_blank">
+    <div class="name">v1 — Bookmark Tabs</div>
+    <div class="desc">Side panel toggles as little vertical bookmark/pull-tabs attached to panel edges. Top/bottom bars use horizontal bookmark-style tabs that stay visible as use-cues.</div>
+    <div class="approach">Tabs stick out from edges like bookmarks in a book. Subtle, tactile, always visible.</div>
+    <span class="tag">tabs</span><span class="tag">book-like</span><span class="tag">always-visible</span>
+  </a>
+
+  <a class="mockup-link" href="v2-topbar-cmd.html" target="_blank">
+    <div class="name">v2 — Top Bar Command Center</div>
+    <div class="desc">All controls live in a thin always-visible top bar. Side panel toggles, bottom bar toggle, audio toggle — everything in one place. No floating buttons.</div>
+    <div class="approach">Single command strip. Clean, centralized, nothing floating.</div>
+    <span class="tag">centralized</span><span class="tag">no-floating</span><span class="tag">compact</span>
+  </a>
+
+  <a class="mockup-link" href="v3-edge-rails.html" target="_blank">
+    <div class="name">v3 — Edge Rails</div>
+    <div class="desc">Thin vertical rails on screen edges for side panels. Thin horizontal rails for top/bottom bars. Click rails to toggle. Tiny dots at rail centers as use-cues.</div>
+    <div class="approach">Pure geometry. Lines and dots, no buttons or tabs. Most architectural.</div>
+    <span class="tag">geometric</span><span class="tag">rails</span><span class="tag">minimal</span>
+  </a>
+
+  <a class="mockup-link" href="v4-audio-hub.html" target="_blank">
+    <div class="name">v4 — Audio Hub</div>
+    <div class="desc">Audio bar is the central hub. When expanded, panel/bar toggles live on its right side. When collapsed, tiny dots on the line provide access. Everything from the audio bar.</div>
+    <div class="approach">Audio-first design. Controls integrated with the most-used element.</div>
+    <span class="tag">audio-first</span><span class="tag">integrated</span><span class="tag">hub</span>
+  </a>
+
+  <a class="mockup-link" href="v5-ultra-minimal.html" target="_blank">
+    <div class="name">v5 — Ultra Minimal</div>
+    <div class="desc">Everything collapses to 1px lines with 4px dots at endpoints. Click dots to toggle. Hover enlarges to 6px. No text, no icons, no buttons — just dots and lines.</div>
+    <div class="approach">Maximum minimalism. Barely there UI. For when you just want to read.</div>
+    <span class="tag">dots</span><span class="tag">lines</span><span class="tag">extreme-minimal</span>
+  </a>
+
+  <h2>Creative Variants (3) — Book-Inspired</h2>
+
+  <a class="mockup-link creative" href="v6-ribbons.html" target="_blank">
+    <div class="name">v6 — Ribbon Bookmarks</div>
+    <div class="desc">Silk ribbon bookmarks hanging from the top edge, like in old leather-bound books. Each ribbon opens a different panel/bar. Subtle sway animation. Ribbons shorten when pulled.</div>
+    <div class="approach">Most book-like. Silk ribbons with fabric texture. Elegant, nostalgic.</div>
+    <span class="tag">ribbons</span><span class="tag">silk</span><span class="tag">book-like</span><span class="tag">animated</span>
+  </a>
+
+  <a class="mockup-link creative" href="v7-dog-ears.html" target="_blank">
+    <div class="name">v7 — Dog-Eared Pages</div>
+    <div class="desc">Foldable corners at the four corners of the reading area. Click to fold/unfold. Each corner controls a panel or bar. Subtle triangular folds that lift on hover.</div>
+    <div class="approach">Tactile, worn-book feel. Like naturally dog-eared pages. Very organic.</div>
+    <span class="tag">corners</span><span class="tag">tactile</span><span class="tag">organic</span>
+  </a>
+
+  <a class="mockup-link creative" href="v8-margin-marks.html" target="_blank">
+    <div class="name">v8 — Margin Marks</div>
+    <div class="desc">Pencil annotation marks in the margins, like a previous reader's notes. Small pencil strokes that darken on hover. Marks change when panel/bar is open (checkmark, circled).</div>
+    <div class="approach">Most literary. Like reading a used book with annotations. Personal, hand-drawn feel.</div>
+    <span class="tag">pencil</span><span class="tag">annotations</span><span class="tag">literary</span><span class="tag">hand-drawn</span>
+  </a>
+
+  <h2>Extra Variant</h2>
+
+  <a class="mockup-link" href="v9-circle-buttons.html" target="_blank">
+    <div class="name">v9 — Circle Buttons</div>
+    <div class="desc">Round circle buttons everywhere: half-round tabs on screen edges for side panels, half-round tabs at center for top/bottom bars, small circle toggles in the top bar, and small circle toggles in the audio bar. All locations sync active state.</div>
+    <div class="approach">Circular motif throughout. Multiple access points for every control. Clear, tactile, consistent.</div>
+    <span class="tag">circles</span><span class="tag">half-round</span><span class="tag">multi-access</span><span class="tag">consistent</span>
+  </a>
+
+  <h2>Previous Versions</h2>
+  <a class="mockup-link" href="ink-extended.html" target="_blank">
+    <div class="name">Ink Extended (base, light)</div>
+    <div class="desc">The base version with floating circle buttons. All variants above are modifications of this.</div>
+  </a>
+  <a class="mockup-link" href="ink-dark.html" target="_blank">
+    <div class="name">Ink Extended (base, dark)</div>
+    <div class="desc">Dark version of the base.</div>
+  </a>
+  <a class="mockup-link" href="../index.html" target="_blank">
+    <div class="name">← Back to all mockups (v1/v2)</div>
+    <div class="desc">Original 5 styles: Sepia, Ink, Midnight, Parchment, Twilight</div>
+  </a>
+
+  <div class="hint">
+    <strong>What to look for:</strong> Each variant solves the same problem differently — how to provide unobtrusive but discoverable controls for opening/closing side panels, top bar, bottom bar, and audio bar. Try opening/closing everything in each variant. The best approach will feel natural and stay out of the way when you just want to read.<br><br>
+    <strong>Common to all:</strong> Audio bar collapses to just a line with a breathing play button. Click the line to expand. Input area has generous bottom spacing. Both side panels can be open simultaneously. Top and bottom bars are full width.
+  </div>
+</body>
+</html>

@@ -3,95 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Narrator — D&D Story Engine</title>
+<title>Narrator — An Audiobook You Can Steer</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<!-- Intro screen — landing page with two entry options -->
+<!-- TASK 1e: Intro screen — book cover only, minimal -->
 <div id="intro-overlay">
-  <div class="intro-card">
-    <h1>Narrator</h1>
-    <div class="subtitle">A D&D story engine that reads to you</div>
-    <button class="intro-start" id="intro-session-zero-btn" onclick="openSessionZero()">Begin Session Zero</button>
-    <div style="text-align:center; color:var(--ink-faint); font-size:13px; margin:0.8rem 0;">A conversational setup with your DM — recommended</div>
-    <hr style="border:none; border-top:1px solid var(--rule); margin:1.5rem 0;">
-    <div style="text-align:center; color:var(--ink-faint); font-size:13px; margin-bottom:0.8rem;">Or use the quick form:</div>
-    <div class="intro-field">
-      <label>Story Style</label>
-      <select id="intro-style">
-        <option value="classic fantasy">Classic Fantasy</option>
-        <option value="dark fantasy">Dark Fantasy</option>
-        <option value="grimdark">Grimdark</option>
-        <option value="high fantasy">High Fantasy</option>
-        <option value="sword and sorcery">Sword & Sorcery</option>
-        <option value="gothic horror">Gothic Horror</option>
-        <option value="mystery investigation">Mystery & Investigation</option>
-      </select>
+  <div class="intro-card book-cover">
+    <div class="book-cover-frame">
+      <h1>Narrator</h1>
+      <div class="subtitle">An audiobook you can steer</div>
     </div>
-    <div class="intro-field">
-      <label>Setting</label>
-      <input type="text" id="intro-setting" placeholder="e.g. A remote mountain village beset by strange happenings">
-    </div>
-    <div class="intro-field">
-      <label>Your Character's Name</label>
-      <input type="text" id="intro-name" placeholder="e.g. Kael" value="Kael">
-    </div>
-    <div class="intro-field">
-      <label>Character Persona</label>
-      <input type="text" id="intro-persona" placeholder="e.g. A grizzled veteran seeking redemption">
-    </div>
-    <div class="intro-field">
-      <label>Atmosphere</label>
-      <select id="intro-atmosphere">
-        <option value="adventurous">Adventurous</option>
-        <option value="mysterious">Mysterious</option>
-        <option value="tense">Tense</option>
-        <option value="melancholic">Melancholic</option>
-        <option value="whimsical">Whimsical</option>
-      </select>
-    </div>
-    <div class="intro-field">
-      <label>Inspired by (books, movies, games)</label>
-      <input type="text" id="intro-inspiration" placeholder="e.g. Lord of the Rings, The Witcher, D&D">
-    </div>
-    <div class="intro-field">
-      <label>Dice Mode</label>
-      <select id="intro-dicemode">
-        <option value="auto">Automatic — the app rolls for me</option>
-        <option value="manual">Manual — I roll my own dice</option>
-      </select>
-    </div>
-    <button class="intro-start" id="intro-start-btn" onclick="startGame()">Quick Start</button>
-    <button class="intro-skip" onclick="startGame({skip:true})">Skip — use defaults</button>
+    <button class="intro-start" id="intro-session-zero-btn" onclick="openSessionZero()">Read the foreword</button>
+    <div style="text-align:center; color:var(--ink-faint); font-size:13px; margin:0.6rem 0;">A conversational setup with the Narrator &mdash; recommended</div>
+    <hr style="border:none; border-top:1px solid var(--rule); margin:1.2rem 0;">
+    <button class="intro-start" id="intro-start-btn" onclick="startGame({skip:true})">Open the book with defaults</button>
+    <div style="text-align:center; color:var(--ink-faint); font-size:13px; margin:0.6rem 0;">Jump straight into a procedurally generated story</div>
   </div>
 </div>
 
-<!-- Session Zero wizard overlay -->
-<div id="session-zero-overlay">
-  <div class="sz-container">
-    <div class="sz-header">
-      <h1>Session Zero</h1>
-      <div class="sz-subtitle">Let's craft your adventure together</div>
-      <div class="sz-progress" id="sz-progress"></div>
-    </div>
-    <div class="sz-conversation" id="sz-conversation"></div>
-    <div class="sz-controls">
-      <div class="sz-model-pick">
-        <span>DM:</span>
-        <select id="sz-model" onchange="szChangeModel(this.value)">
-          <option value="gemini-3.5-flash-lite">Gemini Flash (free)</option>
-          <option value="openai/gpt-oss-120b">GPT-OSS 120B (free)</option>
-          <option value="claude-haiku-4-5">Claude Haiku (paid)</option>
-        </select>
-      </div>
-      <button class="sz-skip-btn" onclick="szSkipToGame()">Skip to game with defaults</button>
-    </div>
-    <div class="sz-input-area">
-      <input type="text" id="sz-input" placeholder="Type your answer..." onkeydown="if(event.key==='Enter')szSendAnswer()" autocomplete="off">
-      <button id="sz-send-btn" onclick="szSendAnswer()">Send</button>
-    </div>
-  </div>
+<!-- Session Zero / Foreword — now integrated into the main book area, not a separate overlay.
+     This overlay is kept only for the model picker; the conversation renders in #story-content. -->
+<div id="session-zero-overlay" style="display:none;">
+  <!-- intentionally empty — foreword now renders in the main book area -->
 </div>
 
 <!-- Voice assignment overlay -->
@@ -112,21 +47,16 @@
 <!-- Main app -->
 <div id="app">
 
-  <!-- Top bar -->
-  <div class="topbar ui-font">
-    <div class="topbar-circle" id="tab-left" onclick="togglePanel('left')" title="Character panel">☰</div>
-    <div class="topbar-center">
-      <div class="stat"><span class="stat-label">HP</span><span class="stat-val" id="tb-hp">12/12</span><div class="hp-bar"><div class="hp-fill" id="tb-hpfill"></div></div></div>
-      <span class="sep">|</span>
-      <div class="stat"><span class="stat-label">AC</span><span class="stat-val" id="tb-ac">16</span></div>
-      <span class="sep">|</span>
-      <div class="stat"><span class="stat-label">Turn</span><span class="stat-val" id="tb-turn">0</span></div>
-      <span class="sep">|</span>
-      <div class="stat"><span class="stat-label">Location</span><span class="stat-val" id="tb-loc">—</span></div>
-      <span class="sep">|</span>
-      <div class="stat"><span class="stat-label">Mood</span><span class="stat-val" id="tb-mood">—</span></div>
+  <!-- TASK 1b: Book header — title left, chapter centre, controls right -->
+  <div class="topbar ui-font book-header">
+    <div class="book-header-left">
+      <div class="topbar-circle" id="tab-left" onclick="togglePanel('left')" title="Your character">☰</div>
+      <span class="book-title" id="tb-booktitle">Untitled Book</span>
     </div>
-    <div style="display:flex;gap:6px;align-items:center;">
+    <div class="book-header-center">
+      <span class="book-chapter" id="tb-chapter">Chapter One</span>
+    </div>
+    <div class="book-header-right">
       <span id="model-label" class="stat-val" style="font-size:11px;">Loading...</span>
       <div class="topbar-circle" id="tab-settings" onclick="togglePanel('settings')" title="Settings">⚙</div>
     </div>
@@ -139,30 +69,30 @@
   </div>
   <div class="circle-tab-top" onclick="toggleBar()" title="Toggle top bar"></div>
 
-  <!-- Left panel: character info -->
+  <!-- TASK 1d: Left panel — "Your character" + "The story so far" (book lexicon) -->
   <div class="left-panel ui-font">
     <div class="panel-section">
-      <div class="panel-h">Character</div>
+      <div class="panel-h">Your character</div>
       <div id="char-info"></div>
       <div id="char-stats"></div>
     </div>
     <div class="panel-section">
-      <div class="panel-h">Equipment</div>
+      <div class="panel-h">Carried</div>
       <div id="equipment-list"></div>
     </div>
     <div class="panel-section">
       <div class="panel-h">Conditions</div>
       <div id="conditions-list"></div>
     </div>
-    <div class="panel-section">
-      <div class="panel-h">Enemies</div>
+    <div class="panel-section" id="enemy-section">
+      <div class="panel-h">Present in this scene</div>
       <div id="enemy-list"></div>
     </div>
     <div class="panel-section">
-      <div class="panel-h">Inventory</div>
+      <div class="panel-h">Belongings</div>
       <div id="inv-list"></div>
     </div>
-    <div class="panel-section">
+    <div class="panel-section storyteller-only">
       <div class="panel-h">Dice Roller</div>
       <div class="dice-roller">
         <button class="dice-btn" onclick="rollDice(this,20)">d20</button>
@@ -176,6 +106,12 @@
       <div class="dice-result" id="dice-result"></div>
       <div class="dice-history" id="dice-history"></div>
     </div>
+    <!-- TASK 1d: "The story so far" — table of contents from /api/chapters -->
+    <div class="panel-section">
+      <div class="panel-h">The story so far</div>
+      <div id="toc-list" style="font-size:13px;color:var(--ink-light);max-height:160px;overflow-y:auto;"></div>
+    </div>
+    <!-- Chronicle entries stay, retitled to "The story so far" -->
     <div class="panel-section">
       <div class="panel-h">Chronicle</div>
       <div id="chronicle-list" style="font-size:13px;color:var(--ink-light);max-height:200px;overflow-y:auto;"></div>
@@ -209,6 +145,11 @@
       <div class="setting-row">
         <span>Auto-roll dice</span>
         <div class="setting-toggle on" id="set-autoroll" onclick="toggleSetting('autoroll',this)"></div>
+      </div>
+      <!-- TASK 1a: Storyteller's notes toggle — reveal/hide mechanics, dice, AC -->
+      <div class="setting-row">
+        <span>Show storyteller's notes</span>
+        <div class="setting-toggle" id="set-storyteller" onclick="toggleStorytellerMode(this)"></div>
       </div>
       <div id="provider-status" style="font-size:11px;color:var(--ink-light);padding:0.3rem 0;"></div>
     </div>
@@ -269,9 +210,9 @@
     <div class="setting-group">
       <div class="panel-h">Session</div>
       <div class="setting-row">
-        <button onclick="newGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">New Story</button>
-        <button onclick="saveGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">Save</button>
-        <button onclick="loadGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">Load</button>
+        <button onclick="newGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">New book</button>
+        <button onclick="saveGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">Place bookmark</button>
+        <button onclick="loadGame()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">Resume reading</button>
       </div>
       <div class="setting-row" style="margin-top:6px;">
         <button onclick="openVoiceScreen()" style="background:var(--bg);border:1px solid var(--rule);color:var(--ink-mid);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;">Voice Assignment</button>
@@ -295,7 +236,7 @@
   <div class="audio-bar ui-font">
     <button class="audio-play-btn" id="audio-play" onclick="toggleAudio()" disabled>▶</button>
     <button class="audio-play-btn" onclick="replayAudio()" title="Replay narration" style="width:24px;height:24px;font-size:12px;">↻</button>
-    <div class="audio-progress" id="audio-progress" onclick="seekAudio(event)">
+    <div class="audio-progress" id="audio-progress">
       <div class="audio-gen-bar" id="audio-gen-bar" style="display:none;"><div class="audio-gen-fill" id="audio-gen-fill"></div></div>
       <div class="audio-progress-fill" id="audio-fill"></div>
     </div>

@@ -1,0 +1,228 @@
+{
+  "name": "groq_auto_library",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "auto",
+    "speed": 1.0,
+    "musicVol": 0.12,
+    "musicSrc": "library",
+    "model": "openai/gpt-oss-120b"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "scene": "tavern",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The heavy oaken door of the Rusty Anchor groans open, letting in a bitter gust of mountain wind that makes the guttering candles flicker wildly."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Inside, the air is thick with the stench of cheap ale, wet wool, and underlying rot."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Two scrawny goblins wearing scavenged leather armor stand atop a splintered table, rummaging through a spilled sack of silver coins while patrons cower in the corners."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The smaller of the two creatures spots you in the doorway, snarls, and draws a jagged blade."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Draw your longsword and step into the tavern to confront the goblins",
+          "roll": false
+        },
+        {
+          "text": "Shout a warning to clear the room and charge the goblin scout",
+          "roll": true
+        },
+        {
+          "text": "Slowly reach for your health potion while assessing the room",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "gemini-3.5-flash-lite",
+      "audio_status": "error",
+      "audio_duration": null,
+      "total_text": "The heavy oaken door of the Rusty Anchor groans open, letting in a bitter gust of mountain wind that makes the guttering candles flicker wildly. Inside, the air is thick with the stench of cheap ale, wet wool, and underlying rot. Two scrawny goblins wearing scavenged leather armor stand atop a splintered table, rummaging through a spilled sack of silver coins while patrons cower in the corners. The smaller of the two creatures spots you in the doorway, snarls, and draws a jagged blade.",
+      "text_length": 490
+    },
+    {
+      "turn": 2,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "You lunge toward the nearest goblin, hand outstretched to pry open its worn coat."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The goblin snarls, eyes widening as you grasp its rough-spun shirt, its jagged blade still clutched in a trembling hand."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Its guttural hiss turns to a frantic curse, and the creature twists, trying to shake you off."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Before you can feel any hidden pouches or weapons, the goblin darts back, brandishing its blade with a reckless grin."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Swing your longsword at the Goblin Scout to try to subdue it",
+          "roll": true
+        },
+        {
+          "text": "Attempt to grapple the goblin and restrain it before searching",
+          "roll": true
+        },
+        {
+          "text": "Shout a warning to the patrons and try to intimidate the goblins into retreat",
+          "roll": true
+        },
+        {
+          "text": "Drop your shield, retreat to the bar, and look for a better tactical position",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "action": "I search the goblin's body for anything useful.",
+      "audio_status": "ready",
+      "audio_duration": 29.6,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/groq_auto_library_turn_002.wav",
+      "audio_size": 1418444,
+      "total_text": "You lunge toward the nearest goblin, hand outstretched to pry open its worn coat. The goblin snarls, eyes widening as you grasp its rough-spun shirt, its jagged blade still clutched in a trembling hand. Its guttural hiss turns to a frantic curse, and the creature twists, trying to shake you off. Before you can feel any hidden pouches or weapons, the goblin darts back, brandishing its blade with a reckless grin.",
+      "text_length": 414
+    },
+    {
+      "turn": 3,
+      "scene": "exploration",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "You turn your back on the snarling goblins, the clatter of their blades fading as you push through the tavern\u2019s battered door."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The night air bites sharply, carrying the faint echo of distant howls that seem to rise from the ruined stone of the village."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Snow\u2011slick cobblestones glisten under the wan light of a waning moon, and the silhouettes of shuttered houses loom like silent sentinels."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "A cold wind whistles through the empty streets, stirring the tattered banners that still cling to the ruined walls."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Ahead, the village square is shrouded in a thin, ghostly mist that swirls around a cracked well, its depths black as night."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Approach the mist\u2011shrouded well to examine it for clues",
+          "roll": false
+        },
+        {
+          "text": "Move toward the nearest abandoned house, listening for any sounds inside",
+          "roll": false
+        },
+        {
+          "text": "Call out a warning to see if any hidden villagers or spirits respond",
+          "roll": true
+        },
+        {
+          "text": "Turn back into the tavern to deal with the goblins before venturing further",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "action": "I head outside to investigate the haunted village.",
+      "audio_status": "ready",
+      "audio_duration": 49.3,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/groq_auto_library_turn_003.wav",
+      "audio_size": 2367644,
+      "total_text": "You turn your back on the snarling goblins, the clatter of their blades fading as you push through the tavern\u2019s battered door. The night air bites sharply, carrying the faint echo of distant howls that seem to rise from the ruined stone of the village. Snow\u2011slick cobblestones glisten under the wan light of a waning moon, and the silhouettes of shuttered houses loom like silent sentinels. A cold wind whistles through the empty streets, stirring the tattered banners that still cling to the ruined walls. Ahead, the village square is shrouded in a thin, ghostly mist that swirls around a cracked well, its depths black as night.",
+      "text_length": 630
+    },
+    {
+      "turn": 4,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "You grip the hilt of your longsword, the metal cold against your palm, as a low, keening wail drifts through the tavern\u2019s cracked windows from the haunted woods beyond."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The Goblin Scout snarls, lunging forward with its jagged blade, but you swing your sword in a smooth arc."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The blade bites deep, cleaving the goblin\u2019s throat; it collapses onto the splintered table, lifeless."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The remaining Goblin Raider roars in fury, leaping at you with a rusted dagger, but its strike whistles past your shield, missing by inches."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Press the advantage and attack the Goblin Raider with your longsword",
+          "roll": true
+        },
+        {
+          "text": "Attempt to grapple the Goblin Raider to prevent it from moving",
+          "roll": true
+        },
+        {
+          "text": "Shout a warning to the tavern patrons, trying to rally them against the intruders",
+          "roll": true
+        },
+        {
+          "text": "Drop your shield, retreat to the bar, and look for a hidden exit",
+          "roll": false
+        }
+      ],
+      "changes": [
+        "[REJECTED \u2014 no roll evidence] Goblin Scout",
+        "Goblin Raider HP \u2192 7/7"
+      ],
+      "model": "openai/gpt-oss-120b",
+      "action": "I draw my weapon as I hear strange noises from the woods.",
+      "audio_status": "ready",
+      "audio_duration": 32.5,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/groq_auto_library_turn_004.wav",
+      "audio_size": 1561964,
+      "total_text": "You grip the hilt of your longsword, the metal cold against your palm, as a low, keening wail drifts through the tavern\u2019s cracked windows from the haunted woods beyond. The Goblin Scout snarls, lunging forward with its jagged blade, but you swing your sword in a smooth arc. The blade bites deep, cleaving the goblin\u2019s throat; it collapses onto the splintered table, lifeless. The remaining Goblin Raider roars in fury, leaping at you with a rusted dagger, but its strike whistles past your shield, missing by inches.",
+      "text_length": 517
+    }
+  ],
+  "errors": []
+}

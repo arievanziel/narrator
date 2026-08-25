@@ -1,0 +1,199 @@
+{
+  "name": "gemini_kokoro_procedural",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "kokoro",
+    "speed": 1.0,
+    "musicVol": 0.12,
+    "musicSrc": "procedural",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "scene": "tavern",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The heavy oak door of the Rusty Anchor groans open, letting in a bitter mountain draft that makes the guttering tallow candles flicker."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael steps into the dim, smoke-choked common room, his chain mail clinking softly against the damp night air."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Two squat, green-skinned figures clad in scavenged leather stand atop a splintered wooden table, tearing into a loaf of dark bread with jagged daggers."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "More meat for the pot, Nazz!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Draw your longsword and step forward to challenge the goblins",
+          "roll": false
+        },
+        {
+          "text": "Keep your hand on your sword hilt and demand to know what they've done to the tavern keeper",
+          "roll": false
+        },
+        {
+          "text": "Charge instantly at the nearest goblin to catch them off guard",
+          "roll": true
+        }
+      ],
+      "changes": [],
+      "model": "gemini-3.5-flash-lite",
+      "audio_status": "ready",
+      "audio_duration": 33.7,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/gemini_kokoro_procedural_turn_001.wav",
+      "audio_size": 1617644,
+      "total_text": "The heavy oak door of the Rusty Anchor groans open, letting in a bitter mountain draft that makes the guttering tallow candles flicker. Kael steps into the dim, smoke-choked common room, his chain mail clinking softly against the damp night air. Two squat, green-skinned figures clad in scavenged leather stand atop a splintered wooden table, tearing into a loaf of dark bread with jagged daggers. More meat for the pot, Nazz!",
+      "text_length": 426
+    },
+    {
+      "turn": 2,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael's sharp eyes sweep past the two snarling creatures, scanning the shadowy corners of the common room."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Overturned chairs and shattered mugs litter the sticky floor, but no other foes stir in the gloom."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The two goblins hiss in unison, clutching their rusted daggers tighter as they realize they are cornered."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Raider",
+          "text": "Kill the tall one, Nazz! Make it bleed!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Draw your longsword and step toward the Goblin Scout",
+          "roll": false
+        },
+        {
+          "text": "Hurl a heavy wooden stool at the goblins to disrupt them",
+          "roll": true
+        },
+        {
+          "text": "Stand your ground behind your shield and wait for their charge",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I carefully examine the tavern for any other threats.",
+      "audio_status": "error",
+      "audio_duration": null,
+      "total_text": "Kael's sharp eyes sweep past the two snarling creatures, scanning the shadowy corners of the common room. Overturned chairs and shattered mugs litter the sticky floor, but no other foes stir in the gloom. The two goblins hiss in unison, clutching their rusted daggers tighter as they realize they are cornered. Kill the tall one, Nazz! Make it bleed!",
+      "text_length": 350
+    },
+    {
+      "turn": 3,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael ignores the shrieking goblins for a moment, sidestepping toward the blood-spattered bar counter where a motionless bundle of robes lies behind the wood."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "As Kael reaches the counter, the Goblin Scout leaps off the table, lunging forward with its jagged blade aimed at Kael's exposed side."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael pivots his heavy shield just in time, deflecting the rusted dagger with a loud, metallic clang."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Counterattack with your longsword against the Goblin Scout",
+          "roll": true
+        },
+        {
+          "text": "Shove the Goblin Scout back into the tavern tables with your shield",
+          "roll": true
+        },
+        {
+          "text": "Search behind the bar for the tavern keeper while keeping your guard up",
+          "roll": false
+        }
+      ],
+      "changes": [
+        "HP: 12 \u2192 12 (+0)"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I approach the barkeep and ask about the village.",
+      "audio_status": "error",
+      "audio_duration": null,
+      "total_text": "Kael ignores the shrieking goblins for a moment, sidestepping toward the blood-spattered bar counter where a motionless bundle of robes lies behind the wood. As Kael reaches the counter, the Goblin Scout leaps off the table, lunging forward with its jagged blade aimed at Kael's exposed side. Kael pivots his heavy shield just in time, deflecting the rusted dagger with a loud, metallic clang.",
+      "text_length": 393
+    },
+    {
+      "turn": 4,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Attempting to rest in the middle of a heated skirmish proves a dangerous miscalculation."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The Goblin Scout seizes the opening, thrusting its jagged blade deep past Kael's lowered guard."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Gotcha, human!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Strike back at the Goblin Scout with your longsword",
+          "roll": true
+        },
+        {
+          "text": "Push the goblin away with your shield and draw your weapon",
+          "roll": true
+        },
+        {
+          "text": "Desperately swing your longsword in a wild arc",
+          "roll": true
+        }
+      ],
+      "changes": [
+        "HP: 12 \u2192 8 (-4)",
+        "Roll requested: d20+5 for attack"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I decide to rest and recover my strength.",
+      "audio_status": "error",
+      "audio_duration": null,
+      "total_text": "Attempting to rest in the middle of a heated skirmish proves a dangerous miscalculation. The Goblin Scout seizes the opening, thrusting its jagged blade deep past Kael's lowered guard. Gotcha, human!",
+      "text_length": 199
+    }
+  ],
+  "errors": []
+}

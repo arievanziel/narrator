@@ -14,7 +14,8 @@
   .ui-font { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
   /* Layout grid */
-  #app { display: grid; grid-template-columns: var(--col-left) 1fr var(--col-right); grid-template-rows: var(--topbar-h) 1fr var(--audio-h); height: 100vh; transition: grid-template-columns 0.3s ease, grid-template-rows 0.3s ease; }
+  #app { display: none; grid-template-columns: var(--col-left) 1fr var(--col-right); grid-template-rows: var(--topbar-h) 1fr var(--audio-h); height: 100vh; transition: grid-template-columns 0.3s ease, grid-template-rows 0.3s ease; }
+  #app.show-app { display: grid; }
   #app.show-left { --col-left: 260px; }
   #app.show-settings { --col-right: 340px; }
   #app.hide-topbar { --topbar-h: 0px; }
@@ -32,18 +33,29 @@
   .circle-tab-top { position: fixed; top: var(--topbar-h); left: 50%; transform: translateX(-50%); width: 28px; height: 14px; background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 0 0 50% 50%; border-top: none; cursor: pointer; opacity: 0.4; transition: opacity 0.2s, top 0.3s; z-index: 101; pointer-events: auto; }
   .circle-tab-top:hover { opacity: 0.75; }
 
-  /* Top bar */
+  /* TASK 1b: Book header — replaces the stat topbar */
+  .topbar.book-header { padding: 0 1rem; }
+  .book-header-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+  .book-header-center { display: flex; align-items: center; justify-content: center; flex: 2; }
+  .book-header-right { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: flex-end; }
+  .book-title { font-family: 'Iowan Old Style','Palatino','Book Antiqua',Georgia,serif; font-size: 14px; color: var(--ink-mid); font-style: italic; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .book-chapter { font-family: 'Iowan Old Style','Palatino','Book Antiqua',Georgia,serif; font-size: 14px; color: var(--ink); font-weight: 400; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .book-chapter::before, .book-chapter::after { content: '\2766'; color: var(--ink-faint); margin: 0 8px; font-size: 11px; }
+
+  /* Top bar (base — kept for layout) */
   .topbar { grid-column: 1 / -1; grid-row: 1; background: var(--bg-soft); border-bottom: 1px solid var(--rule); padding: 0 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--ink-light); overflow: hidden; z-index: 50; }
-  .topbar-center { display: flex; align-items: center; gap: 1rem; flex: 1; justify-content: center; }
-  .topbar .stat { display: flex; align-items: center; gap: 4px; }
-  .topbar .stat-label { color: var(--ink-faint); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
   .topbar .stat-val { color: var(--ink-mid); font-weight: 500; }
-  .topbar .hp-bar { width: 60px; height: 4px; background: var(--rule); border-radius: 2px; overflow: hidden; }
-  .topbar .hp-fill { height: 100%; background: var(--hp-good); transition: width 0.5s, background 0.3s; }
-  .topbar .sep { color: var(--rule); }
   .topbar-circle { width: 20px; height: 20px; border-radius: 50%; background: var(--bg); border: 1px solid var(--rule); color: var(--ink-light); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; opacity: 0.5; transition: all 0.2s; flex-shrink: 0; }
   .topbar-circle:hover { opacity: 0.85; }
   .topbar-circle.active { opacity: 0.7; border-color: var(--ink-mid); color: var(--ink-mid); }
+
+  /* TASK 1a: Storyteller-mode gating — hide mechanics by default */
+  .storyteller-only { display: none; }
+  html.storyteller-mode .storyteller-only { display: block; }
+
+  /* TASK 1d: Panel HP bar (in left panel, not topbar) */
+  .panel-hp-bar { width: 100%; height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; margin: 6px 0 4px; }
+  .panel-hp-bar .hp-fill { height: 100%; transition: width 0.5s, background 0.3s; }
 
   /* Left panel */
   .left-panel { grid-column: 1; grid-row: 2 / 3; background: var(--bg-soft); border-right: 1px solid var(--rule); overflow-y: auto; padding: 1rem; display: none; }
@@ -104,9 +116,32 @@
   .story-content { max-width: 680px; margin: 0 auto; }
   .turn-mark { text-align: center; color: var(--ink-faint); font-size: 13px; letter-spacing: 4px; margin: 2rem 0 1.5rem; text-transform: uppercase; }
   .story-passage { margin-bottom: 1rem; }
-  .speaker-label { font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
-  .narrator-text { color: var(--ink-mid); font-style: normal; }
-  .dialogue-text { color: var(--ink); font-style: italic; }
+  .speaker-label { font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; font-variant: small-caps; font-style: italic; }
+  .narrator-text { color: var(--ink-mid); font-style: normal; text-align: justify; line-height: 1.9; }
+  .dialogue-text { color: var(--ink); font-style: italic; margin-left: 2rem; }
+
+  /* TASK 1c: Chapter heading — small-caps "Chapter Two", title in larger serif, thin rule */
+  .chapter-heading { margin: 3rem 0 1.5rem; text-align: center; scroll-margin-top: 50px; }
+  .chapter-heading:first-child { margin-top: 0; }
+  .chapter-number { font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: var(--ink-faint); font-variant: small-caps; margin-bottom: 0.4rem; }
+  .chapter-title { font-family: 'Iowan Old Style','Palatino','Book Antiqua',Georgia,serif; font-size: 26px; color: var(--ink); font-weight: 400; line-height: 1.3; margin-bottom: 0.8rem; }
+  .chapter-rule { width: 80px; height: 1px; background: var(--rule); margin: 0 auto; }
+
+  /* TASK 1c: Scene-setting paragraph — justified, with drop cap on first letter */
+  .scene-setting { color: var(--ink-mid); font-style: normal; text-align: justify; line-height: 1.9; margin: 1.5rem 0 1.5rem; font-size: 17px; }
+  .scene-setting::first-letter { font-family: 'Iowan Old Style','Palatino','Book Antiqua',Georgia,serif; font-size: 3.2em; font-weight: 400; float: left; line-height: 0.85; margin: 0.08em 0.08em 0 0; color: var(--ink); }
+
+  /* TASK 1a: Reader notes (literary mode) — replaces raw "changes" */
+  .reader-notes { font-size: 13px; color: var(--ink-light); margin: 0.8rem 0; padding: 0.6rem 1rem; background: var(--bg-soft); border-radius: 6px; border-left: 3px solid var(--rule); font-style: italic; }
+  .reader-notes-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; font-style: normal; }
+  .reader-note { display: block; padding: 3px 0; line-height: 1.5; }
+
+  /* TASK 1d: Table of contents entries — clickable to scroll to chapter */
+  .toc-entry { padding: 0.4rem 0.2rem; cursor: pointer; border-bottom: 1px solid var(--rule-soft); display: flex; flex-direction: column; gap: 1px; transition: background 0.15s; }
+  .toc-entry:hover { background: var(--accent-soft); }
+  .toc-entry:last-child { border-bottom: none; }
+  .toc-num { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-faint); font-variant: small-caps; }
+  .toc-title { font-size: 14px; color: var(--ink-mid); font-family: 'Iowan Old Style','Palatino','Book Antiqua',Georgia,serif; }
   .player-action { color: var(--accent); font-size: 14px; margin: 1rem 0; padding: 0.5rem 1rem; background: var(--accent-soft); border-radius: 6px; border-left: 3px solid var(--accent); }
   .player-action::before { content: '→ '; }
   .state-changes { font-size: 12px; color: var(--ink-light); margin: 0.5rem 0; padding: 0.5rem 0.8rem; background: var(--bg-soft); border-radius: 6px; border-left: 3px solid var(--rule); }
@@ -164,7 +199,7 @@
   .audio-play-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; transition: opacity 0.2s; }
   .audio-play-btn:hover { opacity: 0.85; }
   .audio-play-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-  .audio-progress { flex: 1; height: 4px; background: var(--rule); border-radius: 2px; overflow: hidden; cursor: pointer; position: relative; }
+  .audio-progress { flex: 1; height: 4px; background: var(--rule); border-radius: 2px; overflow: hidden; cursor: default; position: relative; }
   .audio-progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.1s linear; }
   .audio-label { color: var(--ink-mid); font-size: 12px; white-space: nowrap; min-width: 120px; }
   .audio-time { color: var(--ink-faint); font-size: 11px; font-family: monospace; min-width: 80px; text-align: right; }
@@ -176,12 +211,14 @@
   #app.audio-collapsed .audio-label, #app.audio-collapsed .audio-time, #app.audio-collapsed .audio-status { display: none; }
   #app.audio-collapsed .audio-progress { height: 2px; }
 
-  /* Intro screen */
-  #intro-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 2rem; overflow-y: auto; }
+  /* TASK 1e: Intro screen — book cover, minimal, fits viewport */
+  #intro-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1.5rem; overflow-y: auto; }
   #intro-overlay.hidden { display: none; }
-  .intro-card { max-width: 600px; background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 12px; padding: 2.5rem; box-shadow: var(--shadow); }
-  .intro-card h1 { font-size: 28px; color: var(--ink); margin-bottom: 0.5rem; text-align: center; font-weight: 400; }
-  .intro-card .subtitle { text-align: center; color: var(--ink-light); font-size: 15px; margin-bottom: 2rem; font-style: italic; }
+  .intro-card { max-width: 480px; width: 100%; background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow); margin: auto; }
+  .intro-card.book-cover { padding: 2.5rem 2rem; text-align: center; }
+  .book-cover-frame { text-align: center; margin-bottom: 1.5rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--rule); }
+  .book-cover-frame h1 { font-size: 32px; color: var(--ink); margin-bottom: 0.4rem; text-align: center; font-weight: 400; letter-spacing: 1px; }
+  .book-cover-frame .subtitle { text-align: center; color: var(--ink-light); font-size: 14px; font-style: italic; letter-spacing: 0.5px; }
   .intro-field { margin-bottom: 1.2rem; }
   .intro-field label { display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
   .intro-field input, .intro-field select, .intro-field textarea { width: 100%; background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; color: var(--ink); font-size: 15px; font-family: inherit; outline: none; }
@@ -193,38 +230,13 @@
   .intro-skip { width: 100%; background: none; border: none; color: var(--ink-faint); cursor: pointer; font-size: 13px; margin-top: 0.5rem; }
   .intro-skip:hover { color: var(--ink-mid); }
 
-  /* Session Zero wizard */
-  #session-zero-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 1001; display: none; flex-direction: column; align-items: center; padding: 2rem; overflow-y: auto; }
-  #session-zero-overlay.active { display: flex; }
-  .sz-container { max-width: 680px; width: 100%; display: flex; flex-direction: column; min-height: 100%; }
-  .sz-header { text-align: center; margin-bottom: 1.5rem; }
-  .sz-header h1 { font-size: 24px; color: var(--ink); font-weight: 400; margin-bottom: 0.3rem; }
-  .sz-header .sz-subtitle { color: var(--ink-light); font-size: 14px; font-style: italic; }
-  .sz-progress { display: flex; gap: 4px; justify-content: center; margin: 1rem 0; }
-  .sz-progress-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule); transition: background 0.3s; }
-  .sz-progress-dot.active { background: var(--accent); }
-  .sz-progress-dot.done { background: var(--hp-good); }
-  .sz-conversation { flex: 1; overflow-y: auto; margin-bottom: 1rem; padding: 0.5rem 0; }
-  .sz-msg { margin-bottom: 1rem; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  .sz-msg.dm { text-align: left; }
-  .sz-msg.dm .sz-bubble { background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 12px 12px 12px 2px; padding: 1rem 1.2rem; color: var(--ink-mid); font-size: 16px; line-height: 1.7; }
-  .sz-msg.player { text-align: right; }
-  .sz-msg.player .sz-bubble { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 12px 12px 2px 12px; padding: 0.8rem 1.2rem; color: var(--ink); font-size: 15px; display: inline-block; max-width: 85%; text-align: left; }
-  .sz-suggestions { display: flex; flex-direction: column; gap: 6px; margin: 0.8rem 0; }
-  .sz-suggestion-btn { background: var(--bg); border: 1px solid var(--rule); border-radius: 8px; padding: 0.6rem 1rem; cursor: pointer; font-size: 14px; color: var(--ink-mid); text-align: left; font-family: inherit; transition: all 0.15s; }
-  .sz-suggestion-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
-  .sz-suggestion-btn::before { content: '\\2192 '; color: var(--ink-faint); }
-  .sz-input-area { display: flex; gap: 8px; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--rule); }
-  .sz-input-area input { flex: 1; background: var(--bg); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; color: var(--ink); font-size: 15px; font-family: inherit; outline: none; }
-  .sz-input-area input:focus { border-color: var(--accent); }
-  .sz-input-area button { background: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 15px; font-family: inherit; }
-  .sz-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .sz-typing { color: var(--ink-faint); font-style: italic; padding: 0.5rem 1.2rem; font-size: 14px; }
+  /* Session Zero / Foreword — now integrated into main book area, minimal CSS needed */
+  .sz-typing { color: var(--ink-faint); font-style: italic; padding: 0.5rem 0; font-size: 14px; }
   .sz-typing::after { content: '...'; animation: dots 1.5s steps(4) infinite; }
   @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
-  .sz-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
-  .sz-skip-btn { background: none; border: none; color: var(--ink-faint); cursor: pointer; font-size: 12px; }
+  /* The sz-suggestion-btn class is still used by the voice assignment screen */
+  .sz-suggestion-btn { background: var(--bg); border: 1px solid var(--rule); border-radius: 8px; padding: 0.6rem 1rem; cursor: pointer; font-size: 14px; color: var(--ink-mid); text-align: left; font-family: inherit; transition: all 0.15s; }
+  .sz-suggestion-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
   .sz-skip-btn:hover { color: var(--ink-mid); }
   .sz-model-pick { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-light); }
   .sz-model-pick select { background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 8px; font-size: 12px; color: var(--ink-mid); cursor: pointer; }

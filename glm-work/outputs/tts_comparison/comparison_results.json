@@ -1,0 +1,112 @@
+[
+  {
+    "id": "combat_short",
+    "text": "The goblin lunges at you with a rusty blade, snarling with rage.",
+    "engines": {
+      "kokoro": {
+        "duration": 4.95,
+        "gen_time": 5.92395806312561,
+        "rtf": 1.1967592046718405,
+        "fidelity_ratio": 1.16015625,
+        "file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/tts_comparison/combat_short_kokoro.wav",
+        "error": null
+      },
+      "qwen3": {
+        "duration": 4.96,
+        "gen_time": 3.0928421020507812,
+        "rtf": 0.6235568754134639,
+        "fidelity_ratio": 1.1625,
+        "file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/tts_comparison/combat_short_qwen3_000.wav",
+        "error": null
+      }
+    }
+  },
+  {
+    "id": "dialogue_goblin",
+    "text": "Fresh meat for the kettle!",
+    "engines": {
+      "kokoro": {
+        "duration": 2.175,
+        "gen_time": 0.4379889965057373,
+        "rtf": 0.20137425126700567,
+        "fidelity_ratio": 1.254807692307692,
+        "file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/tts_comparison/dialogue_goblin_kokoro.wav",
+        "error": null
+      },
+      "qwen3": {
+        "duration": 1.76,
+        "gen_time": 0.7329859733581543,
+        "rtf": 0.4164693030444058,
+        "fidelity_ratio": 1.0153846153846153,
+        "file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/tts_comparison/dialogue_goblin_qwen3_000.wav",
+        "error": null
+      }
+    }
+  },
+  {
+    "id": "narration_long",
+    "text": "The heavy wooden door of the Rusty Anchor groans open, letting in a bitter gust of mountain air. Inside, the common room is dim and smoky, lit by a few sputtering candles. Two goblin scouts huddle in the corner, their beady eyes glinting in the candlelight as they sharpen crude blades.",
+    "engines": {
+      "kokoro": {
+        "duration": 20.25,
+        "gen_time": 3.107943058013916,
+        "rtf": 0.1534786695315514,
+        "fidelity_ratio": 1.062062937062937,
+        "file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/tts_comparison/narration_long_kokoro.wav",
+        "error": null
+      },
+      "qwen3": {
+        "duration": 160.0,
+        "gen_time": 62.66914200782776,
+        "rtf": 0.3916821375489235,
+        "fidelity_ratio": 8.391608391608392,
+        "file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/tts_comparison/narration_long_qwen3_000.wav",
+        "error": null
+      }
+    }
+  },
+  {
+    "id": "dialogue_kael",
+    "text": "Predictable,\" he growls, pivoting smoothly on his heel.",
+    "engines": {
+      "kokoro": {
+        "duration": 4.325,
+        "gen_time": 0.8516349792480469,
+        "rtf": 0.1969098217914559,
+        "fidelity_ratio": 1.1795454545454547,
+        "file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/tts_comparison/dialogue_kael_kokoro.wav",
+        "error": null
+      },
+      "qwen3": {
+        "duration": 4.32,
+        "gen_time": 5.985094785690308,
+        "rtf": 1.3854386077986822,
+        "fidelity_ratio": 1.1781818181818182,
+        "file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/tts_comparison/dialogue_kael_qwen3_000.wav",
+        "error": null
+      }
+    }
+  },
+  {
+    "id": "action_climax",
+    "text": "Kael drives his longsword forward in a swift, practiced riposte, piercing the scout's chest. The goblin gasps, drops its dagger, and collapses motionless to the tavern floor.",
+    "engines": {
+      "kokoro": {
+        "duration": 12.525,
+        "gen_time": 1.7457151412963867,
+        "rtf": 0.13937845439492108,
+        "fidelity_ratio": 1.079741379310345,
+        "file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/tts_comparison/action_climax_kokoro.wav",
+        "error": null
+      },
+      "qwen3": {
+        "duration": 15.68,
+        "gen_time": 5.875292778015137,
+        "rtf": 0.3746997945162715,
+        "fidelity_ratio": 1.3517241379310345,
+        "file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/tts_comparison/action_climax_qwen3_000.wav",
+        "error": null
+      }
+    }
+  }
+]

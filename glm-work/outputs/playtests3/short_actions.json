@@ -1,0 +1,14 @@
+{
+  "name": "short_actions",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "kokoro",
+    "speed": 1.0,
+    "musicVol": 0.12,
+    "musicSrc": "library",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "turns": [],
+  "errors": []
+}

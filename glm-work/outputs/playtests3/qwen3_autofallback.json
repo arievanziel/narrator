@@ -1,0 +1,14 @@
+{
+  "name": "qwen3_autofallback",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "qwen3",
+    "speed": 1.0,
+    "musicVol": 0.12,
+    "musicSrc": "library",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "turns": [],
+  "errors": []
+}

@@ -1,0 +1,191 @@
+{
+  "name": "gemini_qwen3_fast",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "qwen3",
+    "speed": 1.3,
+    "musicVol": 0.1,
+    "musicSrc": "library",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "scene": "tavern",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The Rusty Anchor's wooden doors creak as Kael steps into the dim, candlelit interior."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Shadows cling to the low-beamed ceiling, and a cold wind whistles through the cracked windows."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Two goblin silhouettes linger near a battered table, their eyes flickering with restless intent."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Kael",
+          "text": "Evening,\" he mutters, hand hovering over the hilt of his longsword."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The scent of stale ale and damp stone hangs heavy, and a low murmur of whispered gossip brushes past."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Kael",
+          "text": "Anyone seen a place to rest?\" he asks, his voice low and wary."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Approach the bar and order a drink",
+          "roll": false
+        },
+        {
+          "text": "Scan the room for threats",
+          "roll": true
+        },
+        {
+          "text": "Take a seat in a shadowed corner",
+          "roll": false
+        },
+        {
+          "text": "Draw your weapon and prepare for combat",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "audio_status": "ready",
+      "audio_duration": 39.1,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/gemini_qwen3_fast_turn_001.wav",
+      "audio_size": 1879244,
+      "total_text": "The Rusty Anchor's wooden doors creak as Kael steps into the dim, candlelit interior. Shadows cling to the low-beamed ceiling, and a cold wind whistles through the cracked windows. Two goblin silhouettes linger near a battered table, their eyes flickering with restless intent. Evening,\" he mutters, hand hovering over the hilt of his longsword. The scent of stale ale and damp stone hangs heavy, and a low murmur of whispered gossip brushes past. Anyone seen a place to rest?\" he asks, his voice low and wary.",
+      "text_length": 510
+    },
+    {
+      "turn": 2,
+      "scene": "combat",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael lets out a gruff battle cry, his heavy chain mail clanking as he surges forward."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The nearest goblin scout scrambles back, its yellow eyes wide with sudden panic."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Kael",
+          "text": "Not on my watch!\" he roars, bringing his longsword down in a fierce arc."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The blade connects with a heavy clang, biting deep into the goblin's shoulder."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The creature shrieks, stumbling backward against a splintered wooden bench."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Follow up with a shield bash to finish off the wounded scout",
+          "roll": true
+        },
+        {
+          "text": "Pivot and strike at the Goblin Raider instead",
+          "roll": true
+        },
+        {
+          "text": "Step back and raise your shield defensively",
+          "roll": true
+        }
+      ],
+      "changes": [
+        "HP: 12 \u2192 12 (+0)",
+        "Goblin Scout HP \u2192 2/7"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I charge boldly into the goblin camp, sword raised!",
+      "audio_status": "ready",
+      "audio_duration": 37.4,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/gemini_qwen3_fast_turn_002.wav",
+      "audio_size": 1794524,
+      "total_text": "Kael lets out a gruff battle cry, his heavy chain mail clanking as he surges forward. The nearest goblin scout scrambles back, its yellow eyes wide with sudden panic. Not on my watch!\" he roars, bringing his longsword down in a fierce arc. The blade connects with a heavy clang, biting deep into the goblin's shoulder. The creature shrieks, stumbling backward against a splintered wooden bench.",
+      "text_length": 394
+    },
+    {
+      "turn": 3,
+      "scene": "combat",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The wounded goblin lunges forward with a rusted dagger, but Kael meets the blow with his raised shield."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Sparks fly as the steel deflects the crude blade, leaving the creature completely off-balance."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Kael",
+          "text": "Predictable,\" he growls, pivoting smoothly on his heel."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael drives his longsword forward in a swift, practiced riposte, piercing the scout's chest."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The goblin gasps, drops its dagger, and collapses motionless to the tavern floor."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Turn your attention to the remaining Goblin Raider and advance",
+          "roll": true
+        },
+        {
+          "text": "Taunt the surviving raider to draw its attack",
+          "roll": false
+        },
+        {
+          "text": "Quick-step to flank the raider near the bar",
+          "roll": true
+        }
+      ],
+      "changes": [
+        "[REJECTED \u2014 no roll evidence] Goblin Scout",
+        "Goblin Raider HP \u2192 7/7"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I parry the goblin's attack and riposte!",
+      "audio_status": "ready",
+      "audio_duration": 45.2,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/gemini_qwen3_fast_turn_003.wav",
+      "audio_size": 2168444,
+      "total_text": "The wounded goblin lunges forward with a rusted dagger, but Kael meets the blow with his raised shield. Sparks fly as the steel deflects the crude blade, leaving the creature completely off-balance. Predictable,\" he growls, pivoting smoothly on his heel. Kael drives his longsword forward in a swift, practiced riposte, piercing the scout's chest. The goblin gasps, drops its dagger, and collapses motionless to the tavern floor.",
+      "text_length": 429
+    }
+  ],
+  "errors": []
+}

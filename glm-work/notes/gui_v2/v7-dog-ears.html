@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrator — v7 Dog-Eared Pages</title>
+<style>
+  :root {
+    --bg: #e6e4e0;
+    --bg-soft: #dedcd8;
+    --bg-panel: #d8d6d2;
+    --ink: #1c1c1a;
+    --ink-mid: #4a4a48;
+    --ink-light: #8a8a86;
+    --ink-faint: #b0b0ac;
+    --rule: #c4c2be;
+    --rule-soft: #d0ceca;
+    --highlight: rgba(28,28,26,0.06);
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --col-left: 0px;
+    --col-right: 0px;
+    --topbar-h: 36px;
+    --audio-h: 44px;
+    --bottom-h: 28px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Iowan Old Style', 'Palatino', 'Book Antiqua', Georgia, serif;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+  .ui-font { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+  /* ===== Layout ===== */
+  /* Grid: topbar (full width) | main+panels | audio | bottom (full width).
+     Column widths use CSS custom properties so both side panels can open simultaneously. */
+  #app {
+    display: grid;
+    grid-template-columns: var(--col-left) 1fr var(--col-right);
+    grid-template-rows: var(--topbar-h) 1fr var(--audio-h) var(--bottom-h);
+    height: 100vh;
+    transition: grid-template-columns 0.3s ease, grid-template-rows 0.3s ease;
+  }
+  #app.show-left { --col-left: 240px; }
+  #app.show-settings { --col-right: 320px; }
+  #app.hide-topbar { --topbar-h: 0px; }
+  #app.hide-bottombar { --bottom-h: 0px; }
+  #app.audio-collapsed { --audio-h: 16px; }
+
+  /* ===== Dog-eared corners — foldable page corners ===== */
+  .float-controls { position: fixed; top: var(--topbar-h); left: 0; right: 0; height: 0; z-index: 100; pointer-events: none; transition: top 0.3s ease; }
+  .float-bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; height: 0; z-index: 200; pointer-events: none; }
+
+  .dog-ear {
+    position: absolute;
+    width: 0; height: 0;
+    cursor: pointer;
+    pointer-events: auto;
+    opacity: 0.35;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .dog-ear:hover { opacity: 0.6; }
+  .dog-ear.active { opacity: 0.5; }
+  /* Top-left fold (left panel) — larger, with shadow for depth */
+  .dog-ear-tl {
+    top: 0; left: 0;
+    border-top: 36px solid var(--ink-faint);
+    border-right: 36px solid transparent;
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.08));
+  }
+  .dog-ear-tl:hover { transform: scale(1.2); transform-origin: top left; }
+  .dog-ear-tl.active { border-top-color: var(--ink-mid); }
+  /* Top-right fold (settings) */
+  .dog-ear-tr {
+    top: 0; right: 0;
+    border-top: 36px solid var(--ink-faint);
+    border-left: 36px solid transparent;
+    filter: drop-shadow(-2px 2px 3px rgba(0,0,0,0.08));
+  }
+  .dog-ear-tr:hover { transform: scale(1.2); transform-origin: top right; }
+  .dog-ear-tr.active { border-top-color: var(--ink-mid); }
+  /* Bottom-left fold (top bar toggle) */
+  .dog-ear-bl {
+    bottom: 0; left: 0;
+    border-bottom: 36px solid var(--ink-faint);
+    border-right: 36px solid transparent;
+    z-index: 200;
+    filter: drop-shadow(2px -2px 3px rgba(0,0,0,0.08));
+  }
+  .dog-ear-bl:hover { transform: scale(1.2); transform-origin: bottom left; }
+  .dog-ear-bl.active { border-bottom-color: var(--ink-mid); }
+  /* Bottom-right fold (bottom bar toggle) */
+  .dog-ear-br {
+    bottom: 0; right: 0;
+    border-bottom: 36px solid var(--ink-faint);
+    border-left: 36px solid transparent;
+    z-index: 200;
+    filter: drop-shadow(-2px -2px 3px rgba(0,0,0,0.08));
+  }
+  .dog-ear-br:hover { transform: scale(1.2); transform-origin: bottom right; }
+  .dog-ear-br.active { border-bottom-color: var(--ink-mid); }
+  /* Icon labels on the folds */
+  .dog-ear::after {
+    position: absolute;
+    font-size: 9px;
+    color: var(--bg-soft);
+    opacity: 0.7;
+    font-family: sans-serif;
+    pointer-events: none;
+  }
+  .dog-ear-tl::after { content: "☰"; top: -28px; left: 4px; }
+  .dog-ear-tr::after { content: "⚙"; top: -28px; right: 4px; }
+  .dog-ear-bl::after { content: "▾"; bottom: -28px; left: 4px; }
+  .dog-ear-br::after { content: "▴"; bottom: -28px; right: 4px; }
+  /* When bottombar is visible, bottom corners move up */
+  #app:not(.hide-bottombar) .dog-ear-bl { bottom: var(--bottom-h); }
+  #app:not(.hide-bottombar) .dog-ear-br { bottom: var(--bottom-h); }
+
+  /* ===== Top bar — full width, hideable ===== */
+  .topbar {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--rule);
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--ink-light);
+    overflow: hidden;
+    z-index: 50;
+  }
+  /* When topbar is hidden, reserve space for toggle buttons at the top */
+  .topbar { padding: 0 1rem; }
+  .topbar-center { display: flex; align-items: center; gap: 1rem; flex: 1; justify-content: center; }
+  .topbar .stat { display: flex; align-items: center; gap: 4px; }
+  .topbar .stat-label { color: var(--ink-faint); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  .topbar .stat-val { color: var(--ink-mid); font-weight: 500; }
+  .topbar .hp-bar { width: 50px; height: 3px; background: var(--rule); border-radius: 2px; overflow: hidden; }
+  .topbar .hp-fill { height: 100%; background: var(--ink-mid); width: 100%; transition: width 0.5s; }
+  .topbar .sep { color: var(--rule); }
+  /* Hide button inside topbar (right side, before settings toggle which is floating) */
+  .bar-hide-btn {
+    background: none; border: none; color: var(--ink-faint);
+    cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px;
+    transition: color 0.2s;
+  }
+  .bar-hide-btn:hover { color: var(--ink); }
+
+  /* ===== Left panel ===== */
+  .left-panel {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    background: var(--bg-soft);
+    border-right: 1px solid var(--rule);
+    overflow-y: auto;
+    padding: 1rem;
+    display: none;
+    position: relative;
+  }
+  #app.show-left .left-panel { display: block; }
+  .panel-section { margin-bottom: 1.5rem; }
+  .panel-h {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .panel-item {
+    font-size: 14px;
+    color: var(--ink-mid);
+    padding: 0.3rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 1.4;
+  }
+  .panel-item .qty { color: var(--ink-light); font-size: 12px; }
+  .panel-item .tag { font-size: 10px; color: var(--ink-faint); padding: 1px 5px; border: 1px solid var(--rule); border-radius: 8px; }
+  .panel-item.equipped .name { font-weight: 500; color: var(--ink); }
+  .panel-item.equipped .tag { color: var(--ink-mid); border-color: var(--ink-light); }
+  .npc-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0.4rem 0; font-size: 14px; color: var(--ink-mid);
+  }
+  .npc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .npc-dot.alive { background: var(--ink-mid); }
+  .npc-dot.dead { background: var(--rule); }
+  .npc-dot.unknown { background: var(--ink-faint); border: 1px dashed var(--ink-light); }
+  .npc-item .npc-status { font-size: 11px; color: var(--ink-faint); margin-left: auto; }
+  .quest-item {
+    font-size: 13px; color: var(--ink-mid); padding: 0.5rem 0;
+    border-bottom: 1px solid var(--rule-soft); line-height: 1.4;
+  }
+  .quest-item:last-child { border-bottom: none; }
+  .quest-item .quest-title { font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+  .quest-item .quest-desc { color: var(--ink-light); font-size: 12px; }
+  .quest-item.done .quest-title { text-decoration: line-through; color: var(--ink-light); }
+  .quest-item.done .quest-desc { color: var(--ink-faint); }
+  .panel-close {
+    position: absolute; top: 8px; right: 8px;
+    background: none; border: none; color: var(--ink-faint);
+    cursor: pointer; font-size: 16px; padding: 4px;
+  }
+  .panel-close:hover { color: var(--ink); }
+
+  /* ===== Right panel (settings) ===== */
+  .right-panel {
+    grid-column: 3;
+    grid-row: 2 / 4;
+    background: var(--bg-soft);
+    border-left: 1px solid var(--rule);
+    overflow-y: auto;
+    padding: 1rem;
+    display: none;
+    position: relative;
+  }
+  #app.show-settings .right-panel { display: block; }
+  .setting-group { margin-bottom: 1.5rem; }
+  .setting-label {
+    font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--ink-faint); margin-bottom: 0.5rem;
+  }
+  .setting-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.4rem 0; font-size: 14px; color: var(--ink-mid);
+  }
+  .setting-row select, .setting-row input[type=text] {
+    background: var(--bg); border: 1px solid var(--rule); color: var(--ink);
+    padding: 5px 8px; border-radius: 4px; font-size: 13px;
+    font-family: inherit; outline: none; max-width: 160px;
+  }
+  .setting-row select:focus, .setting-row input:focus { border-color: var(--ink-light); }
+  .toggle {
+    width: 32px; height: 18px; background: var(--rule); border-radius: 10px;
+    position: relative; cursor: pointer; transition: background 0.2s;
+  }
+  .toggle.on { background: var(--ink-mid); }
+  .toggle::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 14px; height: 14px; background: var(--bg); border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(14px); }
+  .slider-row { padding: 0.4rem 0; }
+  .slider-row .slider-label { font-size: 13px; color: var(--ink-mid); display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .slider-row .slider-val { color: var(--ink-light); font-size: 12px; }
+  .slider-row input[type=range] {
+    width: 100%; -webkit-appearance: none; height: 3px;
+    background: var(--rule); border-radius: 2px; outline: none;
+  }
+  .slider-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--ink-mid); cursor: pointer;
+  }
+  .theme-row { display: flex; gap: 8px; }
+  .theme-swatch {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--rule); cursor: pointer;
+  }
+  .theme-swatch.active { border-color: var(--ink); }
+  .theme-swatch.light { background: #e6e4e0; }
+  .theme-swatch.dark { background: #1c1c1a; }
+  .theme-swatch.sepia { background: #f4ecd8; }
+
+  /* ===== Main reading area ===== */
+  .main {
+    grid-column: 2;
+    grid-row: 2;
+    overflow-y: auto;
+    position: relative;
+  }
+  .main-inner {
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Story content — Ink aesthetic */
+  .title-block { margin-bottom: 3rem; text-align: center; }
+  .title-block h1 {
+    font-size: 20px; font-weight: 400; font-style: italic;
+    color: var(--ink-mid); letter-spacing: 0.5px;
+  }
+  .title-block .subtitle {
+    font-size: 11px; color: var(--ink-faint);
+    margin-top: 0.5rem; letter-spacing: 3px; text-transform: uppercase;
+  }
+  .passage { margin-bottom: 2.5rem; }
+  .passage p { margin-bottom: 1.5rem; }
+  .speaker {
+    font-size: 10px; font-weight: 500; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--ink-light);
+    display: block; margin-bottom: 0.4rem;
+  }
+  .speaker.narrator { display: none; }
+  .dialogue { font-style: italic; }
+  .cue { color: var(--ink-light); font-style: italic; font-size: 14px; }
+  .turn-mark {
+    text-align: center; margin: 3rem 0;
+    color: var(--ink-light); font-size: 10px; letter-spacing: 5px;
+  }
+
+  /* Action elements — subtle inline indicators */
+  .action-line {
+    text-align: center; font-size: 13px; color: var(--ink-light);
+    font-style: italic; margin: 1.5rem 0 0.3rem;
+  }
+  .action-line .action-icon { font-size: 12px; margin-right: 4px; opacity: 0.5; }
+  .dice-roll {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-style: normal; font-size: 12px; color: var(--ink-mid);
+    padding: 2px 8px; border: 1px solid var(--rule); border-radius: 12px;
+    background: var(--bg-soft); cursor: pointer;
+  }
+  .dice-roll .dice-num { font-weight: 500; }
+  .dice-roll.rolling .dice-num { animation: diceShake 0.1s linear infinite; }
+  @keyframes diceShake {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-1px); }
+    75% { transform: translateY(1px); }
+  }
+  .item-change {
+    display: block; font-size: 12px; color: var(--ink-light);
+    text-align: center; margin: 0.5rem 0; font-style: italic;
+  }
+  .item-change.gained::before { content: "+ "; color: var(--ink-mid); }
+  .item-change.lost::before { content: "− "; color: var(--ink-light); }
+  .hp-change {
+    display: inline-block; font-size: 11px; padding: 1px 6px;
+    border-radius: 8px; font-style: normal; font-family: -apple-system, sans-serif;
+  }
+  .hp-change.damage { color: var(--ink-mid); border: 1px solid var(--rule); }
+  .hp-change.heal { color: var(--ink-light); border: 1px solid var(--rule); }
+
+  /* Generating indicator */
+  .generating {
+    text-align: center; color: var(--ink-faint); font-style: italic;
+    font-size: 14px; margin: 2rem 0; display: none;
+  }
+  .generating.show { display: block; }
+  .generating .speck {
+    display: inline-block; width: 3px; height: 3px; border-radius: 50%;
+    background: var(--ink-light); margin: 0 3px;
+    animation: drift 2s ease-in-out infinite;
+  }
+  .generating .speck:nth-child(2) { animation-delay: 0.3s; }
+  .generating .speck:nth-child(3) { animation-delay: 0.6s; }
+  @keyframes drift {
+    0%, 100% { opacity: 0.1; transform: translateY(0); }
+    50% { opacity: 0.6; transform: translateY(-3px); }
+  }
+
+  /* ===== Choices + Input — all in main flow, clean and simple ===== */
+  .choices-block { margin-top: 1rem; }
+  .choices-prompt {
+    font-style: italic; color: var(--ink-light); font-size: 14px;
+    margin-bottom: 1rem;
+  }
+  .choice-list { list-style: none; counter-reset: choice; }
+  .choice-item {
+    counter-increment: choice;
+    margin-bottom: 0.7rem; padding-left: 1.8rem;
+    position: relative; cursor: pointer;
+    transition: color 0.2s, padding-left 0.2s;
+    line-height: 1.5; font-size: 16px; color: var(--ink-mid);
+  }
+  .choice-item::before {
+    content: counter(choice, upper-alpha) ".";
+    position: absolute; left: 0; color: var(--ink-faint);
+    font-size: 12px; font-weight: 500;
+  }
+  .choice-item:hover { color: var(--ink); padding-left: 2rem; }
+  .choice-item:hover::before { color: var(--ink-mid); }
+  .choice-item.disabled { opacity: 0.3; cursor: wait; }
+
+  /* Input row — flows after choices, same visual weight */
+  .input-block {
+    margin-top: 1.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .dice-roller {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .dice-btn {
+    background: none; border: 1px solid var(--rule);
+    width: 28px; height: 24px; border-radius: 4px;
+    color: var(--ink-light); cursor: pointer;
+    font-size: 10px; font-family: -apple-system, sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .dice-btn:hover { border-color: var(--ink-mid); color: var(--ink); }
+  .dice-btn.rolling { animation: diceShake 0.1s linear infinite; border-color: var(--ink-mid); }
+  .dice-result-display {
+    font-size: 11px; color: var(--ink-mid); font-family: -apple-system, sans-serif;
+    min-width: 20px; text-align: center; font-weight: 500;
+  }
+  .text-input {
+    flex: 1; background: none; border: none; color: var(--ink);
+    padding: 0.3rem 0; font-family: inherit; font-size: 16px;
+    font-weight: 300; outline: none;
+  }
+  .text-input::placeholder { color: var(--ink-faint); font-style: italic; }
+  .send-btn {
+    background: none; border: 1px solid var(--rule);
+    width: 30px; height: 30px; border-radius: 50%;
+    color: var(--ink-light); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0; transition: all 0.2s;
+  }
+  .send-btn:hover { border-color: var(--ink-mid); color: var(--ink); }
+  .send-btn:active { transform: scale(0.92); }
+  .send-btn.sending { animation: sendPulse 1s ease-in-out infinite; }
+  @keyframes sendPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+  .send-btn:disabled { opacity: 0.2; cursor: wait; }
+
+  /* ===== Audio bar — collapses to just a line, no bar background ===== */
+  .audio-bar {
+    grid-column: 2;
+    grid-row: 3;
+    background: var(--bg-soft);
+    border-top: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  /* Collapsed: no bar at all, just a line with play button on left and tab on right */
+  #app.audio-collapsed .audio-bar {
+    background: none;
+    border-top: none;
+    padding: 0;
+    gap: 0;
+  }
+  /* Breathing play/pause button — always visible, far left */
+  .audio-play-mini {
+    width: 20px; height: 20px;
+    border: none; background: none;
+    color: var(--ink-mid); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0;
+    opacity: 0.5; transition: opacity 0.2s;
+  }
+  .audio-play-mini:hover { opacity: 1; }
+  .audio-play-mini.playing { animation: breathe 2s ease-in-out infinite; }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+  }
+  /* Audio line — the thin progress line, clickable to expand */
+  .audio-line {
+    flex: 1; height: 2px; background: var(--rule);
+    border-radius: 1px; overflow: hidden; min-width: 20px;
+    cursor: pointer;
+  }
+  .audio-line .fill {
+    height: 100%; background: var(--ink-mid); width: 35%;
+    transition: width 0.5s linear;
+  }
+  /* Tiny expand tab on far right — always visible when collapsed */
+  .audio-expand-tab {
+    width: 12px; height: 12px;
+    border: none; background: none;
+    color: var(--ink-faint); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; flex-shrink: 0;
+    opacity: 0.4; transition: opacity 0.2s;
+  }
+  .audio-expand-tab:hover { opacity: 0.8; }
+  /* Expanded-only elements */
+  .audio-play-btn {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 1px solid var(--rule); background: var(--bg);
+    color: var(--ink-mid); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0; transition: border-color 0.2s;
+  }
+  .audio-play-btn:hover { border-color: var(--ink-light); }
+  .audio-label {
+    font-size: 10px; color: var(--ink-faint); letter-spacing: 1px;
+    text-transform: uppercase; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .audio-time {
+    font-size: 11px; color: var(--ink-faint);
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+  .audio-ctrl-btn {
+    background: none; border: none; color: var(--ink-light);
+    cursor: pointer; font-size: 13px; padding: 2px 4px; border-radius: 4px;
+  }
+  .audio-ctrl-btn:hover { color: var(--ink); }
+  .audio-collapse-btn {
+    background: none; border: none; color: var(--ink-faint);
+    cursor: pointer; font-size: 12px; padding: 2px 4px;
+    flex-shrink: 0; transition: color 0.2s;
+  }
+  .audio-collapse-btn:hover { color: var(--ink); }
+  .audio-collapse-btn::before { content: "▾"; }
+  /* Collapsed state: show only mini play button + line + expand tab */
+  #app.audio-collapsed .audio-line-expanded {
+    display: none;
+  }
+  #app:not(.audio-collapsed) .audio-line-collapsed {
+    display: none;
+  }
+  #app.audio-collapsed .audio-play-btn,
+  #app.audio-collapsed .audio-label,
+  #app.audio-collapsed .audio-time,
+  #app.audio-collapsed .audio-ctrl-btn,
+  #app.audio-collapsed .audio-collapse-btn {
+    display: none;
+  }
+  /* Expanded state: hide mini elements */
+  #app:not(.audio-collapsed) .audio-play-mini,
+  #app:not(.audio-collapsed) .audio-expand-tab {
+    display: none;
+  }
+
+  /* ===== Bottom info bar — full width, hideable ===== */
+  .bottom-bar {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    background: var(--bg);
+    border-top: 1px solid var(--rule-soft);
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.5px;
+    overflow: hidden;
+  }
+  .bottom-bar .save-dot {
+    display: inline-block; width: 5px; height: 5px;
+    border-radius: 50%; background: var(--ink-light);
+    margin-right: 5px; animation: breathe 3s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+<div id="app" class="audio-collapsed">
+
+  <!-- ===== Dog-eared corners ===== -->
+  <div class="float-controls">
+    <div class="dog-ear dog-ear-tl" onclick="togglePanel('left')" id="toggleLeftBtn" title="Character panel"></div>
+    <div class="dog-ear dog-ear-tr" onclick="togglePanel('settings')" id="toggleSettingsBtn" title="Settings"></div>
+  </div>
+  <div class="float-bottom-controls">
+    <div class="dog-ear dog-ear-bl" onclick="toggleBar('topbar')" title="Toggle status bar"></div>
+    <div class="dog-ear dog-ear-br" onclick="toggleBar('bottombar')" title="Toggle info bar"></div>
+  </div>
+
+  <!-- ===== Top bar — full width, hideable ===== -->
+  <div class="topbar ui-font">
+    <div class="topbar-center">
+      <span class="stat"><span class="stat-label">HP</span><span class="stat-val">12/12</span><div class="hp-bar"><div class="hp-fill" id="hpFillTop"></div></div></span>
+      <span class="sep">·</span>
+      <span class="stat"><span class="stat-label">AC</span><span class="stat-val">16</span></span>
+      <span class="sep">·</span>
+      <span class="stat"><span class="stat-label">Lvl</span><span class="stat-val">1</span></span>
+      <span class="sep">·</span>
+      <span class="stat"><span class="stat-label">Turn</span><span class="stat-val" id="turnDisplay">4</span></span>
+      <span class="sep">·</span>
+      <span class="stat"><span class="stat-label">Loc</span><span class="stat-val">Quill's Hollow</span></span>
+      <span class="sep">·</span>
+      <span class="stat"><span class="stat-label">Time</span><span class="stat-val">Night</span></span>
+
+    </div>
+  </div>
+
+  <!-- ===== Left panel — Character / Inventory / NPCs / Quests ===== -->
+  <div class="left-panel ui-font">
+    <button class="panel-close" onclick="togglePanel('left')">×</button>
+
+    <div class="panel-section">
+      <div class="panel-h">Character</div>
+      <div class="panel-item"><span class="name">Mireth Pollenwake</span></div>
+      <div class="panel-item"><span>Level 1 Fighter</span></div>
+      <div class="panel-item"><span>HP</span><span class="qty">12 / 12</span></div>
+      <div class="panel-item"><span>AC</span><span class="qty">16</span></div>
+      <div class="panel-item"><span>STR</span><span class="qty">16 (+3)</span></div>
+      <div class="panel-item"><span>DEX</span><span class="qty">12 (+1)</span></div>
+      <div class="panel-item"><span>CON</span><span class="qty">14 (+2)</span></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-h">Equipment</div>
+      <div class="panel-item equipped"><span class="name">Longsword</span><span class="tag">1d8+3</span></div>
+      <div class="panel-item equipped"><span class="name">Chain mail</span><span class="tag">AC 16</span></div>
+      <div class="panel-item equipped"><span class="name">Shield</span><span class="tag">+2 AC</span></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-h">Inventory</div>
+      <div class="panel-item"><span>Health Potion</span><span class="qty">×2</span></div>
+      <div class="panel-item"><span>Torch</span><span class="qty">×3</span></div>
+      <div class="panel-item"><span>Waterskin</span><span class="qty">×1</span></div>
+      <div class="panel-item"><span>50ft rope</span><span class="qty">×1</span></div>
+      <div class="panel-item"><span>Crude dagger</span><span class="tag">looted</span></div>
+      <div class="panel-item"><span>Goblin parchment</span><span class="tag">quest</span></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-h">Known NPCs</div>
+      <div class="npc-item"><div class="npc-dot unknown"></div><span>The Stranger</span><span class="npc-status">wounded</span></div>
+      <div class="npc-item"><div class="npc-dot alive"></div><span>Barkeep Tomas</span><span class="npc-status">unconscious</span></div>
+      <div class="npc-item"><div class="npc-dot dead"></div><span>Goblin Raider</span><span class="npc-status">dead</span></div>
+      <div class="npc-item"><div class="npc-dot dead"></div><span>Goblin Scout</span><span class="npc-status">fled</span></div>
+      <div class="npc-item"><div class="npc-dot unknown"></div><span>The Hooded Figure</span><span class="npc-status">unseen</span></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-h">Quest Log</div>
+      <div class="quest-item">
+        <div class="quest-title">The Wounded Stranger</div>
+        <div class="quest-desc">Treat his wounds and learn why the marsh let him through.</div>
+      </div>
+      <div class="quest-item">
+        <div class="quest-title">The Still Reeds</div>
+        <div class="quest-desc">Something is holding the reeds. Find out what — and whether it's still outside.</div>
+      </div>
+      <div class="quest-item done">
+        <div class="quest-title">Goblins at the Rusty Anchor</div>
+        <div class="quest-desc">Defeated the raiders. Scout fled into the marsh.</div>
+      </div>
+      <div class="quest-item">
+        <div class="quest-title">The Horned Symbol</div>
+        <div class="quest-desc">A parchment bears a horned helm sigil. Who orders the goblin raids?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Main content — story + choices + input all in one scrolling area ===== -->
+  <div class="main" id="main">
+    <div class="main-inner">
+      <div class="story" id="story">
+        <div class="title-block">
+          <h1>The Marsh at Quill's Hollow</h1>
+          <div class="subtitle ui-font">Chapter One</div>
+        </div>
+
+        <div class="passage">
+          <p>The marsh had a memory, Mireth knew, longer than any living thing in Quill's Hollow cared to admit. She had grown up on its edge — close enough that the smell of peat and black water lived in the walls of her mother's house, close enough that the lantern in the window each night was not decoration but defense.</p>
+        </div>
+
+        <div class="turn-mark">— III —</div>
+
+        <div class="passage">
+          <p><span class="speaker">Mireth</span><span class="dialogue">"You're not from Quill's Hollow,"</span> she said — not a question.</p>
+          <p><span class="speaker">The Stranger</span><span class="dialogue">"No,"</span> he said, and the word came out like something he had to carry.</p>
+        </div>
+
+        <div class="turn-mark">— IV —</div>
+
+        <div class="action-line you"><span class="action-icon">›</span>you: press him for his name</div>
+
+        <div class="passage">
+          <p>She set the needle to the worst of the wounds at his ribs. He did not flinch. Outside, the reeds began to move again — slowly, deliberately, as if something out there had decided it was done waiting.</p>
+        </div>
+
+        <div class="action-line">
+          <span class="dice-roll" onclick="rollDiceInline(this)"><span>🎲</span> <span class="dice-num">—</span> <span style="color:var(--ink-faint)">medicine</span></span>
+        </div>
+
+        <div class="passage">
+          <p><span class="speaker">Mireth</span><span class="cue">(quietly, not looking up)</span> <span class="dialogue">"I've seen this kind of wound once before. The man who had it didn't live through the night. You will, if you do exactly what I tell you."</span></p>
+        </div>
+
+        <div class="item-change gained">Health Potion ×1 used</div>
+
+        <div class="action-line">
+          <span class="hp-change heal">+2 HP treated</span>
+        </div>
+
+        <div class="passage">
+          <p><span class="speaker">The Stranger</span><span class="dialogue">"I've had worse,"</span> he said. It was a lie, and they both knew it, and the marsh knew it too.</p>
+        </div>
+      </div>
+
+      <div class="generating" id="genIndicator">
+        the marsh stirs
+        <span class="speck"></span><span class="speck"></span><span class="speck"></span>
+      </div>
+
+      <!-- Choices + Input — all in main flow -->
+      <div class="choices-block" id="choicesBlock">
+        <div class="choices-prompt">What does Mireth do?</div>
+        <ul class="choice-list" id="choiceList">
+          <li class="choice-item" onclick="pick(this)">Press him for his name before treating the wounds.</li>
+          <li class="choice-item" onclick="pick(this)">Work in silence — the marsh teaches that questions can wait.</li>
+          <li class="choice-item" onclick="pick(this)">Check the door. The reeds were still. That's wrong.</li>
+        </ul>
+      </div>
+
+      <div class="input-block">
+        <div class="input-row">
+          <div class="dice-roller">
+            <button class="dice-btn" onclick="rollDice(this, 20)">d20</button>
+            <button class="dice-btn" onclick="rollDice(this, 8)">d8</button>
+            <span class="dice-result-display" id="diceResultDisplay"></span>
+          </div>
+          <input type="text" class="text-input" id="customInput" placeholder="or in your own words…" onkeypress="if(event.key==='Enter')submitCustom()">
+          <button class="send-btn" id="sendBtn" onclick="submitCustom()" title="Send">→</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Audio bar — collapses to just a line ===== -->
+  <div class="audio-bar ui-font">
+    <!-- Collapsed: breathing play button + line + expand tab -->
+    <button class="audio-play-mini playing" id="audioPlayMini" onclick="toggleAudio()" title="Play/Pause">▶</button>
+    <div class="audio-line audio-line-collapsed" onclick="expandAudio()" title="Open audio bar"><div class="fill" id="audioFillMini"></div></div>
+    <button class="audio-expand-tab" onclick="expandAudio()" title="Open audio bar">▴</button>
+    <!-- Expanded: full audio bar -->
+    <button class="audio-play-btn" id="audioPlayBtn" onclick="toggleAudio()">▶</button>
+    <div class="audio-line audio-line-expanded" onclick="toggleAudio()"><div class="fill" id="audioFill"></div></div>
+    <span class="audio-label" id="audioLabel">Narrator · turn IV</span>
+    <span class="audio-time" id="audioTime">0:12 / 0:34</span>
+    <button class="audio-ctrl-btn" onclick="skipAudio(-1)" title="Previous">⏮</button>
+    <button class="audio-ctrl-btn" onclick="skipAudio(1)" title="Next">⏭</button>
+    <button class="audio-collapse-btn" onclick="toggleAudioCollapse()" title="Collapse"></button>
+  </div>
+
+  <!-- ===== Bottom info bar (row 5) ===== -->
+  <div class="bottom-bar ui-font">
+    <span>Quill's Hollow · Night</span>
+    <span><span class="save-dot"></span>auto-saved</span>
+    <span>Qwen3-TTS</span>
+  </div>
+
+  <!-- ===== Right panel — Settings ===== -->
+  <div class="right-panel ui-font">
+    <button class="panel-close" onclick="togglePanel('settings')">×</button>
+
+    <div class="panel-section">
+      <div class="panel-h">Theme</div>
+      <div class="theme-row">
+        <div class="theme-swatch light active" onclick="setTheme(this,'light')" title="Light"></div>
+        <div class="theme-swatch dark" onclick="setTheme(this,'dark')" title="Dark"></div>
+        <div class="theme-swatch sepia" onclick="setTheme(this,'sepia')" title="Sepia"></div>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Contrast</div>
+      <div class="slider-row">
+        <div class="slider-label"><span>Text contrast</span><span class="slider-val" id="contrastVal">default</span></div>
+        <input type="range" min="0" max="100" value="50" oninput="updateContrast(this.value)" id="contrastSlider">
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Typography</div>
+      <div class="setting-row">
+        <span>Font size</span>
+        <select onchange="setFontSize(this.value)">
+          <option value="15">Small</option>
+          <option value="17" selected>Medium</option>
+          <option value="19">Large</option>
+          <option value="21">Extra large</option>
+        </select>
+      </div>
+      <div class="slider-row">
+        <div class="slider-label"><span>Line spacing</span><span class="slider-val" id="spacingVal">1.85</span></div>
+        <input type="range" min="140" max="220" value="185" oninput="updateSpacing(this.value)" id="spacingSlider">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label"><span>Page width</span><span class="slider-val" id="widthVal">narrow</span></div>
+        <input type="range" min="28" max="48" value="34" oninput="updateWidth(this.value)" id="widthSlider">
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Story AI</div>
+      <div class="setting-row">
+        <span>Model</span>
+        <select>
+          <option>GPT-OSS 120B (Groq)</option>
+          <option>Gemini 3.5 Flash-Lite</option>
+          <option>Claude Sonnet</option>
+          <option>Local Llama 3.3</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <span>Choice style</span>
+        <select>
+          <option>3 suggestions + free text</option>
+          <option>Free text only</option>
+          <option>5 suggestions, no free text</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <span>Auto-roll dice</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Voice / TTS</div>
+      <div class="setting-row">
+        <span>Engine</span>
+        <select>
+          <option>Qwen3-TTS VoiceDesign</option>
+          <option>Kokoro (presets)</option>
+          <option>Higgs Audio (clone)</option>
+          <option>Auto (per character)</option>
+        </select>
+      </div>
+      <div class="slider-row">
+        <div class="slider-label"><span>Playback speed</span><span class="slider-val" id="speedVal">1.0×</span></div>
+        <input type="range" min="70" max="150" value="100" oninput="updateSpeed(this.value)" id="speedSlider">
+      </div>
+      <div class="setting-row">
+        <span>Streaming playback</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <span>Smart pauses</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Audio</div>
+      <div class="slider-row">
+        <div class="slider-label"><span>Voice volume</span><span class="slider-val" id="voiceVolVal">80%</span></div>
+        <input type="range" min="0" max="100" value="80" oninput="updateVol('voiceVolVal',this.value,'%')">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label"><span>Music volume</span><span class="slider-val" id="musicVolVal">40%</span></div>
+        <input type="range" min="0" max="100" value="40" oninput="updateVol('musicVolVal',this.value,'%')">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label"><span>SFX volume</span><span class="slider-val" id="sfxVolVal">60%</span></div>
+        <input type="range" min="0" max="100" value="60" oninput="updateVol('sfxVolVal',this.value,'%')">
+      </div>
+      <div class="setting-row">
+        <span>Ambient bed</span>
+        <select>
+          <option>Marsh at night (auto)</option>
+          <option>Tavern murmur</option>
+          <option>Forest, wind</option>
+          <option>None</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <span>Duck music on dialogue</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Display</div>
+      <div class="setting-row">
+        <span>Show dice roller</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <span>Show action indicators</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <span>Auto-hide chrome</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <span>Auto-scroll new text</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="panel-h">Session</div>
+      <div class="setting-row">
+        <span>Save to</span>
+        <select>
+          <option>Local folder</option>
+          <option>iCloud Drive</option>
+          <option>Custom path…</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <span>Auto-save turns</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let turn = 4;
+let audioPlaying = true;
+let audioPos = 12;
+
+// ===== Panel toggling — all independent, no mutual exclusion =====
+function togglePanel(name) {
+  const app = document.getElementById('app');
+  if (name === 'left') {
+    app.classList.toggle('show-left');
+  } else if (name === 'settings') {
+    app.classList.toggle('show-settings');
+  }
+  // Update toggle button active states
+  document.getElementById('toggleLeftBtn').classList.toggle('active', app.classList.contains('show-left'));
+  document.getElementById('toggleSettingsBtn').classList.toggle('active', app.classList.contains('show-settings'));
+}
+
+// ===== Bar toggling (top bar and bottom bar can be hidden) =====
+function toggleBar(name) {
+  const app = document.getElementById('app');
+  if (name === 'topbar') {
+    app.classList.toggle('hide-topbar');
+  } else if (name === 'bottombar') {
+    app.classList.toggle('hide-bottombar');
+  }
+}
+
+// ===== Audio controls =====
+function toggleAudio() {
+  audioPlaying = !audioPlaying;
+  document.getElementById('audioPlayBtn').textContent = audioPlaying ? '▶' : '⏸';
+  document.getElementById('audioPlayMini').textContent = audioPlaying ? '▶' : '⏸';
+  document.getElementById('audioPlayMini').classList.toggle('playing', audioPlaying);
+}
+function skipAudio(dir) {
+  audioPos = 0;
+}
+function toggleAudioCollapse() {
+  document.getElementById('app').classList.add('audio-collapsed');
+}
+function expandAudio() {
+  document.getElementById('app').classList.remove('audio-collapsed');
+}
+
+// Audio progress simulation
+setInterval(() => {
+  if (!audioPlaying) return;
+  audioPos += 0.8;
+  if (audioPos > 34) audioPos = 0;
+  const pct = (audioPos/34*100) + '%';
+  document.getElementById('audioFill').style.width = pct;
+  document.getElementById('audioFillMini').style.width = pct;
+  document.getElementById('audioTime').textContent = '0:' + String(Math.floor(audioPos)).padStart(2,'0') + ' / 0:34';
+}, 500);
+
+// ===== Dice roller =====
+function rollDice(btn, sides) {
+  btn.classList.add('rolling');
+  let count = 0;
+  const interval = setInterval(() => {
+    btn.textContent = Math.floor(Math.random() * sides) + 1;
+    count++;
+    if (count > 8) {
+      clearInterval(interval);
+      btn.classList.remove('rolling');
+      const result = Math.floor(Math.random() * sides) + 1;
+      btn.textContent = 'd' + sides;
+      document.getElementById('diceResultDisplay').textContent = result;
+    }
+  }, 80);
+}
+
+function rollDiceInline(el) {
+  const numEl = el.querySelector('.dice-num');
+  el.classList.add('rolling');
+  let count = 0;
+  const interval = setInterval(() => {
+    numEl.textContent = Math.floor(Math.random() * 20) + 1;
+    count++;
+    if (count > 10) {
+      clearInterval(interval);
+      el.classList.remove('rolling');
+      numEl.textContent = Math.floor(Math.random() * 20) + 1;
+    }
+  }, 80);
+}
+
+// ===== Settings handlers =====
+function setTheme(swatch, theme) {
+  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
+  swatch.classList.add('active');
+  if (theme === 'dark') {
+    document.documentElement.style.setProperty('--bg', '#1a1a18');
+    document.documentElement.style.setProperty('--bg-soft', '#222220');
+    document.documentElement.style.setProperty('--bg-panel', '#282826');
+    document.documentElement.style.setProperty('--ink', '#e4e2dc');
+    document.documentElement.style.setProperty('--ink-mid', '#a8a6a0');
+    document.documentElement.style.setProperty('--ink-light', '#7a7874');
+    document.documentElement.style.setProperty('--ink-faint', '#5a5854');
+    document.documentElement.style.setProperty('--rule', '#383834');
+    document.documentElement.style.setProperty('--rule-soft', '#2e2e2a');
+    document.documentElement.style.setProperty('--highlight', 'rgba(228,226,220,0.06)');
+  } else if (theme === 'sepia') {
+    document.documentElement.style.setProperty('--bg', '#f4ecd8');
+    document.documentElement.style.setProperty('--bg-soft', '#ede5d0');
+    document.documentElement.style.setProperty('--bg-panel', '#e8e0c8');
+    document.documentElement.style.setProperty('--ink', '#2b2118');
+    document.documentElement.style.setProperty('--ink-mid', '#5c4a3a');
+    document.documentElement.style.setProperty('--ink-light', '#8a7a66');
+    document.documentElement.style.setProperty('--ink-faint', '#b0a080');
+    document.documentElement.style.setProperty('--rule', '#d8cebc');
+    document.documentElement.style.setProperty('--rule-soft', '#e0d6c4');
+    document.documentElement.style.setProperty('--highlight', 'rgba(43,33,24,0.06)');
+  } else {
+    document.documentElement.style.setProperty('--bg', '#e6e4e0');
+    document.documentElement.style.setProperty('--bg-soft', '#dedcd8');
+    document.documentElement.style.setProperty('--bg-panel', '#d8d6d2');
+    document.documentElement.style.setProperty('--ink', '#1c1c1a');
+    document.documentElement.style.setProperty('--ink-mid', '#4a4a48');
+    document.documentElement.style.setProperty('--ink-light', '#8a8a86');
+    document.documentElement.style.setProperty('--ink-faint', '#b0b0ac');
+    document.documentElement.style.setProperty('--rule', '#c4c2be');
+    document.documentElement.style.setProperty('--rule-soft', '#d0ceca');
+    document.documentElement.style.setProperty('--highlight', 'rgba(28,28,26,0.06)');
+  }
+}
+
+function updateContrast(val) {
+  const label = val < 30 ? 'soft' : val > 70 ? 'sharp' : 'default';
+  document.getElementById('contrastVal').textContent = label;
+}
+
+function setFontSize(size) {
+  document.body.style.fontSize = size + 'px';
+}
+
+function updateSpacing(val) {
+  const lh = (val / 100).toFixed(2);
+  document.getElementById('spacingVal').textContent = lh;
+  document.body.style.lineHeight = lh;
+}
+
+function updateWidth(val) {
+  const rem = val + 'rem';
+  document.getElementById('widthVal').textContent = val < 32 ? 'narrow' : val > 42 ? 'wide' : 'medium';
+  document.querySelector('.main-inner').style.maxWidth = rem;
+}
+
+function updateSpeed(val) {
+  document.getElementById('speedVal').textContent = (val/100).toFixed(1) + '×';
+}
+
+function updateVol(id, val, suffix) {
+  document.getElementById(id).textContent = val + suffix;
+}
+
+// ===== Story interaction =====
+const responses = [
+  { speaker: '', narrator: true, text: 'She set the needle to the worst of the wounds at his ribs. He did not flinch. Outside, the reeds began to move again — slowly, deliberately, as if something out there had decided it was done waiting.' },
+  { speaker: 'Mireth', narrator: false, cue: '(quietly, not looking up)', dialogue: true, text: '"I\'ve seen this kind of wound once before. The man who had it didn\'t live through the night. You will, if you do exactly what I tell you."' },
+  { speaker: 'The Stranger', narrator: false, dialogue: true, text: '"I\'ve had worse," he said. It was a lie, and they both knew it, and the marsh knew it too.' },
+  { speaker: '', narrator: true, text: 'The lamp guttered. Thunder again, closer now, and with it the smell of rain on peat — the marsh\'s oldest warning. Mireth did not look toward the door. She looked at the stranger\'s hands, and at what his hands were not doing, and that was the third wrong thing.' },
+  { speaker: '', narrator: true, text: 'Somewhere beyond the reeds, something breathed. Not the wind. Not an animal. Something that had learned to breathe like both, and was now learning to breathe like neither.' },
+];
+let respIdx = 0;
+const numerals = ['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX'];
+
+function pick(el) {
+  document.querySelectorAll('.choice-item').forEach(c => c.classList.add('disabled'));
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('customInput').disabled = true;
+  const action = el.textContent.trim();
+  generateTurn(action);
+}
+
+function submitCustom() {
+  const input = document.getElementById('customInput');
+  if (!input.value.trim()) return;
+  const action = input.value.trim();
+  input.value = '';
+  document.querySelectorAll('.choice-item').forEach(c => c.classList.add('disabled'));
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('customInput').disabled = true;
+  document.getElementById('sendBtn').classList.add('sending');
+  generateTurn(action);
+}
+
+function generateTurn(action) {
+  document.getElementById('genIndicator').classList.add('show');
+  audioPos = 0;
+  audioPlaying = true;
+  document.getElementById('audioPlayBtn').textContent = '▶';
+  document.getElementById('audioBreath').classList.remove('paused');
+
+  setTimeout(() => {
+    document.getElementById('genIndicator').classList.remove('show');
+    document.getElementById('sendBtn').classList.remove('sending');
+    turn += 1;
+    document.getElementById('turnDisplay').textContent = turn;
+    const r = responses[respIdx % responses.length];
+    respIdx++;
+    const story = document.getElementById('story');
+
+    // "you:" line — subtle
+    const youSaid = document.createElement('div');
+    youSaid.className = 'action-line you';
+    youSaid.innerHTML = `<span class="action-icon">›</span>you: ${action.slice(0,50)}${action.length>50?'…':''}`;
+    story.appendChild(youSaid);
+
+    // Turn mark
+    const mark = document.createElement('div');
+    mark.className = 'turn-mark';
+    mark.textContent = `— ${numerals[turn] || turn} —`;
+    story.appendChild(mark);
+
+    // Narration
+    const passage = document.createElement('div');
+    passage.className = 'passage';
+    const p = document.createElement('p');
+    if (r.speaker) {
+      const sp = document.createElement('span');
+      sp.className = 'speaker' + (r.narrator ? ' narrator' : '');
+      sp.textContent = r.speaker;
+      p.appendChild(sp);
+    }
+    if (r.cue) {
+      const cue = document.createElement('span');
+      cue.className = 'cue';
+      cue.textContent = r.cue + ' ';
+      p.appendChild(cue);
+    }
+    if (r.dialogue) {
+      const d = document.createElement('span');
+      d.className = 'dialogue';
+      d.textContent = r.text;
+      p.appendChild(d);
+    } else {
+      p.appendChild(document.createTextNode(r.text));
+    }
+    passage.appendChild(p);
+    story.appendChild(passage);
+
+    // Randomly add action indicators for variety
+    if (Math.random() > 0.5) {
+      const dice = document.createElement('div');
+      dice.className = 'action-line';
+      dice.innerHTML = `<span class="dice-roll" onclick="rollDiceInline(this)"><span>🎲</span> <span class="dice-num">—</span> <span style="color:var(--ink-faint)">perception</span></span>`;
+      story.appendChild(dice);
+    }
+    if (Math.random() > 0.6) {
+      const item = document.createElement('div');
+      item.className = 'item-change gained';
+      item.textContent = 'Goblin parchment examined';
+      story.appendChild(item);
+    }
+
+    // Update audio label
+    document.getElementById('audioLabel').textContent = (r.narrator ? 'Narrator' : r.speaker) + ' · turn ' + (numerals[turn] || turn);
+
+    // Scroll
+    passage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    document.querySelectorAll('.choice-item').forEach(c => c.classList.remove('disabled'));
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('customInput').disabled = false;
+  }, 2000);
+}
+</script>
+</body>
+</html>

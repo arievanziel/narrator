@@ -1,0 +1,120 @@
+{
+  "campaign_id": "golden_test_6",
+  "rules_profile": {
+    "name": "dnd5e_lite",
+    "dc_ladder": {
+      "trivial": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "very_hard": 25
+    },
+    "ability_list": [
+      "STR",
+      "DEX",
+      "CON",
+      "INT",
+      "WIS",
+      "CHA"
+    ],
+    "hp_model": "flat",
+    "crit_rule": "nat20_success_nat1_failure"
+  },
+  "campaign_meta": {},
+  "entities": {
+    "pc_0001_testhero": {
+      "id": "pc_0001_testhero",
+      "type": "pc",
+      "name": "TestHero",
+      "norm_name": "testhero",
+      "summary": "",
+      "attributes": {
+        "hp": 12,
+        "max_hp": 12,
+        "disposition": "friendly",
+        "voice_description": "player",
+        "inventory": [],
+        "stats": {
+          "STR": 16,
+          "DEX": 12,
+          "CON": 14,
+          "INT": 10,
+          "WIS": 10,
+          "CHA": 10
+        }
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 0,
+      "last_seen_turn": 0,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "location_0002_ravenshade": {
+      "id": "location_0002_ravenshade",
+      "type": "location",
+      "name": "Ravenshade",
+      "norm_name": "ravenshade",
+      "summary": "abandoned village with broken gates and ash-scented wind",
+      "attributes": {
+        "summary": "abandoned village with broken gates and ash-scented wind"
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 1,
+      "last_seen_turn": 1,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "npc_0003_maracrow": {
+      "id": "npc_0003_maracrow",
+      "type": "npc",
+      "name": "Mara Crow",
+      "norm_name": "mara crow",
+      "summary": "tavern keeper with grey hair and a sharp wit,disposition:neutral,hp:8,max_hp:8,ac:10,voice_description:weathered female voice with a hint of mystery",
+      "attributes": {
+        "summary": "tavern keeper with grey hair and a sharp wit,disposition:neutral,hp:8,max_hp:8,ac:10,voice_description:weathered female voice with a hint of mystery"
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 1,
+      "last_seen_turn": 1,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "location_0004_thecrookedcr": {
+      "id": "location_0004_thecrookedcr",
+      "type": "location",
+      "name": "The Crooked Crow",
+      "norm_name": "crooked crow",
+      "summary": "weathered tavern still lit from within",
+      "attributes": {
+        "summary": "weathered tavern still lit from within"
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 1,
+      "last_seen_turn": 1,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    }
+  },
+  "aliases": {
+    "testhero": "pc_0001_testhero",
+    "ravenshade": "location_0002_ravenshade",
+    "mara crow": "npc_0003_maracrow",
+    "crooked crow": "location_0004_thecrookedcr"
+  },
+  "turn_count": 0,
+  "entity_counter": 4,
+  "chapters": [],
+  "schema_version": 2
+}

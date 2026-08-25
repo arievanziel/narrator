@@ -1,0 +1,172 @@
+{
+  "name": "qwen3_with_fallback",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "qwen3",
+    "speed": 1.0,
+    "musicVol": 0.12,
+    "musicSrc": "library",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "scene": "tavern",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael pushes open the heavy oak door of the Rusty Anchor, stepping out of the biting mountain wind and into a reek of stale ale and burning tallow."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The tavern is deathly quiet for an evening, its few patrons huddled in deep shadows, watching the door with hollow, paranoid eyes."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Two armed goblins wearing crudely patched leather armor stand by the hearth, casually tossing silver coins stolen from the village elders."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The taller of the two spots Kael in the doorway, snarls, and draws a jagged shortsword with a harsh scrape of metal."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Another stray dog for the slaughter! Get him!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Draw your longsword and step forward to challenge the goblins",
+          "roll": false
+        },
+        {
+          "text": "Shout a warning to the cowering villagers while raising your shield",
+          "roll": false
+        },
+        {
+          "text": "Charge directly at the nearest goblin and strike",
+          "roll": true
+        }
+      ],
+      "changes": [],
+      "model": "gemini-3.5-flash-lite",
+      "audio_status": "ready",
+      "audio_duration": 15.2,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/qwen3_with_fallback_turn_001.wav",
+      "total_text": "Kael pushes open the heavy oak door of the Rusty Anchor, stepping out of the biting mountain wind and into a reek of stale ale and burning tallow. The tavern is deathly quiet for an evening, its few patrons huddled in deep shadows, watching the door with hollow, paranoid eyes. Two armed goblins wearing crudely patched leather armor stand by the hearth, casually tossing silver coins stolen from the village elders. The taller of the two spots Kael in the doorway, snarls, and draws a jagged shortsword with a harsh scrape of metal. Another stray dog for the slaughter! Get him!",
+      "text_length": 579,
+      "fidelity_ratio": 0.3937823834196891
+    },
+    {
+      "turn": 2,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael ignores the drawn blades of the goblins for a split second, casting a veteran's calculating eye toward the ancient stone masonry near the hearth."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Faint, glowing runes pulse beneath a layer of soot on the wall, hinting at forgotten warding magic from a safer era."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The lead goblin misinterpretes Kael's hesitation as fear, lunging forward with its jagged shortsword aimed at Kael's midsection."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael instinctively throws up his shield just in time, deflecting the blade with a deafening screech of metal against steel."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Counterattack with your longsword against the aggressive goblin scout",
+          "roll": true
+        },
+        {
+          "text": "Shout an incantation to try and activate the glowing runes on the wall",
+          "roll": true
+        },
+        {
+          "text": "Push the goblin away with your shield and take a defensive stance",
+          "roll": false
+        }
+      ],
+      "changes": [
+        "HP: 12 \u2192 9 (-3)",
+        "Goblin Scout HP \u2192 7/7"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I carefully examine the ancient runes on the wall.",
+      "audio_status": "ready",
+      "audio_duration": 3.9,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/qwen3_with_fallback_turn_002.wav",
+      "total_text": "Kael ignores the drawn blades of the goblins for a split second, casting a veteran's calculating eye toward the ancient stone masonry near the hearth. Faint, glowing runes pulse beneath a layer of soot on the wall, hinting at forgotten warding magic from a safer era. The lead goblin misinterpretes Kael's hesitation as fear, lunging forward with its jagged shortsword aimed at Kael's midsection. Kael instinctively throws up his shield just in time, deflecting the blade with a deafening screech of metal against steel.",
+      "text_length": 520,
+      "fidelity_ratio": 0.1125
+    },
+    {
+      "turn": 3,
+      "scene": "mystery",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael steps back from the lunging goblin, his voice dropping into a low, resonant cadence of an ancient mountain dialect."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "As the forgotten words leave his lips, the soot-covered runes on the tavern wall flare with a blinding, ethereal blue light."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The blinding flash catches both goblins completely off guard, making them drop their weapons and shield their burning eyes."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Agh! My eyes! What kind of witchcraft is this?!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Strike the blinded Goblin Scout with your longsword while it is vulnerable",
+          "roll": true
+        },
+        {
+          "text": "Rush past the blinded goblins toward the back room of the tavern",
+          "roll": false
+        },
+        {
+          "text": "Call out to the cowering villagers to rally behind you",
+          "roll": false
+        }
+      ],
+      "changes": [
+        "Condition: Goblin Scout,blinded",
+        "Condition: Goblin Raider,blinded"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I recite the incantation I learned as a child.",
+      "audio_status": "ready",
+      "audio_duration": 3.9,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/qwen3_with_fallback_turn_003.wav",
+      "total_text": "Kael steps back from the lunging goblin, his voice dropping into a low, resonant cadence of an ancient mountain dialect. As the forgotten words leave his lips, the soot-covered runes on the tavern wall flare with a blinding, ethereal blue light. The blinding flash catches both goblins completely off guard, making them drop their weapons and shield their burning eyes. Agh! My eyes! What kind of witchcraft is this?!",
+      "text_length": 417,
+      "fidelity_ratio": 0.14028776978417265
+    }
+  ],
+  "errors": []
+}

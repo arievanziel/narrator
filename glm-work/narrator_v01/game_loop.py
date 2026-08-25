@@ -141,10 +141,20 @@ class Session:
         Returns a single string that combines the stable prefix and volatile
         suffix. If no WorldStore is attached, falls back to the legacy
         state_block + history approach.
+
+        v1.0: If enter_scene() produced a "since you were last here" digest on
+        the previous turn, it is prepended to the player's input so the narrator
+        can weave it into the opening of the next passage.
         """
         if self.world_store is None:
             # Legacy fallback
             return self.state.to_prompt_block()
+
+        # v1.0: Inject the scene digest from the previous turn's enter_scene()
+        digest = getattr(self.world_store, "_last_scene_digest", "")
+        if digest:
+            player_input = f"[SCENE DIGEST — since you were last here]\n{digest}\n\n[PLAYER ACTION]\n{player_input}"
+            self.world_store._last_scene_digest = ""  # consume it
 
         # Use the context assembler
         recent_turns = []
@@ -260,6 +270,33 @@ _ENGINE_NOISE = (
     "entity_id", "policy window", "schema", "norm_name",
 )
 
+# v1.0: Mood keywords for deriving chapter ambience from scene-setting prose
+# when the DM doesn't emit an explicit [SCENE] tag.
+_MOOD_KEYWORDS = {
+    "combat": ["battle", "fight", "sword", "swords", "clash", "clashing", "war", "attack", "enemy", "enemies"],
+    "tense": ["danger", "threat", "tension", "shadow", "shadows", "lurk", "lurking", "hunt", "hunting", "stalk"],
+    "horror": ["dread", "horror", "fear", "darkness", "corpse", "corpses", "blood", "decay", "ruin", "ruins"],
+    "mystery": ["mystery", "mysterious", "secret", "secrets", "hidden", "ancient", "forgotten", "riddle", "clue"],
+    "sad": ["sorrow", "grief", "loss", "mourn", "mourning", "tears", "melancholy", "desolate"],
+    "emotional": ["hope", "love", "heart", "tears", "joy", "sorrow", "memory", "memories"],
+    "tavern": ["tavern", "inn", "ale", "fire", "fireplace", "warmth", "laughter", "mug"],
+    "dungeon": ["dungeon", "cave", "caves", "underground", "tunnel", "tunnels", "crypt", "damp", "stone"],
+}
+
+
+def _derive_mood(text: str, fallback: str = "exploration") -> str:
+    """Infer a scene mood from prose text by keyword matching.
+    Used when the DM doesn't emit an explicit [SCENE] tag on a chapter opening.
+    Uses word-boundary matching to avoid false positives (e.g. "war" in "warm").
+    """
+    import re
+    low = text.lower()
+    for mood, keywords in _MOOD_KEYWORDS.items():
+        for kw in keywords:
+            if re.search(r'\b' + re.escape(kw) + r'\b', low):
+                return mood
+    return fallback
+
 
 def reader_notes(changes: list) -> list:
     """Translate the mechanics log into something printable in a book.
@@ -289,7 +326,7 @@ def finalize_passage(sections: dict, segments: list, changes: list) -> tuple:
       2. player_voice_guard — strip dialogue the narrator wrote for the listener.
       3. maybe_start_chapter — open a chapter if warranted.
 
-    Returns (segments, changes, chapter_dict_or_None).
+    Returns (segments, changes, chapter_dict_or_None, chapter_mood_or_None).
     """
     # 1. Character generation (opening passage only)
     if sections.get("CHARACTER") and not session.state.character_generated:
@@ -306,22 +343,43 @@ def finalize_passage(sections: dict, segments: list, changes: list) -> tuple:
             changes = list(changes) + guarded["violations"]
 
     # 3. Chapter
+    # v1.0: Use turn_counter + 1 because the counter increments AFTER
+    # finalize_passage. The chapter opens at the upcoming turn, not the
+    # previous one. (Cosmetic fix — start_turn was 0 for the opening passage.)
     chapter = None
+    chapter_mood = None
     if session.world_store is not None:
+        # v1.0: Derive mood from scene_setting if the DM didn't emit [SCENE].
+        # This ensures per-chapter ambience has a mood to key off even when
+        # the narrator forgets the tag.
+        raw_mood = sections.get("SCENE", "")
+        if not raw_mood:
+            raw_mood = _derive_mood(sections.get("SCENE_SETTING", ""))
+
         ch = session.world_store.maybe_start_chapter(
             proposed_title=sections.get("CHAPTER", ""),
             scene_setting=sections.get("SCENE_SETTING", ""),
-            current_turn=session.turn_counter,
-            mood=sections.get("SCENE", ""),
+            current_turn=session.turn_counter + 1,
+            mood=raw_mood,
         )
         if ch is not None:
             chapter = ch.to_dict()
             chapter["is_new"] = True
+            chapter_mood = ch.mood or raw_mood
+            # v1.0: Speak the scene-setting paragraph. It is narration — prepend
+            # it as a narrator segment before the STORY segments so TTS picks
+            # it up. Without this, the chapter opening is silent.
+            scene_setting_text = sections.get("SCENE_SETTING", "").strip()
+            if scene_setting_text:
+                scene_seg = {"kind": "narrator", "speaker": "narrator",
+                             "text": scene_setting_text}
+                segments = [scene_seg] + segments
         elif session.world_store.current_chapter is not None:
             chapter = session.world_store.current_chapter.to_dict()
             chapter["is_new"] = False
+            chapter_mood = session.world_store.current_chapter.mood or None
 
-    return segments, changes, chapter
+    return segments, changes, chapter, chapter_mood
 
 def generate_audio_async(segments: list, scene_mood: str, turn_id: str):
     """Generate audio in background thread."""
@@ -478,14 +536,20 @@ def handle_newgame(data: dict) -> dict:
                                 usage2["prompt_tokens"], usage2["completion_tokens"])
         sections = parse_response(text2)
         text = text2
-        # Log the correction
-        sections["STORY"] += "\n\n[Note: This response was regenerated due to a consistency violation.]"
+        # Log the correction — only in the mechanics changes (storyteller mode), never in the story text.
+        # v1.0: This note was previously appended to sections["STORY"], which leaked engine
+        # internals into the reader's book. Now it goes only into the changes log.
+        _guard_note = "[Guard: response regenerated due to a consistency violation]"
+    else:
+        _guard_note = None
 
     changes = session.state.apply_mechanics(sections["MECHANICS"])
+    if _guard_note:
+        changes = list(changes) + [_guard_note]
     segments = parse_story(sections["STORY"], sections.get("AUDIO", ""))
     suggestions = parse_suggestions(sections["SUGGESTIONS"])
     # v1.0: character generation, player-voice guard, chapter opening
-    segments, changes, chapter = finalize_passage(sections, segments, changes)
+    segments, changes, chapter, chapter_mood = finalize_passage(sections, segments, changes)
 
     if sections["CHRONICLE"] and sections["CHRONICLE"] != "NO_ENTRY":
         session.state.chronicle.append(sections["CHRONICLE"])
@@ -511,9 +575,10 @@ def handle_newgame(data: dict) -> dict:
         "changes": changes,
         "state": session.state.to_dict(),
         "turn": session.turn_counter,
-        "scene": sections.get("SCENE", "exploration"),
+        "scene": chapter_mood if (chapter and chapter.get("is_new")) else sections.get("SCENE", "exploration"),
         # v1.0 book structure
         "chapter": chapter,
+        "chapter_mood": chapter_mood,
         "scene_setting": sections.get("SCENE_SETTING", "") if (chapter and chapter.get("is_new")) else "",
         "reader_notes": reader_notes(changes),
         "audio_enabled": session.audio_enabled,
@@ -639,13 +704,17 @@ def handle_turn(data: dict) -> dict:
                                 usage2["prompt_tokens"], usage2["completion_tokens"])
         sections = parse_response(text2)
         text = text2
-        sections["STORY"] += "\n\n[Note: This response was regenerated due to a consistency violation.]"
+        _guard_note = "[Guard: response regenerated due to a consistency violation]"
+    else:
+        _guard_note = None
 
     changes = session.state.apply_mechanics(sections["MECHANICS"])
+    if _guard_note:
+        changes = list(changes) + [_guard_note]
     segments = parse_story(sections["STORY"], sections.get("AUDIO", ""))
     suggestions = parse_suggestions(sections["SUGGESTIONS"])
     # v1.0: character generation, player-voice guard, chapter opening
-    segments, changes, chapter = finalize_passage(sections, segments, changes)
+    segments, changes, chapter, chapter_mood = finalize_passage(sections, segments, changes)
 
     if sections["CHRONICLE"] and sections["CHRONICLE"] != "NO_ENTRY":
         session.state.chronicle.append(sections["CHRONICLE"])
@@ -672,9 +741,10 @@ def handle_turn(data: dict) -> dict:
         "changes": changes,
         "state": session.state.to_dict(),
         "turn": session.turn_counter,
-        "scene": sections.get("SCENE", "exploration"),
+        "scene": chapter_mood if (chapter and chapter.get("is_new")) else sections.get("SCENE", "exploration"),
         # v1.0 book structure
         "chapter": chapter,
+        "chapter_mood": chapter_mood,
         "scene_setting": sections.get("SCENE_SETTING", "") if (chapter and chapter.get("is_new")) else "",
         "reader_notes": reader_notes(changes),
         "audio_enabled": session.audio_enabled,
@@ -760,8 +830,8 @@ def handle_session_zero_start(data: dict) -> dict:
     session.model = data.get("model", session.model)
     session.init_client()
 
-    opening = "Hello! I'm your Dungeon Master. Let's set up your adventure. First - what's your character's name?"
-    session.session_zero_history.append({"role": "user", "content": "(system) Begin Session Zero. Greet the player and ask for their character name."})
+    opening = "Hello! I'm your Narrator. Let's set up your story. First — what's your character's name?"
+    session.session_zero_history.append({"role": "user", "content": "(system) Begin the Foreword. Greet the reader and ask for their character name."})
 
     text, elapsed, usage = dm_turn(
         session.client, session.model, SESSION_ZERO_SYSTEM_PROMPT,
@@ -796,11 +866,11 @@ def handle_session_zero_turn(data: dict) -> dict:
     if not answer:
         return {"error": "No answer provided"}
 
-    # Store the answer under the topic that was ASKED (previous turn's topic)
+    # Store the raw answer under the topic that was ASKED (previous turn's topic).
+    # The LLM will parse it into a clean value via [PARSED].
     asked_topic = session.campaign_meta.pop("_current_topic", None)
     if asked_topic and asked_topic != "done":
-        session.campaign_meta[asked_topic] = answer
-        # Special handling: greeting topic = character name
+        session.campaign_meta[asked_topic] = answer  # raw, as fallback
         if asked_topic == "greeting":
             session.campaign_meta["character_name"] = answer
 
@@ -818,6 +888,13 @@ def handle_session_zero_turn(data: dict) -> dict:
     session.session_zero_history.append({"role": "assistant", "content": text})
     session.session_zero_turn += 1
 
+    # v1.0: Use the LLM-parsed value to overwrite the raw answer.
+    # The LLM extracts the essential info (e.g. "My name is Lyra and I'm a rogue" → "Lyra").
+    if parsed["parsed"] and asked_topic and asked_topic != "done":
+        session.campaign_meta[asked_topic] = parsed["parsed"]
+        if asked_topic == "greeting":
+            session.campaign_meta["character_name"] = parsed["parsed"]
+
     # Track the new topic for the next answer
     session.campaign_meta["_current_topic"] = parsed["topic"]
 
@@ -834,24 +911,31 @@ def handle_session_zero_turn(data: dict) -> dict:
 
 def handle_session_zero_finish(data: dict) -> dict:
     """Finish Session Zero and start the real game with collected campaign_meta."""
-    import re as _re
-
     meta = session.campaign_meta
     session.session_zero_active = False
 
-    # Extract character name from greeting answer
-    greeting = meta.get("greeting", meta.get("character_name", ""))
-    char_name = "Kael"
-    if greeting:
-        # Try to extract a name from phrases like "My name is X" or "Call me X"
-        name_match = _re.search(r'(?:my name is|call me|i am|i\'m)\s+([A-Z][a-z]+)', greeting, _re.IGNORECASE)
+    # v1.0: The LLM already parsed each answer via [PARSED], so character_name
+    # should already be a clean name (e.g. "Lyra", not "My name is Lyra and I'm a rogue").
+    # Fall back to regex extraction only if the LLM didn't provide a clean value.
+    char_name = meta.get("character_name", meta.get("greeting", "Kael"))
+    if char_name and len(char_name) > 30:
+        # Still a long sentence — try regex as a last resort
+        import re as _re
+        name_match = _re.search(r'(?:my name is|call me|i am|i\'m)\s+([A-Z][a-z]+)', char_name, _re.IGNORECASE)
         if name_match:
             char_name = name_match.group(1)
-        elif len(greeting) <= 30 and greeting[0].isupper():
-            # Short answer that looks like just a name
-            char_name = greeting.split()[0].rstrip(",.;!")
         else:
-            char_name = meta.get("character_name", "Kael")
+            # Take the first capitalized word
+            words = char_name.split()
+            for w in words:
+                clean_w = w.rstrip(",.;!?")
+                if clean_w and clean_w[0].isupper() and clean_w.isalpha() and len(clean_w) <= 15:
+                    char_name = clean_w
+                    break
+            else:
+                char_name = "Kael"
+    elif not char_name:
+        char_name = "Kael"
 
     story_style = meta.get("style", "classic fantasy")
     setting = meta.get("setting", "")
@@ -912,13 +996,17 @@ def handle_session_zero_finish(data: dict) -> dict:
                                 usage2["prompt_tokens"], usage2["completion_tokens"])
         sections = parse_response(text2)
         text = text2
-        sections["STORY"] += "\n\n[Note: This response was regenerated due to a consistency violation.]"
+        _guard_note = "[Guard: response regenerated due to a consistency violation]"
+    else:
+        _guard_note = None
 
     changes = session.state.apply_mechanics(sections["MECHANICS"])
+    if _guard_note:
+        changes = list(changes) + [_guard_note]
     segments = parse_story(sections["STORY"], sections.get("AUDIO", ""))
     suggestions = parse_suggestions(sections["SUGGESTIONS"])
     # v1.0: character generation, player-voice guard, chapter opening
-    segments, changes, chapter = finalize_passage(sections, segments, changes)
+    segments, changes, chapter, chapter_mood = finalize_passage(sections, segments, changes)
 
     if sections["CHRONICLE"] and sections["CHRONICLE"] != "NO_ENTRY":
         session.state.chronicle.append(sections["CHRONICLE"])
@@ -944,9 +1032,10 @@ def handle_session_zero_finish(data: dict) -> dict:
         "changes": changes,
         "state": session.state.to_dict(),
         "turn": session.turn_counter,
-        "scene": sections.get("SCENE", "exploration"),
+        "scene": chapter_mood if (chapter and chapter.get("is_new")) else sections.get("SCENE", "exploration"),
         # v1.0 book structure
         "chapter": chapter,
+        "chapter_mood": chapter_mood,
         "scene_setting": sections.get("SCENE_SETTING", "") if (chapter and chapter.get("is_new")) else "",
         "reader_notes": reader_notes(changes),
         "audio_enabled": session.audio_enabled,

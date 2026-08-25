@@ -1,0 +1,331 @@
+{
+  "campaign_id": "game_1787412546",
+  "rules_profile": {
+    "name": "dnd5e_lite",
+    "dc_ladder": {
+      "trivial": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "very_hard": 25
+    },
+    "ability_list": [
+      "STR",
+      "DEX",
+      "CON",
+      "INT",
+      "WIS",
+      "CHA"
+    ],
+    "hp_model": "flat",
+    "crit_rule": "nat20_success_nat1_failure"
+  },
+  "campaign_meta": {
+    "style": "classic fantasy",
+    "setting": "medieval",
+    "persona": "",
+    "atmosphere": "",
+    "inspiration": ""
+  },
+  "entities": {
+    "pc_0001_aria": {
+      "id": "pc_0001_aria",
+      "type": "pc",
+      "name": "Aria",
+      "norm_name": "aria",
+      "summary": "",
+      "attributes": {
+        "hp": 12,
+        "max_hp": 12,
+        "disposition": "friendly",
+        "voice_description": "player",
+        "inventory": [
+          "Health Potion",
+          "Torch",
+          "Waterskin",
+          "50 feet of rope",
+          "Healing Potion"
+        ],
+        "stats": {
+          "STR": 16,
+          "DEX": 12,
+          "CON": 14,
+          "INT": 10,
+          "WIS": 10,
+          "CHA": 10
+        }
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 1,
+      "last_seen_turn": 1,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "location_0002_oakhaven": {
+      "id": "location_0002_oakhaven",
+      "type": "location",
+      "name": "Oakhaven",
+      "norm_name": "oakhaven",
+      "summary": "A quiet frontier village shrouded in morning mist.",
+      "attributes": {
+        "summary": "A quiet frontier village shrouded in morning mist."
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 1,
+      "last_seen_turn": 6,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "location_0003_thegildedtan": {
+      "id": "location_0003_thegildedtan",
+      "type": "location",
+      "name": "The Gilded Tankard",
+      "norm_name": "gilded tankard",
+      "summary": "A cozy yet weary tavern in Oakhaven.",
+      "attributes": {
+        "summary": "A cozy yet weary tavern in Oakhaven."
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 1,
+      "last_seen_turn": 1,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "npc_0004_bram": {
+      "id": "npc_0004_bram",
+      "type": "npc",
+      "name": "Bram",
+      "norm_name": "bram",
+      "summary": "The grizzled keeper of the Gilded Tankard.",
+      "attributes": {
+        "summary": "The grizzled keeper of the Gilded Tankard.",
+        "hp": 0,
+        "max_hp": 0
+      },
+      "links": [],
+      "tags": [],
+      "alive": false,
+      "first_seen_turn": 1,
+      "last_seen_turn": 4,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "location_0005_theherbalist": {
+      "id": "location_0005_theherbalist",
+      "type": "location",
+      "name": "The Herbalist's Hut",
+      "norm_name": "herbalists hut",
+      "summary": "A weathered timber building across from the tavern with a faded mortar and pestle sign.",
+      "attributes": {
+        "summary": "A weathered timber building across from the tavern with a faded mortar and pestle sign."
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 3,
+      "last_seen_turn": 3,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "npc_0006_milo": {
+      "id": "npc_0006_milo",
+      "type": "npc",
+      "name": "Milo",
+      "norm_name": "milo",
+      "summary": "A cautious, cloaked local on the misty streets of Oakhaven.",
+      "attributes": {
+        "summary": "A cautious, cloaked local on the misty streets of Oakhaven.",
+        "hp": 0,
+        "max_hp": 0
+      },
+      "links": [],
+      "tags": [],
+      "alive": false,
+      "first_seen_turn": 4,
+      "last_seen_turn": 6,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "location_0007_thetownhall": {
+      "id": "location_0007_thetownhall",
+      "type": "location",
+      "name": "The Town Hall",
+      "norm_name": "town hall",
+      "summary": "The center of governance in Oakhaven where the village elder resides.",
+      "attributes": {
+        "summary": "The center of governance in Oakhaven where the village elder resides."
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 5,
+      "last_seen_turn": 5,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "npc_0008_barnaby": {
+      "id": "npc_0008_barnaby",
+      "type": "npc",
+      "name": "Barnaby",
+      "norm_name": "barnaby",
+      "summary": "A nervous merchant packing his cart in the Oakhaven marketplace.",
+      "attributes": {
+        "summary": "A nervous merchant packing his cart in the Oakhaven marketplace.",
+        "hp": 0,
+        "max_hp": 0
+      },
+      "links": [],
+      "tags": [],
+      "alive": false,
+      "first_seen_turn": 6,
+      "last_seen_turn": 8,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "location_0009_theironandsu": {
+      "id": "location_0009_theironandsu",
+      "type": "location",
+      "name": "The Iron and Sundry",
+      "norm_name": "iron and sundry",
+      "summary": "A sturdy stone shop with a carved wooden sign of a crossed hammer and shield.",
+      "attributes": {
+        "summary": "A sturdy stone shop with a carved wooden sign of a crossed hammer and shield."
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 7,
+      "last_seen_turn": 7,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "npc_0010_thrain": {
+      "id": "npc_0010_thrain",
+      "type": "npc",
+      "name": "Thrain",
+      "norm_name": "thrain",
+      "summary": "A burly blacksmith and shopkeeper at The Iron and Sundry.",
+      "attributes": {
+        "summary": "A burly blacksmith and shopkeeper at The Iron and Sundry.",
+        "hp": 0,
+        "max_hp": 0
+      },
+      "links": [],
+      "tags": [],
+      "alive": false,
+      "first_seen_turn": 8,
+      "last_seen_turn": 10,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "item_0011_healingpotio": {
+      "id": "item_0011_healingpotio",
+      "type": "item",
+      "name": "Healing Potion",
+      "norm_name": "healing potion",
+      "summary": "A crimson glass flask containing a restorative red liquid.",
+      "attributes": {
+        "summary": "A crimson glass flask containing a restorative red liquid."
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 8,
+      "last_seen_turn": 8,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "location_0012_thenorthernr": {
+      "id": "location_0012_thenorthernr",
+      "type": "location",
+      "name": "The Northern Road",
+      "norm_name": "northern road",
+      "summary": "A dirt road leading out of Oakhaven, flanked by dense pine forests.",
+      "attributes": {
+        "summary": "A dirt road leading out of Oakhaven, flanked by dense pine forests."
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 9,
+      "last_seen_turn": 9,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "enemy_0013_pinelurker": {
+      "id": "enemy_0013_pinelurker",
+      "type": "enemy",
+      "name": "Pine Lurker",
+      "norm_name": "pine lurker",
+      "summary": "A hulking, four-legged shadow beast with razor-sharp claws lurking on the northern road.",
+      "attributes": {
+        "summary": "A hulking, four-legged shadow beast with razor-sharp claws lurking on the northern road."
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 10,
+      "last_seen_turn": 10,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "npc_0014_pinelurker": {
+      "id": "npc_0014_pinelurker",
+      "type": "npc",
+      "name": "Pine Lurker",
+      "norm_name": "pine lurker",
+      "summary": "",
+      "attributes": {
+        "hp": 7,
+        "max_hp": 7
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 10,
+      "last_seen_turn": 0,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    }
+  },
+  "aliases": {
+    "aria": "pc_0001_aria",
+    "oakhaven": "location_0002_oakhaven",
+    "gilded tankard": "location_0003_thegildedtan",
+    "bram": "npc_0004_bram",
+    "herbalists hut": "location_0005_theherbalist",
+    "milo": "npc_0006_milo",
+    "town hall": "location_0007_thetownhall",
+    "oakhaven marketplace": "location_0002_oakhaven",
+    "barnaby": "npc_0008_barnaby",
+    "iron and sundry": "location_0009_theironandsu",
+    "thrain": "npc_0010_thrain",
+    "healing potion": "item_0011_healingpotio",
+    "northern road": "location_0012_thenorthernr",
+    "pine lurker": "npc_0014_pinelurker"
+  },
+  "turn_count": 31,
+  "entity_counter": 14,
+  "chapters": [],
+  "schema_version": 2
+}

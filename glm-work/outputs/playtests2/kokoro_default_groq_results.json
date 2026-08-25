@@ -1,0 +1,210 @@
+{
+  "name": "kokoro_default_groq",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "kokoro",
+    "speed": 1.0,
+    "musicVol": 0.12,
+    "musicSrc": "library",
+    "model": "openai/gpt-oss-120b"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "scene": "tavern",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The heavy oak door of the Rusty Anchor creaks open, letting in a bitter mountain draft that makes the guttering candles flicker."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Inside, the air is thick with the stench of stale ale, wet wool, and underlying copper-tinted dread."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Two scrawny, green-skinned goblin scouts crouch atop a splintered wooden table, tearing into a loaf of stale bread with jagged daggers."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Fresh meat for the fire!"
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The goblins bare their yellowed fangs and leap down, instantly drawing rusted blades as they spot you blocking the exit."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Draw your longsword and shield, bracing for the goblins' charge",
+          "roll": false
+        },
+        {
+          "text": "Shout a warning and leap over a nearby table to seize the tactical advantage",
+          "roll": true
+        },
+        {
+          "text": "Reach for your health potion while sidestepping away from the door",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "gemini-3.5-flash-lite",
+      "audio_status": "ready",
+      "audio_duration": 38.5,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_default_groq_turn_001.wav",
+      "total_text": "The heavy oak door of the Rusty Anchor creaks open, letting in a bitter mountain draft that makes the guttering candles flicker. Inside, the air is thick with the stench of stale ale, wet wool, and underlying copper-tinted dread. Two scrawny, green-skinned goblin scouts crouch atop a splintered wooden table, tearing into a loaf of stale bread with jagged daggers. Fresh meat for the fire! The goblins bare their yellowed fangs and leap down, instantly drawing rusted blades as they spot you blocking the exit.",
+      "text_length": 511,
+      "fidelity_ratio": 1.1301369863013697
+    },
+    {
+      "turn": 2,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The tavern\u2019s low ceiling and crowded tables leave little room for the kind of forest\u2011bound stealth you imagined."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Goblin eyes flick toward you, their crude daggers glinting in the wavering candlelight as they sense your movement."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The air feels heavy, as if the very walls are listening for any hint of a silent step."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "You can feel the weight of your shield and the cold steel of your longsword at your side, ready for whatever comes next."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Slip into the shadows behind the overturned table, attempting to hide from the goblins\u2019 sight",
+          "roll": true
+        },
+        {
+          "text": "Raise your shield and brace for a melee clash, meeting the goblins head\u2011on",
+          "roll": false
+        },
+        {
+          "text": "Throw a quick warning shout to the tavern\u2019s far corner, hoping to draw any unseen aid",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "action": "I sneak through the dark forest, keeping to the shadows.",
+      "audio_status": "ready",
+      "audio_duration": 31.6,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_default_groq_turn_002.wav",
+      "total_text": "The tavern\u2019s low ceiling and crowded tables leave little room for the kind of forest\u2011bound stealth you imagined. Goblin eyes flick toward you, their crude daggers glinting in the wavering candlelight as they sense your movement. The air feels heavy, as if the very walls are listening for any hint of a silent step. You can feel the weight of your shield and the cold steel of your longsword at your side, ready for whatever comes next.",
+      "text_length": 436,
+      "fidelity_ratio": 1.0871559633027523
+    },
+    {
+      "turn": 3,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The clamor of the tavern and the snarling goblins at the doorway leave little room for any hidden crypt beyond these walls."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "There is no lockful door here\u2014only the battered tavern entrance you just entered, and the goblin\u2011guarded tables before you."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The goblins eye you warily, their blades twitching as they await your next move."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Slip into the shadows behind the overturned table, attempting to hide from the goblins\u2019 sight",
+          "roll": true
+        },
+        {
+          "text": "Draw your longsword and shield, meeting the goblins in melee",
+          "roll": false
+        },
+        {
+          "text": "Throw a quick warning shout toward the far corner, hoping to draw any unseen aid",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "action": "I attempt to pick the lock on the crypt door.",
+      "audio_status": "ready",
+      "audio_duration": 24.4,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_default_groq_turn_003.wav",
+      "total_text": "The clamor of the tavern and the snarling goblins at the doorway leave little room for any hidden crypt beyond these walls. There is no lockful door here\u2014only the battered tavern entrance you just entered, and the goblin\u2011guarded tables before you. The goblins eye you warily, their blades twitching as they await your next move.",
+      "text_length": 328,
+      "fidelity_ratio": 1.1158536585365852
+    },
+    {
+      "turn": 4,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The dim candlelight flickers across the scarred wooden walls of the Rusty Anchor, casting long shadows that dance like restless spirits."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Two goblin eyes glint from behind a splintered table, their crude daggers poised as they notice your sudden movement."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "There is no crypt here\u2014only the tavern\u2019s cramped interior, its floorboards creaking under the weight of your armor and the cold steel of your longsword."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The air is thick with the smell of stale ale and the faint, metallic tang of fear."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Slip into the shadows behind the overturned table, attempting to hide from the goblins\u2019 sight",
+          "roll": true
+        },
+        {
+          "text": "Draw your longsword and shield, meeting the goblins in melee",
+          "roll": false
+        },
+        {
+          "text": "Throw a quick warning shout toward the far corner, hoping to draw any unseen aid",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "action": "I enter the crypt with my torch raised high.",
+      "audio_status": "ready",
+      "audio_duration": 35.0,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_default_groq_turn_004.wav",
+      "total_text": "The dim candlelight flickers across the scarred wooden walls of the Rusty Anchor, casting long shadows that dance like restless spirits. Two goblin eyes glint from behind a splintered table, their crude daggers poised as they notice your sudden movement. There is no crypt here\u2014only the tavern\u2019s cramped interior, its floorboards creaking under the weight of your armor and the cold steel of your longsword. The air is thick with the smell of stale ale and the faint, metallic tang of fear.",
+      "text_length": 490,
+      "fidelity_ratio": 1.0714285714285714
+    }
+  ],
+  "errors": []
+}

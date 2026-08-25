@@ -15,3 +15,12 @@ glm-work/models/
 glm-work/outputs/**/*.wav
 glm-work/outputs/**/*.ogg
 glm-work/outputs/**/*.mp3
+
+# Node (Playwright testing)
+node_modules/
+package-lock.json
+
+# Playwright test recordings (regenerable, large binary files)
+glm-work/outputs/playwright/*.webm
+glm-work/outputs/playwright/*.png
+glm-work/outputs/screenshots/*.png

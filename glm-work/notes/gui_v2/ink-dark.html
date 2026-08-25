@@ -483,6 +483,12 @@
   }
   .audio-collapse-btn:hover { color: var(--ink); }
   /* Collapsed state: hide everything except mini indicator + expand button */
+  #app.audio-collapsed .audio-line-expanded {
+    display: none;
+  }
+  #app:not(.audio-collapsed) .audio-line-collapsed {
+    display: none;
+  }
   #app.audio-collapsed .audio-play-btn,
   #app.audio-collapsed .audio-label,
   #app.audio-collapsed .audio-time,

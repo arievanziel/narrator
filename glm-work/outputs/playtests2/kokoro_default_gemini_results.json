@@ -1,0 +1,268 @@
+{
+  "name": "kokoro_default_gemini",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "kokoro",
+    "speed": 1.0,
+    "musicVol": 0.12,
+    "musicSrc": "library",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "scene": "tavern",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael pushes open the heavy oak door of The Rusty Anchor, stepping out of the biting mountain wind and into a reek of stale ale and soot."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The tavern is deathly quiet for an evening, illuminated only by a few guttering tallow candles casting long, dancing shadows across the splintered floorboards."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Two scrawny goblins crouch atop an overturned table near the hearth, tearing into a loaf of dark bread while their yellow eyes lock onto the armored veteran."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The creature on the left bares its jagged teeth, reaching slowly for a crude shortsword resting on the bench."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Fresh meat for the fire!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Draw your longsword and charge the goblin scout",
+          "roll": true
+        },
+        {
+          "text": "Keep your hand on your hilt and demand they step away from the hearth",
+          "roll": false
+        },
+        {
+          "text": "Slowly back toward the exit to assess the room",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "gemini-3.5-flash-lite",
+      "audio_status": "ready",
+      "audio_duration": 43.1,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_default_gemini_turn_001.wav",
+      "total_text": "Kael pushes open the heavy oak door of The Rusty Anchor, stepping out of the biting mountain wind and into a reek of stale ale and soot. The tavern is deathly quiet for an evening, illuminated only by a few guttering tallow candles casting long, dancing shadows across the splintered floorboards. Two scrawny goblins crouch atop an overturned table near the hearth, tearing into a loaf of dark bread while their yellow eyes lock onto the armored veteran. The creature on the left bares its jagged teeth, reaching slowly for a crude shortsword resting on the bench. Fresh meat for the fire!",
+      "text_length": 589,
+      "fidelity_ratio": 1.0976230899830222
+    },
+    {
+      "turn": 2,
+      "scene": "combat",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael surges forward across the splintered floorboards, drawing his longsword in a blur of polished steel."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "He brings the heavy blade down in a fierce, practiced arc toward the nearest goblin scout."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The heavy steel connects with a dull thud against the creature's leather jerkin, sending it sprawling off the table."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Gah! Kill the big one!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Follow up with a shield bash to knock the wounded goblin down",
+          "roll": true
+        },
+        {
+          "text": "Swing your longsword again to finish off the wounded scout",
+          "roll": true
+        },
+        {
+          "text": "Pivot and prepare to parry the second goblin's incoming attack",
+          "roll": true
+        }
+      ],
+      "changes": [
+        "HP: 12 \u2192 12 (+0)",
+        "Goblin Scout HP \u2192 3/7",
+        "Roll requested: d20+5 for longsword attack"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I attack the Goblin Scout with my longsword!",
+      "audio_status": "ready",
+      "audio_duration": 25.2,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_default_gemini_turn_002.wav",
+      "total_text": "Kael surges forward across the splintered floorboards, drawing his longsword in a blur of polished steel. He brings the heavy blade down in a fierce, practiced arc toward the nearest goblin scout. The heavy steel connects with a dull thud against the creature's leather jerkin, sending it sprawling off the table. Gah! Kill the big one!",
+      "text_length": 336,
+      "fidelity_ratio": 1.125
+    },
+    {
+      "turn": 3,
+      "scene": "combat",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael steps over the debris of the overturned table, maintaining his footing on the soot-stained floorboards."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "He brings his longsword around in a crisp horizontal slash, catching the wounded scout squarely across the chest."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The creature lets out a sharp, ragged gasp before collapsing motionless against the hearthstones."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Raider",
+          "text": "You pay for that, human!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Pivot to face the remaining goblin raider and strike with your longsword",
+          "roll": true
+        },
+        {
+          "text": "Raise your shield to absorb the incoming attack from the second goblin",
+          "roll": true
+        },
+        {
+          "text": "Step back and take a defensive stance to size up the remaining foe",
+          "roll": false
+        }
+      ],
+      "changes": [
+        "Goblin Scout HP \u2192 0/7",
+        "HP: 12 \u2192 12 (+0)",
+        "Roll requested: d20+5 for longsword attack"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I swing again at the Goblin Scout!",
+      "audio_status": "ready",
+      "audio_duration": 26.0,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_default_gemini_turn_003.wav",
+      "total_text": "Kael steps over the debris of the overturned table, maintaining his footing on the soot-stained floorboards. He brings his longsword around in a crisp horizontal slash, catching the wounded scout squarely across the chest. The creature lets out a sharp, ragged gasp before collapsing motionless against the hearthstones. You pay for that, human!",
+      "text_length": 345,
+      "fidelity_ratio": 1.1304347826086956
+    },
+    {
+      "turn": 4,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael reaches to his belt and unstoppered the small glass vial of crimson liquid, casting a wary eye at the remaining goblin."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "He drinks the tonic in a single swallow, feeling the warm, soothing magic knit his minor aches."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Raider",
+          "text": "Drinking won't save you, big man!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Charge the remaining goblin raider with your longsword drawn",
+          "roll": true
+        },
+        {
+          "text": "Hold your ground behind your shield and wait for the goblin to strike",
+          "roll": true
+        },
+        {
+          "text": "Taunt the goblin to draw him into a rash attack",
+          "roll": false
+        }
+      ],
+      "changes": [
+        "Used: Health Potion",
+        "HP: 12 \u2192 12 (+12)"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I use my Health Potion to heal.",
+      "audio_status": "ready",
+      "audio_duration": 20.2,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_default_gemini_turn_004.wav",
+      "total_text": "Kael reaches to his belt and unstoppered the small glass vial of crimson liquid, casting a wary eye at the remaining goblin. He drinks the tonic in a single swallow, feeling the warm, soothing magic knit his minor aches. Drinking won't save you, big man!",
+      "text_length": 254,
+      "fidelity_ratio": 1.1929133858267715
+    },
+    {
+      "turn": 5,
+      "scene": "combat",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael steps over the fallen scout and advances on the remaining goblin with grim determination."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The die clatters across the table, landing on a solid 16\u2014with his training, the total easily pierces the goblin's defenses."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael's longsword bites deep into the raider's shoulder, dropping the screeching creature instantly."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Search the bodies of the defeated goblins for anything useful",
+          "roll": false
+        },
+        {
+          "text": "Inspect the rest of the dark, silent tavern for other threats or survivors",
+          "roll": true
+        },
+        {
+          "text": "Kick open the heavy wooden door leading to the tavern's back rooms",
+          "roll": false
+        }
+      ],
+      "changes": [
+        "Goblin Raider HP \u2192 0/7",
+        "HP: 12 \u2192 12 (+0)"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I attack the Goblin Raider!",
+      "audio_status": "ready",
+      "audio_duration": 24.9,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_default_gemini_turn_005.wav",
+      "total_text": "Kael steps over the fallen scout and advances on the remaining goblin with grim determination. The die clatters across the table, landing on a solid 16\u2014with his training, the total easily pierces the goblin's defenses. Kael's longsword bites deep into the raider's shoulder, dropping the screeching creature instantly.",
+      "text_length": 318,
+      "fidelity_ratio": 1.1745283018867925
+    }
+  ],
+  "errors": []
+}

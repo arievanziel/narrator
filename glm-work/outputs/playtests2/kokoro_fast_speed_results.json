@@ -1,0 +1,162 @@
+{
+  "name": "kokoro_fast_speed",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "kokoro",
+    "speed": 1.3,
+    "musicVol": 0.1,
+    "musicSrc": "procedural",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "scene": "tavern",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The heavy wooden door of the Rusty Anchor groans open, letting in a sharp gust of freezing mountain wind."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Inside, the air is thick with the stench of stale ale, wet wool, and simmering fear."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Two wretched goblin scouts sit near the hearth, their yellow eyes fixing hungrily upon you as they draw crude blades."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Fresh meat for the fire!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Draw your longsword and step forward to engage the goblins",
+          "roll": false
+        },
+        {
+          "text": "Shout a warning and hold your ground behind your shield",
+          "roll": false
+        },
+        {
+          "text": "Reach for your health potion just in case",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "gemini-3.5-flash-lite",
+      "audio_status": "ready",
+      "audio_duration": 3.9,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_fast_speed_turn_001.wav",
+      "total_text": "The heavy wooden door of the Rusty Anchor groans open, letting in a sharp gust of freezing mountain wind. Inside, the air is thick with the stench of stale ale, wet wool, and simmering fear. Two wretched goblin scouts sit near the hearth, their yellow eyes fixing hungrily upon you as they draw crude blades. Fresh meat for the fire!",
+      "text_length": 333,
+      "fidelity_ratio": 0.17567567567567569
+    },
+    {
+      "turn": 2,
+      "scene": "combat",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael surges forward, boots slamming against the wooden floorboards of the tavern as the first goblin lunges with its crude blade."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The thrust glances harmlessly off your chain mail with a harsh scrape of metal."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "With practiced fury, you retaliate, bringing your longsword down in a sweeping arc that catches the scout across the chest."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Gah! Kill the big one!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Follow up with a fierce shield bash against the wounded goblin",
+          "roll": true
+        },
+        {
+          "text": "Slash wildly with your longsword to finish off the first scout",
+          "roll": true
+        },
+        {
+          "text": "Shift your stance to defend against both enemies",
+          "roll": false
+        }
+      ],
+      "changes": [
+        "HP: 12 \u2192 12 (+0)",
+        "Goblin Scout HP \u2192 3/7"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I race through the dungeon, chasing the goblin!",
+      "audio_status": "error",
+      "audio_duration": null,
+      "total_text": "Kael surges forward, boots slamming against the wooden floorboards of the tavern as the first goblin lunges with its crude blade. The thrust glances harmlessly off your chain mail with a harsh scrape of metal. With practiced fury, you retaliate, bringing your longsword down in a sweeping arc that catches the scout across the chest. Gah! Kill the big one!",
+      "text_length": 356
+    },
+    {
+      "turn": 3,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The tavern walls suddenly tremble, and with a deafening crack, the upper loft gives way, sending heavy timbers crashing down and splitting the floorboards into a sudden, yawning chasm."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael springs into action, launching himself across the jagged gap as splintering wood and dust rain into the dark void below."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "You land hard on the far side, scrambling for purchase and pulling yourself safely onto solid stone as the goblins screech in frustration from across the divide."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Coward! Come back and fight!"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Search the rubble around you for an alternative route",
+          "roll": false
+        },
+        {
+          "text": "Shout a taunt at the stranded goblins and ready your weapon",
+          "roll": false
+        },
+        {
+          "text": "Look for a way to secure a rope and swing back across",
+          "roll": true
+        }
+      ],
+      "changes": [
+        "HP: 12 \u2192 12 (+0)"
+      ],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I leap across the chasm to escape the collapsing bridge!",
+      "audio_status": "error",
+      "audio_duration": null,
+      "total_text": "The tavern walls suddenly tremble, and with a deafening crack, the upper loft gives way, sending heavy timbers crashing down and splitting the floorboards into a sudden, yawning chasm. Kael springs into action, launching himself across the jagged gap as splintering wood and dust rain into the dark void below. You land hard on the far side, scrambling for purchase and pulling yourself safely onto solid stone as the goblins screech in frustration from across the divide. Coward! Come back and fight!",
+      "text_length": 501
+    }
+  ],
+  "errors": []
+}

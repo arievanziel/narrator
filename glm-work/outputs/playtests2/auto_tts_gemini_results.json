@@ -1,0 +1,178 @@
+{
+  "name": "auto_tts_gemini",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "auto",
+    "speed": 1.0,
+    "musicVol": 0.12,
+    "musicSrc": "library",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "scene": "tavern",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The heavy oak door creaks as Kael pushes it open, the scent of stale ale and damp stone flooding his nostrils."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Dim candlelight flickers across the low-beamed ceiling of the Rusty Anchor, casting long shadows that dance on the rough wooden tables."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "In a shadowed corner, two goblin figures\u2014one lean scout, the other a bulkier raider\u2014eye the newcomer with thin, hungry gazes."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Look what the wind brought in, a lone sword\u2011bearer,\" it hisses, its voice a rasp in the hush."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Raider",
+          "text": "Best be quick, or we'll have a fresh meat stew,\" it growls, gripping a rusted dagger."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Approach the bar and order a drink.",
+          "roll": false
+        },
+        {
+          "text": "Scan the room for hidden threats.",
+          "roll": true
+        },
+        {
+          "text": "Draw your sword and demand the goblins leave.",
+          "roll": true
+        },
+        {
+          "text": "Slip into a shadowy corner and observe quietly.",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "audio_status": "ready",
+      "audio_duration": 41.2,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/auto_tts_gemini_turn_001.wav",
+      "total_text": "The heavy oak door creaks as Kael pushes it open, the scent of stale ale and damp stone flooding his nostrils. Dim candlelight flickers across the low-beamed ceiling of the Rusty Anchor, casting long shadows that dance on the rough wooden tables. In a shadowed corner, two goblin figures\u2014one lean scout, the other a bulkier raider\u2014eye the newcomer with thin, hungry gazes. Look what the wind brought in, a lone sword\u2011bearer,\" it hisses, its voice a rasp in the hush. Best be quick, or we'll have a fresh meat stew,\" it growls, gripping a rusted dagger.",
+      "text_length": 552,
+      "fidelity_ratio": 1.1195652173913044
+    },
+    {
+      "turn": 2,
+      "scene": "combat",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael lets out a gruff battle cry, his heavy boots thudding against the tavern floorboards as he lunges at the goblin scout."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "He swings his longsword in a wide, desperate arc, cutting through the smoky air."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The clumsy, reckless strike clatters harmlessly against a nearby wooden pillar, showering the floor with splinters instead of blood."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Ha! Nice swing, old man!\" the goblin cackles, dodging backward with a sneer."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Maintain the pressure and strike at the scout with a calculated blow.",
+          "roll": true
+        },
+        {
+          "text": "Pivot your shield to bash the scout and push him off balance.",
+          "roll": true
+        },
+        {
+          "text": "Shift your focus and lunge at the goblin raider instead.",
+          "roll": true
+        },
+        {
+          "text": "Parry and wait for the goblins to make their next move.",
+          "roll": true
+        }
+      ],
+      "changes": [],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I charge into battle, swinging my sword wildly!",
+      "audio_status": "ready",
+      "audio_duration": 14.2,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/auto_tts_gemini_turn_002.wav",
+      "total_text": "Kael lets out a gruff battle cry, his heavy boots thudding against the tavern floorboards as he lunges at the goblin scout. He swings his longsword in a wide, desperate arc, cutting through the smoky air. The clumsy, reckless strike clatters harmlessly against a nearby wooden pillar, showering the floor with splinters instead of blood. Ha! Nice swing, old man!\" the goblin cackles, dodging backward with a sneer.",
+      "text_length": 414,
+      "fidelity_ratio": 0.5144927536231884
+    },
+    {
+      "turn": 3,
+      "scene": "combat",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael plants his heavy boots, bringing his shield up just in time as the goblin scout leaps forward."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The scout's rusted blade scrapes fiercely against the polished steel of Kael's shield, sending up a shower of bright sparks."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The veteran holds his ground with unyielding strength, completely turning aside the flurry of frantic attacks."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Goblin Scout",
+          "text": "Stupid tin-can!\" the scout snarls, stumbling back from the impact of the deflected blow."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Counterattack the scout with a precise thrust of your longsword.",
+          "roll": true
+        },
+        {
+          "text": "Bash the scout with your shield to knock him to the floor.",
+          "roll": true
+        },
+        {
+          "text": "Swing a sweeping strike to hit both the scout and the raider.",
+          "roll": true
+        },
+        {
+          "text": "Step back and brace yourself to parry their next rush.",
+          "roll": true
+        }
+      ],
+      "changes": [],
+      "model": "gemini-3.5-flash-lite",
+      "action": "I defend myself against the goblin's counterattack.",
+      "audio_status": "ready",
+      "audio_duration": 23.5,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/auto_tts_gemini_turn_003.wav",
+      "total_text": "Kael plants his heavy boots, bringing his shield up just in time as the goblin scout leaps forward. The scout's rusted blade scrapes fiercely against the polished steel of Kael's shield, sending up a shower of bright sparks. The veteran holds his ground with unyielding strength, completely turning aside the flurry of frantic attacks. Stupid tin-can!\" the scout snarls, stumbling back from the impact of the deflected blow.",
+      "text_length": 424,
+      "fidelity_ratio": 0.8313679245283019
+    }
+  ],
+  "errors": []
+}

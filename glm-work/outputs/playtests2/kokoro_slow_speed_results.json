@@ -1,0 +1,162 @@
+{
+  "name": "kokoro_slow_speed",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "kokoro",
+    "speed": 0.8,
+    "musicVol": 0.15,
+    "musicSrc": "library",
+    "model": "openai/gpt-oss-120b"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "scene": "tavern",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The heavy oak door of the Rusty Anchor groans open, letting in a chilling gust of mountain wind that makes the meager tallow candles flicker wildly."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael steps inside, his chain mail clinking softly against the damp night air, eyes scanning the gloomy taproom for warmth or shelter."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Two scrawny goblins crouch atop an overturned wooden table near the hearth, tearing into a stale loaf of bread with jagged daggers and hissing amongst themselves."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "They snap their heads toward the entrance, bloodshot eyes locking onto the veteran fighter with feral malice."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Draw your longsword and step forward to clear the tavern",
+          "roll": false
+        },
+        {
+          "text": "Shout a warning to see if the creatures will back down",
+          "roll": false
+        },
+        {
+          "text": "Slowly reach for your health potion while keeping your shield raised",
+          "roll": false
+        }
+      ],
+      "changes": [],
+      "model": "gemini-3.5-flash-lite",
+      "audio_status": "error",
+      "audio_duration": null,
+      "total_text": "The heavy oak door of the Rusty Anchor groans open, letting in a chilling gust of mountain wind that makes the meager tallow candles flicker wildly. Kael steps inside, his chain mail clinking softly against the damp night air, eyes scanning the gloomy taproom for warmth or shelter. Two scrawny goblins crouch atop an overturned wooden table near the hearth, tearing into a stale loaf of bread with jagged daggers and hissing amongst themselves. They snap their heads toward the entrance, bloodshot eyes locking onto the veteran fighter with feral malice.",
+      "text_length": 555
+    },
+    {
+      "turn": 2,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael's eyes sweep the dim interior, searching for any sign of an altar or sacred symbol among the soot\u2011blackened beams."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The only things that meet his gaze are the splintered wooden tables, the flickering hearth, and the two goblins hunched over their stolen loaf."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "No ancient altar lies here\u2014only the stale scent of ale and the faint echo of distant mountain winds through the cracked shutters."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Draw your longsword and close the distance to the Goblin Scout",
+          "roll": true
+        },
+        {
+          "text": "Raise your shield and shout a warning, hoping to intimidate the goblins",
+          "roll": true
+        },
+        {
+          "text": "Slip behind the overturned table to gain cover before deciding your next move",
+          "roll": false
+        },
+        {
+          "text": "Attempt to negotiate with the goblins, asking why they\u2019re here",
+          "roll": true
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "action": "I slowly approach the ancient altar, examining every detail.",
+      "audio_status": "ready",
+      "audio_duration": 35.5,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_slow_speed_turn_002.wav",
+      "total_text": "Kael's eyes sweep the dim interior, searching for any sign of an altar or sacred symbol among the soot\u2011blackened beams. The only things that meet his gaze are the splintered wooden tables, the flickering hearth, and the two goblins hunched over their stolen loaf. No ancient altar lies here\u2014only the stale scent of ale and the faint echo of distant mountain winds through the cracked shutters.",
+      "text_length": 393,
+      "fidelity_ratio": 1.3549618320610688
+    },
+    {
+      "turn": 3,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael steps closer to the rough-hewn stone slab propped against the far wall, its surface pitted and darkened by years of smoke."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "He squints, tracing the faint, ancient runes etched into the stone, the letters worn but still discernible in the candlelight."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "With a practiced eye, he reads the warning: *\u201cWhen the mountain's heart beats, the night will rise. Keep the fire alight, lest the shadows claim the village.\u201d*"
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The words chill him, a reminder that the goblins are not the only danger lurking in this cursed hamlet."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Draw your longsword and charge the Goblin Scout",
+          "roll": true
+        },
+        {
+          "text": "Raise your shield and shout a warning to intimidate both goblins",
+          "roll": true
+        },
+        {
+          "text": "Slip behind the overturned table for cover before deciding your next move",
+          "roll": false
+        },
+        {
+          "text": "Attempt to negotiate with the goblins, asking why they\u2019re here",
+          "roll": true
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "action": "I carefully read the inscription carved into the stone.",
+      "audio_status": "ready",
+      "audio_duration": 45.9,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests2/kokoro_slow_speed_turn_003.wav",
+      "total_text": "Kael steps closer to the rough-hewn stone slab propped against the far wall, its surface pitted and darkened by years of smoke. He squints, tracing the faint, ancient runes etched into the stone, the letters worn but still discernible in the candlelight. With a practiced eye, he reads the warning: *\u201cWhen the mountain's heart beats, the night will rise. Keep the fire alight, lest the shadows claim the village.\u201d* The words chill him, a reminder that the goblins are not the only danger lurking in this cursed hamlet.",
+      "text_length": 518,
+      "fidelity_ratio": 1.329150579150579
+    }
+  ],
+  "errors": []
+}

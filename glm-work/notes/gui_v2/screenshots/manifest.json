@@ -1,0 +1,992 @@
+[
+  {
+    "file": "base-ink-extended_default.png",
+    "variant": "Base (Ink Extended Light)",
+    "variantFile": "ink-extended.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "Base (Ink Extended Light) — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "base-ink-extended_left-panel.png",
+    "variant": "Base (Ink Extended Light)",
+    "variantFile": "ink-extended.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "Base (Ink Extended Light) — Left panel open (character/inventory)"
+  },
+  {
+    "file": "base-ink-extended_right-panel.png",
+    "variant": "Base (Ink Extended Light)",
+    "variantFile": "ink-extended.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "Base (Ink Extended Light) — Right panel open (settings)"
+  },
+  {
+    "file": "base-ink-extended_both-panels.png",
+    "variant": "Base (Ink Extended Light)",
+    "variantFile": "ink-extended.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "Base (Ink Extended Light) — Both side panels open simultaneously"
+  },
+  {
+    "file": "base-ink-extended_topbar.png",
+    "variant": "Base (Ink Extended Light)",
+    "variantFile": "ink-extended.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "Base (Ink Extended Light) — Top bar visible (status bar)"
+  },
+  {
+    "file": "base-ink-extended_bottombar.png",
+    "variant": "Base (Ink Extended Light)",
+    "variantFile": "ink-extended.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "Base (Ink Extended Light) — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "base-ink-extended_all-bars.png",
+    "variant": "Base (Ink Extended Light)",
+    "variantFile": "ink-extended.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "Base (Ink Extended Light) — All bars visible (top + bottom)"
+  },
+  {
+    "file": "base-ink-extended_audio-expanded.png",
+    "variant": "Base (Ink Extended Light)",
+    "variantFile": "ink-extended.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "Base (Ink Extended Light) — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "base-ink-extended_left-audio.png",
+    "variant": "Base (Ink Extended Light)",
+    "variantFile": "ink-extended.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "Base (Ink Extended Light) — Left panel + audio expanded"
+  },
+  {
+    "file": "base-ink-extended_everything.png",
+    "variant": "Base (Ink Extended Light)",
+    "variantFile": "ink-extended.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "Base (Ink Extended Light) — Everything open (both panels + both bars + audio)"
+  },
+  {
+    "file": "base-ink-dark_default.png",
+    "variant": "Base (Ink Extended Dark)",
+    "variantFile": "ink-dark.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "Base (Ink Extended Dark) — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "base-ink-dark_left-panel.png",
+    "variant": "Base (Ink Extended Dark)",
+    "variantFile": "ink-dark.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "Base (Ink Extended Dark) — Left panel open (character/inventory)"
+  },
+  {
+    "file": "base-ink-dark_right-panel.png",
+    "variant": "Base (Ink Extended Dark)",
+    "variantFile": "ink-dark.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "Base (Ink Extended Dark) — Right panel open (settings)"
+  },
+  {
+    "file": "base-ink-dark_both-panels.png",
+    "variant": "Base (Ink Extended Dark)",
+    "variantFile": "ink-dark.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "Base (Ink Extended Dark) — Both side panels open simultaneously"
+  },
+  {
+    "file": "base-ink-dark_topbar.png",
+    "variant": "Base (Ink Extended Dark)",
+    "variantFile": "ink-dark.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "Base (Ink Extended Dark) — Top bar visible (status bar)"
+  },
+  {
+    "file": "base-ink-dark_bottombar.png",
+    "variant": "Base (Ink Extended Dark)",
+    "variantFile": "ink-dark.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "Base (Ink Extended Dark) — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "base-ink-dark_all-bars.png",
+    "variant": "Base (Ink Extended Dark)",
+    "variantFile": "ink-dark.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "Base (Ink Extended Dark) — All bars visible (top + bottom)"
+  },
+  {
+    "file": "base-ink-dark_audio-expanded.png",
+    "variant": "Base (Ink Extended Dark)",
+    "variantFile": "ink-dark.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "Base (Ink Extended Dark) — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "base-ink-dark_left-audio.png",
+    "variant": "Base (Ink Extended Dark)",
+    "variantFile": "ink-dark.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "Base (Ink Extended Dark) — Left panel + audio expanded"
+  },
+  {
+    "file": "base-ink-dark_everything.png",
+    "variant": "Base (Ink Extended Dark)",
+    "variantFile": "ink-dark.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "Base (Ink Extended Dark) — Everything open (both panels + both bars + audio)"
+  },
+  {
+    "file": "v1-bookmark_default.png",
+    "variant": "v1 Bookmark Tabs",
+    "variantFile": "v1-bookmark.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "v1 Bookmark Tabs — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "v1-bookmark_left-panel.png",
+    "variant": "v1 Bookmark Tabs",
+    "variantFile": "v1-bookmark.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "v1 Bookmark Tabs — Left panel open (character/inventory)"
+  },
+  {
+    "file": "v1-bookmark_right-panel.png",
+    "variant": "v1 Bookmark Tabs",
+    "variantFile": "v1-bookmark.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "v1 Bookmark Tabs — Right panel open (settings)"
+  },
+  {
+    "file": "v1-bookmark_both-panels.png",
+    "variant": "v1 Bookmark Tabs",
+    "variantFile": "v1-bookmark.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "v1 Bookmark Tabs — Both side panels open simultaneously"
+  },
+  {
+    "file": "v1-bookmark_topbar.png",
+    "variant": "v1 Bookmark Tabs",
+    "variantFile": "v1-bookmark.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "v1 Bookmark Tabs — Top bar visible (status bar)"
+  },
+  {
+    "file": "v1-bookmark_bottombar.png",
+    "variant": "v1 Bookmark Tabs",
+    "variantFile": "v1-bookmark.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "v1 Bookmark Tabs — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "v1-bookmark_all-bars.png",
+    "variant": "v1 Bookmark Tabs",
+    "variantFile": "v1-bookmark.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "v1 Bookmark Tabs — All bars visible (top + bottom)"
+  },
+  {
+    "file": "v1-bookmark_audio-expanded.png",
+    "variant": "v1 Bookmark Tabs",
+    "variantFile": "v1-bookmark.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "v1 Bookmark Tabs — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "v1-bookmark_left-audio.png",
+    "variant": "v1 Bookmark Tabs",
+    "variantFile": "v1-bookmark.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "v1 Bookmark Tabs — Left panel + audio expanded"
+  },
+  {
+    "file": "v1-bookmark_everything.png",
+    "variant": "v1 Bookmark Tabs",
+    "variantFile": "v1-bookmark.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "v1 Bookmark Tabs — Everything open (both panels + both bars + audio)"
+  },
+  {
+    "file": "v2-topbar-cmd_default.png",
+    "variant": "v2 Top Bar Command Center",
+    "variantFile": "v2-topbar-cmd.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "v2 Top Bar Command Center — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "v2-topbar-cmd_left-panel.png",
+    "variant": "v2 Top Bar Command Center",
+    "variantFile": "v2-topbar-cmd.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "v2 Top Bar Command Center — Left panel open (character/inventory)"
+  },
+  {
+    "file": "v2-topbar-cmd_right-panel.png",
+    "variant": "v2 Top Bar Command Center",
+    "variantFile": "v2-topbar-cmd.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "v2 Top Bar Command Center — Right panel open (settings)"
+  },
+  {
+    "file": "v2-topbar-cmd_both-panels.png",
+    "variant": "v2 Top Bar Command Center",
+    "variantFile": "v2-topbar-cmd.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "v2 Top Bar Command Center — Both side panels open simultaneously"
+  },
+  {
+    "file": "v2-topbar-cmd_topbar.png",
+    "variant": "v2 Top Bar Command Center",
+    "variantFile": "v2-topbar-cmd.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "v2 Top Bar Command Center — Top bar visible (status bar)"
+  },
+  {
+    "file": "v2-topbar-cmd_bottombar.png",
+    "variant": "v2 Top Bar Command Center",
+    "variantFile": "v2-topbar-cmd.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "v2 Top Bar Command Center — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "v2-topbar-cmd_all-bars.png",
+    "variant": "v2 Top Bar Command Center",
+    "variantFile": "v2-topbar-cmd.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "v2 Top Bar Command Center — All bars visible (top + bottom)"
+  },
+  {
+    "file": "v2-topbar-cmd_audio-expanded.png",
+    "variant": "v2 Top Bar Command Center",
+    "variantFile": "v2-topbar-cmd.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "v2 Top Bar Command Center — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "v2-topbar-cmd_left-audio.png",
+    "variant": "v2 Top Bar Command Center",
+    "variantFile": "v2-topbar-cmd.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "v2 Top Bar Command Center — Left panel + audio expanded"
+  },
+  {
+    "file": "v2-topbar-cmd_everything.png",
+    "variant": "v2 Top Bar Command Center",
+    "variantFile": "v2-topbar-cmd.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "v2 Top Bar Command Center — Everything open (both panels + both bars + audio)"
+  },
+  {
+    "file": "v3-edge-rails_default.png",
+    "variant": "v3 Edge Rails",
+    "variantFile": "v3-edge-rails.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "v3 Edge Rails — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "v3-edge-rails_left-panel.png",
+    "variant": "v3 Edge Rails",
+    "variantFile": "v3-edge-rails.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "v3 Edge Rails — Left panel open (character/inventory)"
+  },
+  {
+    "file": "v3-edge-rails_right-panel.png",
+    "variant": "v3 Edge Rails",
+    "variantFile": "v3-edge-rails.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "v3 Edge Rails — Right panel open (settings)"
+  },
+  {
+    "file": "v3-edge-rails_both-panels.png",
+    "variant": "v3 Edge Rails",
+    "variantFile": "v3-edge-rails.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "v3 Edge Rails — Both side panels open simultaneously"
+  },
+  {
+    "file": "v3-edge-rails_topbar.png",
+    "variant": "v3 Edge Rails",
+    "variantFile": "v3-edge-rails.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "v3 Edge Rails — Top bar visible (status bar)"
+  },
+  {
+    "file": "v3-edge-rails_bottombar.png",
+    "variant": "v3 Edge Rails",
+    "variantFile": "v3-edge-rails.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "v3 Edge Rails — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "v3-edge-rails_all-bars.png",
+    "variant": "v3 Edge Rails",
+    "variantFile": "v3-edge-rails.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "v3 Edge Rails — All bars visible (top + bottom)"
+  },
+  {
+    "file": "v3-edge-rails_audio-expanded.png",
+    "variant": "v3 Edge Rails",
+    "variantFile": "v3-edge-rails.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "v3 Edge Rails — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "v3-edge-rails_left-audio.png",
+    "variant": "v3 Edge Rails",
+    "variantFile": "v3-edge-rails.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "v3 Edge Rails — Left panel + audio expanded"
+  },
+  {
+    "file": "v3-edge-rails_everything.png",
+    "variant": "v3 Edge Rails",
+    "variantFile": "v3-edge-rails.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "v3 Edge Rails — Everything open (both panels + both bars + audio)"
+  },
+  {
+    "file": "v4-audio-hub_default.png",
+    "variant": "v4 Audio Hub",
+    "variantFile": "v4-audio-hub.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "v4 Audio Hub — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "v4-audio-hub_left-panel.png",
+    "variant": "v4 Audio Hub",
+    "variantFile": "v4-audio-hub.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "v4 Audio Hub — Left panel open (character/inventory)"
+  },
+  {
+    "file": "v4-audio-hub_right-panel.png",
+    "variant": "v4 Audio Hub",
+    "variantFile": "v4-audio-hub.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "v4 Audio Hub — Right panel open (settings)"
+  },
+  {
+    "file": "v4-audio-hub_both-panels.png",
+    "variant": "v4 Audio Hub",
+    "variantFile": "v4-audio-hub.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "v4 Audio Hub — Both side panels open simultaneously"
+  },
+  {
+    "file": "v4-audio-hub_topbar.png",
+    "variant": "v4 Audio Hub",
+    "variantFile": "v4-audio-hub.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "v4 Audio Hub — Top bar visible (status bar)"
+  },
+  {
+    "file": "v4-audio-hub_bottombar.png",
+    "variant": "v4 Audio Hub",
+    "variantFile": "v4-audio-hub.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "v4 Audio Hub — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "v4-audio-hub_all-bars.png",
+    "variant": "v4 Audio Hub",
+    "variantFile": "v4-audio-hub.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "v4 Audio Hub — All bars visible (top + bottom)"
+  },
+  {
+    "file": "v4-audio-hub_audio-expanded.png",
+    "variant": "v4 Audio Hub",
+    "variantFile": "v4-audio-hub.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "v4 Audio Hub — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "v4-audio-hub_left-audio.png",
+    "variant": "v4 Audio Hub",
+    "variantFile": "v4-audio-hub.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "v4 Audio Hub — Left panel + audio expanded"
+  },
+  {
+    "file": "v4-audio-hub_everything.png",
+    "variant": "v4 Audio Hub",
+    "variantFile": "v4-audio-hub.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "v4 Audio Hub — Everything open (both panels + both bars + audio)"
+  },
+  {
+    "file": "v5-ultra-minimal_default.png",
+    "variant": "v5 Ultra Minimal",
+    "variantFile": "v5-ultra-minimal.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "v5 Ultra Minimal — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "v5-ultra-minimal_left-panel.png",
+    "variant": "v5 Ultra Minimal",
+    "variantFile": "v5-ultra-minimal.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "v5 Ultra Minimal — Left panel open (character/inventory)"
+  },
+  {
+    "file": "v5-ultra-minimal_right-panel.png",
+    "variant": "v5 Ultra Minimal",
+    "variantFile": "v5-ultra-minimal.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "v5 Ultra Minimal — Right panel open (settings)"
+  },
+  {
+    "file": "v5-ultra-minimal_both-panels.png",
+    "variant": "v5 Ultra Minimal",
+    "variantFile": "v5-ultra-minimal.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "v5 Ultra Minimal — Both side panels open simultaneously"
+  },
+  {
+    "file": "v5-ultra-minimal_topbar.png",
+    "variant": "v5 Ultra Minimal",
+    "variantFile": "v5-ultra-minimal.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "v5 Ultra Minimal — Top bar visible (status bar)"
+  },
+  {
+    "file": "v5-ultra-minimal_bottombar.png",
+    "variant": "v5 Ultra Minimal",
+    "variantFile": "v5-ultra-minimal.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "v5 Ultra Minimal — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "v5-ultra-minimal_all-bars.png",
+    "variant": "v5 Ultra Minimal",
+    "variantFile": "v5-ultra-minimal.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "v5 Ultra Minimal — All bars visible (top + bottom)"
+  },
+  {
+    "file": "v5-ultra-minimal_audio-expanded.png",
+    "variant": "v5 Ultra Minimal",
+    "variantFile": "v5-ultra-minimal.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "v5 Ultra Minimal — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "v5-ultra-minimal_left-audio.png",
+    "variant": "v5 Ultra Minimal",
+    "variantFile": "v5-ultra-minimal.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "v5 Ultra Minimal — Left panel + audio expanded"
+  },
+  {
+    "file": "v5-ultra-minimal_everything.png",
+    "variant": "v5 Ultra Minimal",
+    "variantFile": "v5-ultra-minimal.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "v5 Ultra Minimal — Everything open (both panels + both bars + audio)"
+  },
+  {
+    "file": "v6-ribbons_default.png",
+    "variant": "v6 Ribbon Bookmarks",
+    "variantFile": "v6-ribbons.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "v6 Ribbon Bookmarks — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "v6-ribbons_left-panel.png",
+    "variant": "v6 Ribbon Bookmarks",
+    "variantFile": "v6-ribbons.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "v6 Ribbon Bookmarks — Left panel open (character/inventory)"
+  },
+  {
+    "file": "v6-ribbons_right-panel.png",
+    "variant": "v6 Ribbon Bookmarks",
+    "variantFile": "v6-ribbons.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "v6 Ribbon Bookmarks — Right panel open (settings)"
+  },
+  {
+    "file": "v6-ribbons_both-panels.png",
+    "variant": "v6 Ribbon Bookmarks",
+    "variantFile": "v6-ribbons.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "v6 Ribbon Bookmarks — Both side panels open simultaneously"
+  },
+  {
+    "file": "v6-ribbons_topbar.png",
+    "variant": "v6 Ribbon Bookmarks",
+    "variantFile": "v6-ribbons.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "v6 Ribbon Bookmarks — Top bar visible (status bar)"
+  },
+  {
+    "file": "v6-ribbons_bottombar.png",
+    "variant": "v6 Ribbon Bookmarks",
+    "variantFile": "v6-ribbons.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "v6 Ribbon Bookmarks — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "v6-ribbons_all-bars.png",
+    "variant": "v6 Ribbon Bookmarks",
+    "variantFile": "v6-ribbons.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "v6 Ribbon Bookmarks — All bars visible (top + bottom)"
+  },
+  {
+    "file": "v6-ribbons_audio-expanded.png",
+    "variant": "v6 Ribbon Bookmarks",
+    "variantFile": "v6-ribbons.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "v6 Ribbon Bookmarks — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "v6-ribbons_left-audio.png",
+    "variant": "v6 Ribbon Bookmarks",
+    "variantFile": "v6-ribbons.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "v6 Ribbon Bookmarks — Left panel + audio expanded"
+  },
+  {
+    "file": "v6-ribbons_everything.png",
+    "variant": "v6 Ribbon Bookmarks",
+    "variantFile": "v6-ribbons.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "v6 Ribbon Bookmarks — Everything open (both panels + both bars + audio)"
+  },
+  {
+    "file": "v7-dog-ears_default.png",
+    "variant": "v7 Dog-Eared Pages",
+    "variantFile": "v7-dog-ears.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "v7 Dog-Eared Pages — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "v7-dog-ears_left-panel.png",
+    "variant": "v7 Dog-Eared Pages",
+    "variantFile": "v7-dog-ears.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "v7 Dog-Eared Pages — Left panel open (character/inventory)"
+  },
+  {
+    "file": "v7-dog-ears_right-panel.png",
+    "variant": "v7 Dog-Eared Pages",
+    "variantFile": "v7-dog-ears.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "v7 Dog-Eared Pages — Right panel open (settings)"
+  },
+  {
+    "file": "v7-dog-ears_both-panels.png",
+    "variant": "v7 Dog-Eared Pages",
+    "variantFile": "v7-dog-ears.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "v7 Dog-Eared Pages — Both side panels open simultaneously"
+  },
+  {
+    "file": "v7-dog-ears_topbar.png",
+    "variant": "v7 Dog-Eared Pages",
+    "variantFile": "v7-dog-ears.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "v7 Dog-Eared Pages — Top bar visible (status bar)"
+  },
+  {
+    "file": "v7-dog-ears_bottombar.png",
+    "variant": "v7 Dog-Eared Pages",
+    "variantFile": "v7-dog-ears.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "v7 Dog-Eared Pages — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "v7-dog-ears_all-bars.png",
+    "variant": "v7 Dog-Eared Pages",
+    "variantFile": "v7-dog-ears.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "v7 Dog-Eared Pages — All bars visible (top + bottom)"
+  },
+  {
+    "file": "v7-dog-ears_audio-expanded.png",
+    "variant": "v7 Dog-Eared Pages",
+    "variantFile": "v7-dog-ears.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "v7 Dog-Eared Pages — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "v7-dog-ears_left-audio.png",
+    "variant": "v7 Dog-Eared Pages",
+    "variantFile": "v7-dog-ears.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "v7 Dog-Eared Pages — Left panel + audio expanded"
+  },
+  {
+    "file": "v7-dog-ears_everything.png",
+    "variant": "v7 Dog-Eared Pages",
+    "variantFile": "v7-dog-ears.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "v7 Dog-Eared Pages — Everything open (both panels + both bars + audio)"
+  },
+  {
+    "file": "v8-margin-marks_default.png",
+    "variant": "v8 Margin Marks",
+    "variantFile": "v8-margin-marks.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "v8 Margin Marks — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "v8-margin-marks_left-panel.png",
+    "variant": "v8 Margin Marks",
+    "variantFile": "v8-margin-marks.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "v8 Margin Marks — Left panel open (character/inventory)"
+  },
+  {
+    "file": "v8-margin-marks_right-panel.png",
+    "variant": "v8 Margin Marks",
+    "variantFile": "v8-margin-marks.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "v8 Margin Marks — Right panel open (settings)"
+  },
+  {
+    "file": "v8-margin-marks_both-panels.png",
+    "variant": "v8 Margin Marks",
+    "variantFile": "v8-margin-marks.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "v8 Margin Marks — Both side panels open simultaneously"
+  },
+  {
+    "file": "v8-margin-marks_topbar.png",
+    "variant": "v8 Margin Marks",
+    "variantFile": "v8-margin-marks.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "v8 Margin Marks — Top bar visible (status bar)"
+  },
+  {
+    "file": "v8-margin-marks_bottombar.png",
+    "variant": "v8 Margin Marks",
+    "variantFile": "v8-margin-marks.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "v8 Margin Marks — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "v8-margin-marks_all-bars.png",
+    "variant": "v8 Margin Marks",
+    "variantFile": "v8-margin-marks.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "v8 Margin Marks — All bars visible (top + bottom)"
+  },
+  {
+    "file": "v8-margin-marks_audio-expanded.png",
+    "variant": "v8 Margin Marks",
+    "variantFile": "v8-margin-marks.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "v8 Margin Marks — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "v8-margin-marks_left-audio.png",
+    "variant": "v8 Margin Marks",
+    "variantFile": "v8-margin-marks.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "v8 Margin Marks — Left panel + audio expanded"
+  },
+  {
+    "file": "v8-margin-marks_everything.png",
+    "variant": "v8 Margin Marks",
+    "variantFile": "v8-margin-marks.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "v8 Margin Marks — Everything open (both panels + both bars + audio)"
+  },
+  {
+    "file": "v9-circle-buttons_default.png",
+    "variant": "v9 Circle Buttons",
+    "variantFile": "v9-circle-buttons.html",
+    "state": "Default state (everything collapsed/hidden, just reading)",
+    "stateId": "default",
+    "actions": "none",
+    "description": "v9 Circle Buttons — Default state (everything collapsed/hidden, just reading)"
+  },
+  {
+    "file": "v9-circle-buttons_left-panel.png",
+    "variant": "v9 Circle Buttons",
+    "variantFile": "v9-circle-buttons.html",
+    "state": "Left panel open (character/inventory)",
+    "stateId": "left-panel",
+    "actions": "left",
+    "description": "v9 Circle Buttons — Left panel open (character/inventory)"
+  },
+  {
+    "file": "v9-circle-buttons_right-panel.png",
+    "variant": "v9 Circle Buttons",
+    "variantFile": "v9-circle-buttons.html",
+    "state": "Right panel open (settings)",
+    "stateId": "right-panel",
+    "actions": "settings",
+    "description": "v9 Circle Buttons — Right panel open (settings)"
+  },
+  {
+    "file": "v9-circle-buttons_both-panels.png",
+    "variant": "v9 Circle Buttons",
+    "variantFile": "v9-circle-buttons.html",
+    "state": "Both side panels open simultaneously",
+    "stateId": "both-panels",
+    "actions": "left, settings",
+    "description": "v9 Circle Buttons — Both side panels open simultaneously"
+  },
+  {
+    "file": "v9-circle-buttons_topbar.png",
+    "variant": "v9 Circle Buttons",
+    "variantFile": "v9-circle-buttons.html",
+    "state": "Top bar visible (status bar)",
+    "stateId": "topbar",
+    "actions": "topbar",
+    "description": "v9 Circle Buttons — Top bar visible (status bar)"
+  },
+  {
+    "file": "v9-circle-buttons_bottombar.png",
+    "variant": "v9 Circle Buttons",
+    "variantFile": "v9-circle-buttons.html",
+    "state": "Bottom bar visible (info bar)",
+    "stateId": "bottombar",
+    "actions": "bottombar",
+    "description": "v9 Circle Buttons — Bottom bar visible (info bar)"
+  },
+  {
+    "file": "v9-circle-buttons_all-bars.png",
+    "variant": "v9 Circle Buttons",
+    "variantFile": "v9-circle-buttons.html",
+    "state": "All bars visible (top + bottom)",
+    "stateId": "all-bars",
+    "actions": "topbar, bottombar",
+    "description": "v9 Circle Buttons — All bars visible (top + bottom)"
+  },
+  {
+    "file": "v9-circle-buttons_audio-expanded.png",
+    "variant": "v9 Circle Buttons",
+    "variantFile": "v9-circle-buttons.html",
+    "state": "Audio bar expanded (full controls)",
+    "stateId": "audio-expanded",
+    "actions": "audio-expand",
+    "description": "v9 Circle Buttons — Audio bar expanded (full controls)"
+  },
+  {
+    "file": "v9-circle-buttons_left-audio.png",
+    "variant": "v9 Circle Buttons",
+    "variantFile": "v9-circle-buttons.html",
+    "state": "Left panel + audio expanded",
+    "stateId": "left-audio",
+    "actions": "left, audio-expand",
+    "description": "v9 Circle Buttons — Left panel + audio expanded"
+  },
+  {
+    "file": "v9-circle-buttons_everything.png",
+    "variant": "v9 Circle Buttons",
+    "variantFile": "v9-circle-buttons.html",
+    "state": "Everything open (both panels + both bars + audio)",
+    "stateId": "everything",
+    "actions": "left, settings, topbar, bottombar, audio-expand",
+    "description": "v9 Circle Buttons — Everything open (both panels + both bars + audio)"
+  }
+]

@@ -1,3 +1,211 @@
+# Update 2026-08-22 — Opus reviewed the World Engine, detailed spec ready, restructure first
+
+Opus reviewed `docs/WORLD-ENGINE-DESIGN.md` (`docs/WORLD-ENGINE-REVIEW-OPUS.md`) and
+found a real dependency the plan missed: **DC-then-roll and audio streaming are not
+independent** — two sequential LLM calls per contested action roughly doubles latency,
+tolerable only if the audio queue already hides it behind playing sound. Build order
+changed accordingly. I then wrote the full line-level implementation spec:
+**`sonnet-work/GLM-WORLD-ENGINE-SPEC.md` — read this before touching any World Engine
+code, it supersedes `docs/WORLD-ENGINE-DESIGN.md` entirely.**
+
+**New first step, before any of that: file restructuring (v0.3.5).** `narrator_v01/app.py`
+is 1,673 lines, ~1,000 of which is a single HTML/CSS/JS string literal. Three parallel
+instances are about to need this file simultaneously — split it first. Target layout and
+a safe (behavior-preserving, testable) extraction order are in `docs/V1-PLAN.md`'s new
+"v0.3.5" section. This is mechanical work (moving code, not redesigning it) — good fit
+for whichever instance is free first, blocks nothing else once started.
+
+**Corrected build order** (full detail + owners in `docs/V1-PLAN.md`'s versioning
+table): v0.3.5 (restructure) → v0.4a (audio queue, **Instance B, do this first if only
+one instance is running**) → v0.4c/d (world_store.py + GameState facade, Instance A, can
+run parallel to v0.4a) → v0.4b (DC-then-roll, Instance A, **waits for v0.4a to land**) →
+v0.5a/b/c (context assembler, guards, procedural opening).
+
+Do not start DC-then-roll (v0.4b) before the audio queue (v0.4a) exists, even though
+it's tempting since both touch the DM turn flow — the latency will feel bad without it,
+and Arie will notice immediately.
+
+---
+
+# Update 2026-08-21 (v2) — scope expanded significantly, three new design docs
+
+Arie gave detailed direction on everything: no hardcoded NPCs/encounters ever, a proper
+persistent "World Engine" (never trust the LLM to remember), deterministic DC-then-roll
+dice enforcement, live audio streaming faster than playback, a conversational Session
+Zero wizard, voice assignment screen, full character sheet/inventory UI, and audio
+polish (crossfade, normalization, adaptive ducking). This is a real subversion series
+now, not a single next step — **read `docs/V1-PLAN.md` in full**, it has the versioning
+plan (v0.4 → v1.0) and updated task division. Three new ready-to-build design docs:
+
+- `docs/WORLD-ENGINE-DESIGN.md` — the persistent entity store + procedural generation +
+  deterministic rules. **Note: three specific open questions in this doc are flagged
+  for an Opus review before final** — don't treat the retrieval/consistency strategy as
+  locked, but the entity model and rules-engine parts are solid, build those now.
+- `docs/AUDIO-STREAMING-DESIGN.md` — live streaming playback, pre-generated choice
+  audio, quality/speed fallback rule. Fully ready to build, no open questions.
+- `docs/SESSION-ZERO-DESIGN.md` — conversational onboarding wizard reusing the existing
+  turn-loop. Fully ready to build (can stub the World Engine dependency for now).
+
+New instance assignment (supersedes the previous round — see `V1-PLAN.md` for full
+detail): **A GLM** owns rules/World Engine, **B GLM** owns audio streaming + polish,
+**C GLM** owns Session Zero UI + voice assignment + character sheet, **D GLM**
+(optional) owns stability/regression testing once things settle. Don't start the
+long-session stress test yet — the app is about to change substantially.
+
+Bandwidth note: Arie is still on a very limited 5G connection — no new heavy
+dependencies or model downloads unless truly necessary (the World Engine design doc
+already accounts for this — JSON/SQLite, no vector DB, no new local models).
+
+---
+
+# Update 2026-08-21 — v0.3 reviewed, path to v1
+
+Read `docs/V1-PLAN.md` (new, canonical for next steps — supersedes the open items in
+`V0-PLAN.md`). I verified v0.3 by actually opening the Playwright screenshots, not just
+the handoff doc — genuinely good work, the rules lawyer is confirmed working live
+(saw the `[REJECTED — no roll evidence]` message in an actual screenshot). Three
+parallel instances, task division in `V1-PLAN.md` §"Task division" — short version:
+
+- **A GLM - Rules Lawyer**: add the expanded trickster scenarios (long-context,
+  gradual HP inflation, fabricated items after many turns) — still not done, this is
+  what's blocking the Opus review trigger. Also fix the mechanics-log display
+  formatting (multiple state changes run together unreadably in one screenshot).
+- **B GLM - GUI/UX**: fix the sepia theme bug (looks identical to dark theme — verify
+  the CSS actually swaps), and build Arie's requested opening wizard (guided,
+  book-foreword-toned setup flow, replacing the current single form). Apply my earlier
+  GUI polish instructions to the live `narrator_v01/app.py` templates now, not the
+  static mockups — that exploration phase is over.
+- **C GLM - Stability**: run one real 30+ turn session end-to-end (not short playtests)
+  looking for crashes/degradation, fix the continuous-music gap on scene changes.
+
+I also fixed `.gitignore` directly (node_modules + Playwright test artifacts weren't
+excluded) — no action needed from you there.
+
+Two things are Arie's call, not something to guess at: Anthropic credits (blocks Claude
+testing) and how elaborate the opening wizard should be — both flagged for him in
+`docs/V1-PLAN.md`'s closing section.
+
+---
+
+# Update 2026-08-20 (v2) — Arie answered, tasks divided for parallel GLM instances
+
+Arie reviewed and answered everything in `sonnet-work/QUESTIONS-FOR-ARIE-2026-08-20.md`
+(read it — his answers matter, especially the scope note in item 6, also now reflected
+in `docs/V0-PLAN.md`'s new "Scope philosophy" section: **v0 is an audiobook-with-choices
+experience — dice/inventory/state fully automatic and app-driven, visible but not
+player-interactive. Don't build toward a deeper interactive RPG yet.**)
+
+Four tasks below, split to avoid file conflicts if Arie runs multiple GLM windows at
+once. If you're a single instance working through all of them, do them in this order.
+
+## Instance "A GLM - Rules Lawyer" — owns `test_api_dm.py`, `run_trickster.py`
+
+Arie approved starting immediately, no dependencies on anything else.
+
+1. Fix the two known trickster vulnerabilities in `apply_mechanics()` (~line 205-262):
+   - **"Waste potion":** if any `ITEM_USED:<name>` in a turn's `[MECHANICS]` block names
+     an item not in `self.inventory`, don't consume ANY item that turn (currently a
+     different valid item can still get silently consumed).
+   - **"Control NPC":** only apply `ENEMY_DEAD`/enemy-fled if the same turn's mechanics
+     include an actual roll-driven action against that enemy — not just because the
+     narrative text said so.
+2. Add the expanded trickster scenarios: long-context attacks (try cheating after 10+
+   turns of history), gradual HP inflation across turns, fabricated-item claims.
+3. **New: add Claude/Anthropic as a provider.** Anthropic has an OpenAI-SDK-compatible
+   endpoint (confirmed via their docs) — point the existing `openai` client's `base_url`
+   at Anthropic's compat endpoint, use a Claude model name, same pattern as the existing
+   Groq/Gemini provider blocks. Arie is deciding which tier(s) to enable (Haiku/Sonnet/
+   Opus) in his answer to the addendum in `QUESTIONS-FOR-ARIE-2026-08-20.md` — check
+   that before assuming which one(s) to wire up. Needs `ANTHROPIC_API_KEY` in `.env`
+   (add to `.env.example` too).
+4. Re-run the trickster suite + a scripted DM test against whichever Claude tier(s) Arie
+   picks, add results to `dm_test_results_summary.md` and `trickster_test_results.md`.
+
+## Instance "B GLM - GUI Polish" — owns `notes/gui_v2/*.html` only (not narrator_v0/)
+
+Read `sonnet-work/GUI-V9-POLISH-INSTRUCTIONS.md` — my detailed review based on actually
+looking at the screenshots, not just the code. Three concrete fixes, in priority order:
+1. Side-panel toggle anchoring (currently drifts relative to the panel edge).
+2. Bottom bar consolidation (audio bar + footer bar currently compete — pick Option A
+   or B from my instructions doc, don't leave both).
+3. Code-quality extraction (shared CSS/JS into one file instead of 14 duplicated
+   1200-line HTML blobs) — **do this step last, only once Arie confirms a final pick**,
+   not before.
+
+Stay working in `notes/gui_v2/` only — don't touch `narrator_v0/app.py` yet, that's
+Instance C's territory for now, to avoid both of you editing the same file.
+
+## Instance "C GLM - App Stability" — owns `narrator_v0/app.py`, `audio_pipeline.py`
+
+Arie said the app was "still very buggy" last time he ran it. Before he plays a real
+session (which he's about to do, per his answer to question 3), reproduce and fix
+runtime issues:
+1. Run `python -m narrator_v0.app --model gemini-3.5-flash-lite --port 5102` yourself,
+   play several turns, and fix crashes/hangs/errors you hit.
+2. Check the known limitations list in `SONNET-HANDOFF.md` §3.5 (audio gen time ~70s,
+   port 5000 conflicts, no save/load) — confirm which are still real and fix what's
+   reasonably fixable without a big redesign.
+3. Don't touch GUI files — if the bug is GUI-related, note it for Instance B instead of
+   fixing it yourself, to avoid overlapping edits.
+
+## Sequenced after A/B/C finish: wire the polished GUI into the live app
+
+Once B's GUI polish is done and Arie has confirmed the final design pick, one instance
+(any of them, sequentially — not in parallel with the others touching the same file)
+wires the polished HTML/CSS/JS into `narrator_v0/app.py`'s templates. Don't start this
+until the design is actually finalized.
+
+## Not GLM's job right now
+
+- Claude baseline via manual chat — Arie already did this himself (see his answer to
+  question 4 — went well, "lovely session," but wants it via direct API now, see
+  Instance A task 3 above).
+- Campaign config / onboarding wizard design — Sonnet's job once GUI settles.
+- Deep audio pipeline phase-3 work (voice drift mitigation, continuous cross-turn music)
+  — still valid per `SONNET-HANDOFF.md` §7 Phase 3, but lower priority than the four
+  tasks above given Arie's "keep it simple" scope note — don't start this unless the
+  above are done and Arie hasn't given new direction.
+
+---
+
+# Update 2026-08-20 — reviewed SONNET-HANDOFF.md, excellent work
+
+I audited the handoff against the actual code, not just the doc. It holds up well —
+genuinely strong work on the DM brain testing, trickster suite, and audio iteration.
+Confirmed one gap and one thing worth doing while waiting on Arie:
+
+1. **Start Phase 1 (rules-lawyer hardening) now — don't wait for Arie's feedback
+   forms.** I confirmed this hasn't been started: `test_api_dm.py`'s `apply_mechanics()`
+   (around line 205-262) is the single source of truth — `narrator_v0/dm_engine.py`
+   imports `GameState` from it, so fixing it there fixes both. Two fixes, both already
+   well-specified in your own handoff:
+   - **"Waste potion" trick:** if `ITEM_USED:<name>` names an item not in
+     `self.inventory`, currently it just logs `[ITEM_USED but not in inventory]` and
+     does nothing — check whether a *different* valid item still gets silently consumed
+     elsewhere in the same turn's mechanics block (that's the actual exploit per your
+     own notes, not just an unhandled tag). Fix: if any named item in a turn's
+     `[MECHANICS]` block doesn't match inventory, don't consume ANY item that turn.
+   - **"Control NPC" trick:** add a check so `ENEMY_DEAD`/enemy-fled mechanics are only
+     applied if the same turn's mechanics include an actual roll-driven action against
+     that enemy (not just because the narrative text said so).
+   - Add the expanded trickster scenarios you proposed (long-context attacks after 10+
+     turns, gradual HP inflation, fabricated-item claims) to `run_trickster.py`.
+2. **Consolidate the GUI mockups into a recommendation**, don't just keep generating
+   variants. There are 14 now. I've asked Arie to pick a direction
+   (`sonnet-work/QUESTIONS-FOR-ARIE-2026-08-20.md`) — once he does, implement that
+   one faithfully into `narrator_v0/app.py` rather than continuing to explore.
+3. Don't wait on Arie's answers to start #1 — it's fully unblocked. Do wait on his GUI
+   pick before implementing GUI changes into the live app (exploring more mockups is
+   fine, just don't build the real thing until he picks).
+4. Everything else (Claude baseline, feedback forms, campaign config) is on Arie, not
+   you — no action needed from you there right now.
+
+Opus/Fable trigger point unchanged from your own recommendation: after Phase 1 fixes +
+expanded trickster scenarios land, I'll bring in Opus for a rules-schema/D&D-correctness
+review. Not yet.
+
+---
+
 # Update 2026-08-19 — excellent progress, here's what's next
 
 Read `docs/V0-PLAN.md` (new) — I reviewed all four research docs, the DM brain test

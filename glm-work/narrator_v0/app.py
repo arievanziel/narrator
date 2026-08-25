@@ -14,7 +14,7 @@ Usage:
   # Or directly:
   python narrator_v0/app.py --model gemini-3.5-flash-lite
 
-Then open http://localhost:5000 in your browser.
+Then open http://localhost:5102 in your browser.
 """
 import argparse
 import json
@@ -23,7 +23,7 @@ import sys
 import time
 import threading
 from pathlib import Path
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
 
 # Ensure glm-work/ is on the path
@@ -210,11 +210,19 @@ async function newGame() {
   history = [];
   turnCounter = 0;
   document.getElementById('messages').innerHTML = '';
-  const resp = await fetch('/api/newgame', {method: 'POST'});
-  const data = await resp.json();
-  document.getElementById('modelLabel').textContent = data.model + (data.audio_enabled ? ' + audio' : ' (text only)');
-  updateState(data.state);
-  addMessage('dm', data.response, null, data.audio_turn_id, data.audio_enabled);
+  try {
+    const resp = await fetch('/api/newgame', {method: 'POST'});
+    const data = await resp.json();
+    if (data.error) {
+      addMessage('dm', 'Error starting game: ' + data.error);
+      return;
+    }
+    document.getElementById('modelLabel').textContent = data.model + (data.audio_enabled ? ' + audio' : ' (text only)');
+    updateState(data.state);
+    addMessage('dm', data.response, null, data.audio_turn_id, data.audio_enabled);
+  } catch(e) {
+    addMessage('dm', 'Error connecting to server: ' + e.message);
+  }
 }
 
 async function sendAction() {
@@ -236,11 +244,15 @@ async function sendAction() {
     });
     const data = await resp.json();
     document.getElementById('typing')?.remove();
-    addMessage('dm', data.response, data.changes, data.audio_turn_id, data.audio_enabled);
-    updateState(data.state);
+    if (data.error) {
+      addMessage('dm', 'Error: ' + data.error);
+    } else {
+      addMessage('dm', data.response, data.changes, data.audio_turn_id, data.audio_enabled);
+      updateState(data.state);
+    }
   } catch(e) {
     document.getElementById('typing')?.remove();
-    addMessage('dm', 'Error: ' + e.message);
+    addMessage('dm', 'Error connecting to server: ' + e.message);
   }
   btn.disabled = false;
   input.focus();
@@ -333,6 +345,7 @@ function parseSections(text) {
 }
 
 function updateState(state) {
+  if (!state) return;
   const hpPct = (state.pc_hp / state.pc_max_hp) * 100;
   const hpColor = hpPct > 60 ? 'var(--hp-good)' : hpPct > 30 ? 'var(--chronicle)' : 'var(--hp-bad)';
   document.getElementById('charBlock').innerHTML = `
@@ -360,7 +373,7 @@ function toggleSidebar() {
 }
 
 function escapeHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-function escapeAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+function escapeAttr(s) { return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '\\r'); }
 
 newGame();
 </script>
@@ -447,48 +460,61 @@ class NarratorHandler(BaseHTTPRequestHandler):
         body = self.rfile.read(content_len).decode()
 
         if self.path == "/api/newgame":
-            NarratorHandler.state = make_initial_state()
-            NarratorHandler.history = []
-            NarratorHandler.turn_counter = 0
-            NarratorHandler.audio_results = {}
+            try:
+                NarratorHandler.state = make_initial_state()
+                NarratorHandler.history = []
+                NarratorHandler.turn_counter = 0
+                NarratorHandler.audio_results = {}
 
-            opening = "I enter the tavern and look around, hand on my sword hilt."
-            resp_text, elapsed, usage = self._call_dm(opening)
-            sections = parse_response_v0(resp_text)
-            NarratorHandler.state.apply_mechanics(sections["MECHANICS"])
-            NarratorHandler.history.append({"role": "user", "content": opening})
-            NarratorHandler.history.append({"role": "assistant", "content": resp_text})
+                opening = "I enter the tavern and look around, hand on my sword hilt."
+                resp_text, elapsed, usage = self._call_dm(opening)
+                sections = parse_response_v0(resp_text)
+                NarratorHandler.state.apply_mechanics(sections["MECHANICS"])
+                NarratorHandler.history.append({"role": "user", "content": opening})
+                NarratorHandler.history.append({"role": "assistant", "content": resp_text})
 
-            # Start audio generation in background
-            audio_turn_id = self._start_audio(sections.get("AUDIO", ""))
+                # Start audio generation in background
+                audio_turn_id = self._start_audio(sections.get("AUDIO", ""))
 
-            self._json_response({
-                "response": resp_text,
-                "state": NarratorHandler.state.to_dict(),
-                "model": NarratorHandler.model,
-                "audio_enabled": NarratorHandler.audio_enabled,
-                "audio_turn_id": audio_turn_id,
-            })
+                self._json_response({
+                    "response": resp_text,
+                    "state": NarratorHandler.state.to_dict(),
+                    "model": NarratorHandler.model,
+                    "audio_enabled": NarratorHandler.audio_enabled,
+                    "audio_turn_id": audio_turn_id,
+                })
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                self._json_response({"error": str(e)})
 
         elif self.path == "/api/turn":
-            data = json.loads(body)
-            action = data.get("action", "")
-            resp_text, elapsed, usage = self._call_dm(action)
-            sections = parse_response_v0(resp_text)
-            changes = NarratorHandler.state.apply_mechanics(sections["MECHANICS"])
-            NarratorHandler.history.append({"role": "user", "content": action})
-            NarratorHandler.history.append({"role": "assistant", "content": resp_text})
+            try:
+                data = json.loads(body)
+                action = data.get("action", "")
+                if not action.strip():
+                    self._json_response({"error": "Empty action"})
+                    return
+                resp_text, elapsed, usage = self._call_dm(action)
+                sections = parse_response_v0(resp_text)
+                changes = NarratorHandler.state.apply_mechanics(sections["MECHANICS"])
+                NarratorHandler.history.append({"role": "user", "content": action})
+                NarratorHandler.history.append({"role": "assistant", "content": resp_text})
 
-            # Start audio generation in background
-            audio_turn_id = self._start_audio(sections.get("AUDIO", ""))
+                # Start audio generation in background
+                audio_turn_id = self._start_audio(sections.get("AUDIO", ""))
 
-            self._json_response({
-                "response": resp_text,
-                "state": NarratorHandler.state.to_dict(),
-                "changes": changes,
-                "audio_enabled": NarratorHandler.audio_enabled,
-                "audio_turn_id": audio_turn_id,
-            })
+                self._json_response({
+                    "response": resp_text,
+                    "state": NarratorHandler.state.to_dict(),
+                    "changes": changes,
+                    "audio_enabled": NarratorHandler.audio_enabled,
+                    "audio_turn_id": audio_turn_id,
+                })
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                self._json_response({"error": str(e)})
         else:
             self.send_response(404)
             self.end_headers()
@@ -509,6 +535,12 @@ class NarratorHandler(BaseHTTPRequestHandler):
         """Start audio generation in a background thread. Returns turn_id."""
         NarratorHandler.turn_counter += 1
         turn_id = f"turn_{NarratorHandler.turn_counter:04d}"
+
+        # Clean up old audio results (keep last 20 to avoid unbounded growth)
+        if len(NarratorHandler.audio_results) > 20:
+            old_keys = sorted(NarratorHandler.audio_results.keys())[:-20]
+            for k in old_keys:
+                del NarratorHandler.audio_results[k]
 
         if not NarratorHandler.audio_enabled or not audio_text.strip():
             NarratorHandler.audio_results[turn_id] = {
@@ -554,7 +586,8 @@ Examples:
                         help=f"Model name (default: {config.DEFAULT_MODEL})")
     parser.add_argument("--provider", default=None,
                         help="API provider (auto-detected from model name if omitted)")
-    parser.add_argument("--port", type=int, default=5000, help="Port to serve on")
+    parser.add_argument("--port", type=int, default=5102,
+                        help="Port to serve on (default: 5102, avoids macOS AirPlay on 5000)")
     parser.add_argument("--no-audio", action="store_true",
                         help="Disable audio generation (text-only mode for testing)")
     args = parser.parse_args()
@@ -588,7 +621,7 @@ Examples:
     else:
         print(f"Audio: DISABLED (text-only mode)")
 
-    server = HTTPServer(("localhost", args.port), NarratorHandler)
+    server = ThreadingHTTPServer(("localhost", args.port), NarratorHandler)
     print(f"\n  Narrator v0 running at http://localhost:{args.port}")
     print(f"  Model: {args.model}")
     print(f"  Press Ctrl+C to stop.\n")

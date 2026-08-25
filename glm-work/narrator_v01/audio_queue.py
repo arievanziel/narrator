@@ -95,6 +95,7 @@ class Segment:
             "index": self.index,
             "state": self.state,
             "duration": round(self.duration, 2),
+            "gen_time": round(self.gen_time, 2),
             "audio_url": audio_url,
             "text": self.text,
             "speaker": self.speaker,
@@ -235,6 +236,29 @@ class AudioQueue:
                     seg.state = FAILED
 
         self._done = True
+        self._log_summary()
+
+    def _log_summary(self):
+        """v1.0: Log a turn-level summary of generation vs playback speed.
+        This is the measurement Arie asked for: 'live generated faster than playback'.
+        """
+        total_gen = sum(s.gen_time for s in self.segments if s.gen_time > 0)
+        total_dur = sum(s.duration for s in self.segments if s.duration > 0)
+        wall_time = time.time() - self.start_time
+        ready_segs = sum(1 for s in self.segments if s.state == READY)
+        failed_segs = sum(1 for s in self.segments if s.state == FAILED)
+
+        if total_dur > 0:
+            overall_rtf = total_gen / total_dur
+            verdict = "OUTRUNS playback" if overall_rtf < 1.0 else "LOSES to playback"
+            print(f"[queue] Turn {self.turn_id} summary: "
+                  f"{ready_segs} ready, {failed_segs} failed | "
+                  f"gen={total_gen:.1f}s audio={total_dur:.1f}s "
+                  f"wall={wall_time:.1f}s | RTF={overall_rtf:.2f} — {verdict}")
+        else:
+            print(f"[queue] Turn {self.turn_id} summary: "
+                  f"{ready_segs} ready, {failed_segs} failed | "
+                  f"no audio duration data")
 
     def _select_engine(self, seg: Segment) -> str:
         """Select TTS engine based on lead time and quality/speed fallback rule.
@@ -293,6 +317,19 @@ class AudioQueue:
             total = len(self.segments)
             all_done = self._done or all(s.state in (DONE, FAILED) for s in self.segments)
 
+            # v1.0: timing summary for measurement
+            total_gen = sum(s.gen_time for s in self.segments if s.gen_time > 0)
+            total_dur = sum(s.duration for s in self.segments if s.duration > 0)
+            timing = None
+            if total_dur > 0:
+                timing = {
+                    "total_gen_time": round(total_gen, 2),
+                    "total_audio_duration": round(total_dur, 2),
+                    "wall_time": round(time.time() - self.start_time, 2),
+                    "overall_rtf": round(total_gen / total_dur, 3),
+                    "outruns_playback": total_gen < total_dur,
+                }
+
             return {
                 "turn_id": self.turn_id,
                 "total": total,
@@ -300,6 +337,7 @@ class AudioQueue:
                 "done": all_done,
                 "error": self._error,
                 "segments": [s.to_dict(self.turn_id) for s in self.segments],
+                "timing": timing,
             }
 
     def get_segment_audio_path(self, index: int) -> Optional[str]:

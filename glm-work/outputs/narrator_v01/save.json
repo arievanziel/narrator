@@ -1,0 +1,145 @@
+{
+  "state": {
+    "pc_name": "Ignatius Crow",
+    "pc_class": "Tide-Reader",
+    "pc_level": 1,
+    "pc_hp": 14,
+    "pc_max_hp": 14,
+    "pc_ac": 16,
+    "pc_str": 10,
+    "pc_dex": 14,
+    "pc_con": 12,
+    "pc_int": 13,
+    "pc_wis": 16,
+    "pc_cha": 11,
+    "inventory": [
+      "Bone needle",
+      "vial of sea salt",
+      "polished abalone shell"
+    ],
+    "equipment": "Frayed canvas trousers, a sun-bleached linen shirt, and a cord of braided shells around one wrist.",
+    "enemies": [
+      {
+        "name": "Chief Machinist Silas",
+        "hp": 5,
+        "max_hp": 7,
+        "ac": 10,
+        "alive": true
+      }
+    ],
+    "location": "The Nautilus Interior",
+    "light": "",
+    "time": "",
+    "chronicle": [
+      "Ignatius Crow begins his voyage aboard the submarine as the pressure gauge climbs in the deep.",
+      "Ignatius hesitates as Chief Machinist Silas warns of a dangerous pressure spike in the engine room.",
+      "Ignatius grips a wrench while Silas demands immediate help with the rising pressure in the engine room.",
+      "Ignatius unexpectedly attacks Chief Machinist Silas with a heavy wrench during the pressure crisis.",
+      "Ignatius strikes Chief Machinist Silas with a heavy wrench during a sudden violent outburst.",
+      "Ignatius decisively kicks Chief Machinist Silas down the ladder well, leaving the engineer incapacitated below.",
+      "Ignatius seals the upper control room hatch, trapping the incapacitated machinist below.",
+      "Ignatius endures twelve days alone in the sealed control room as the submarine drifts in the deep abyss.",
+      "Ignatius endures another twelve days in the silent, freezing submarine as something stirs below.",
+      "Ignatius curls against the bulkhead, succumbing to the cold and the darkness of the deep.",
+      "Ignatius awakens to find the control room hatch breached by the horrors of the deep.",
+      "Ignatius reaches out to touch the abyssal entity, surrendering to the deep.",
+      "Ignatius Crow perishes in the deep abyss, becoming part of the ocean's silent lore.",
+      "A new traveler awakens upon a sunlit shore, far from the dark abyss.",
+      "Crowley speaks their name to the empty shore, leaving the ghost of Ignatius Crow behind.",
+      "Crowley inspected their satchel, noting a bone needle, a vial of sea salt, and a polished abalone shell.",
+      "Crowley discovered delicate wave-like markings carved near the eye of the bone needle.",
+      "Crowley discovers hidden markings on the bone needle, revealing a compass\u2011rose and an eastern star.",
+      "Crowley examined the bone needle, noticing faint scratches that may hide a secret."
+    ],
+    "auto_roll": true,
+    "pc_vocation": "Tide-Reader",
+    "narrative_voice": "third_past",
+    "character_generated": false
+  },
+  "history": [
+    {
+      "role": "user",
+      "content": "Curl into a tight ball against the back bulkhead and wait for the end"
+    },
+    {
+      "role": "assistant",
+      "content": "[SCENE]\nhorror\n\n[CHAPTER]\nNONE\n\n[STORY]\n[narrator] The cold steel of the back bulkhead presses hard against your spine as you pull your knees to your chest, surrendering entirely to the dark. The scratching at the hatch grows louder, accompanied by a low, vibrating groan of tortured metal that shakes the very soul of the vessel.\n[narrator] Darkness closes in like a tangible weight, swallowing the last ragged breath of air as the abyss finally reclaims its own.\n\n[MECHANICS]\nHP_CHANGE:-10\nNO_MECHANICS\n\n[SUGGESTIONS]\n- Open your eyes to see what has broken through the hatch [roll:false]\n- Accept the quiet embrace of the deep ocean [roll:false]\n\n[CHRONICLE]\nIgnatius curls against the bulkhead, succumbing to the cold and the darkness of the deep."
+    },
+    {
+      "role": "user",
+      "content": "Open your eyes to see what has broken through the hatch"
+    },
+    {
+      "role": "assistant",
+      "content": "[SCENE]\nhorror\n\n[CHAPTER]\nNONE\n\n[STORY]\n[narrator] Lidded eyes flutter open against the bitter cold, adjusting to a strange, bioluminescent glow that now drips from the overhead pipes like wet paint. The heavy iron hatch is gone, peeled back like tin foil by an impossible, crushing pressure that smells of ancient salt and rotting kelp.\n[narrator] Something vast and eyeless shifts in the flooded darkness below, its pale appendages reaching up across the frost-rimed deck plates toward where you lie.\n\n[MECHANICS]\nNO_MECHANICS\n\n[SUGGESTIONS]\n- Scramble backward away from the gaping maw of the ruined hatch [roll:true]\n- Reach out a trembling hand to touch the pale, reaching form [roll:false]\n- Scream into the freezing silence as the deep claims you [roll:false]\n- Seize a jagged piece of broken iron to defend your final breath [roll:false]\n\n[CHRONICLE]\nIgnatius awakens to find the control room hatch breached by the horrors of the deep."
+    },
+    {
+      "role": "user",
+      "content": "Reach out a trembling hand to touch the pale, reaching form"
+    },
+    {
+      "role": "assistant",
+      "content": "[SCENE]\nhorror\n\n[CHAPTER]\nNONE\n\n[STORY]\n[narrator] Fingers extend into the cold phosphorescent gloom, brushing against skin that feels like wet silk stretched over ancient stone. A sudden, terrifying current of freezing water rushes upward, carrying with it a chorus of voiceless whispers that flood directly into your mind.\n[narrator] The subsea entity closes its cold embrace around you, pulling you downward into the fathomless black where time and breath no longer exist.\n\n[MECHANICS]\nHP_CHANGE:-15\nNO_MECHANICS\n\n[SUGGESTIONS]\n- Let the darkness take you [roll:false]\n- Fight against the crushing current [roll:true]\n\n[CHRONICLE]\nIgnatius reaches out to touch the abyssal entity, surrendering to the deep."
+    },
+    {
+      "role": "user",
+      "content": "Let the darkness take you"
+    },
+    {
+      "role": "assistant",
+      "content": "[SCENE]\nsad\n\n[CHAPTER]\nThe Long Sleep\n\n[SCENE_SETTING]\nThe pale bioluminescence fades into a gentle, silvery twilight that stretches across an endless, silent sea floor. No cold touches the skin here, and the heavy roar of the machine has dissolved into a quiet, rhythmic pulse like a distant heartbeat. Time ceases its frantic march, leaving only the tranquil drift of floating spores and the weightless peace of the abyss. Here, the deep claims its own, wrapping them in an eternal, dreamless quiet.\n\n[STORY]\n[narrator] The last frayed thread of consciousness snaps, and the cold ache of the mortal world melts away into a profound, fathomless peace. \n[narrator] In the quiet corridors of the deep, the story of Ignatius Crow comes to its final, silent close, carried away by the gentle currents of an ocean that remembers everything.\n\n[MECHANICS]\nNO_MECHANICS\n\n[SUGGESTIONS]\n- Begin a new journey in the light of day [roll:false]\n- Awaken as someone else upon a different shore [roll:false]\n\n[CHRONICLE]\nIgnatius Crow perishes in the deep abyss, becoming part of the ocean's silent lore."
+    },
+    {
+      "role": "user",
+      "content": "Awaken as someone else upon a different shore"
+    },
+    {
+      "role": "assistant",
+      "content": "[SCENE]\ncalm\n\n[CHAPTER]\nThe Salt and the Sand\n\n[SCENE_SETTING]\nWarm morning sunlight spills across a wide expanse of pale quartz sand, glinting off the crests of gentle, turquoise waves. A salty breeze carries the sharp scent of drying kelp and sun-warmed driftwood, rustling through the tall dune grass just beyond the reach of the tide. Gulls wheel lazily in the cloudless blue overhead, their cries faint and musical against the steady, rhythmic murmur of the surf. Here, far from the crushing darkness of the abyss, the world begins entirely anew.\n\n[STORY]\n[narrator] The heavy weight of the deep ocean dissolves, replaced by the startling warmth of a sun-drenched beach and the rhythmic whisper of breaking waves.\n[narrator] You draw in a deep, lung-bursting breath of salt air, blinking against the brilliant light as gentle tide pools lap at your bare feet.\n\n[MECHANICS]\nNO_MECHANICS\n\n[SUGGESTIONS]\n- Walk along the shoreline to see if any wreckage or cargo washed ashore [roll:false]\n- Search the tall dune grass for a path leading inland [roll:false]\n- Sit quietly on the warm sand and listen to the sea [roll:false]\n- Check your pockets and pouch to see what you carry [roll:false]\n\n[CHRONICLE]\nA new traveler awakens upon a sunlit shore, far from the dark abyss.\n\n[CHARACTER]\nVOCATION:Tide-Reader\nSTR:10\nDEX:14\nCON:12\nINT:13\nWIS:16\nCHA:11\nMAX_HP:14\nEQUIPMENT:Frayed canvas trousers, a sun-bleached linen shirt, and a cord of braided shells around one wrist.\nBELONGINGS:Bone needle, vial of sea salt, polished abalone shell"
+    },
+    {
+      "role": "user",
+      "content": "I say: my name is crowley"
+    },
+    {
+      "role": "assistant",
+      "content": "[SCENE]\ncalm\n\n[CHAPTER]\nNONE\n\n[STORY]\n[narrator] The name drifts from your lips on the salt breeze, tasting of old iron and forgotten depths, though the gulls overhead pay it no heed. \n[narrator] Crowley is a word that belongs to a different life, drowned leagues away beneath the weight of black water and crushing silence. \n[narrator] Here upon the sun-bleached sand, only the tide remains to answer, rolling in soft, gentle whispers against the shore.\n\n[MECHANICS]\nNO_MECHANICS\n\n[SUGGESTIONS]\n- Walk along the shoreline to see if any wreckage or cargo washed ashore [roll:false]\n- Search the tall dune grass for a path leading inland [roll:false]\n- Sit quietly on the warm sand and listen to the sea [roll:false]\n- Check your pockets and pouch to see what you carry [roll:false]\n\n[CHRONICLE]\nCrowley speaks their name to the empty shore, leaving the ghost of Ignatius Crow behind."
+    },
+    {
+      "role": "user",
+      "content": "Check your pockets and pouch to see what you carry"
+    },
+    {
+      "role": "assistant",
+      "content": "[SCENE]\ncalm\n\n[CHAPTER]\nNONE\n\n[STORY]\n[narrator] You slip a hand into the weather\u2011worn satchel at your side, feeling the familiar weight of your few possessions.\n[narrator] The bone needle lies tucked in a cracked leather case, its tip dulled by sand yet still sharp enough for delicate work.\n[narrator] A tiny vial of sea\u2011salt rattles against the glass, the grains still glinting like frozen fire.\n[narrator] The polished abalone shell rests against the satchel\u2019s inner wall, its iridescent surface catching the morning light.\n[narrator] Beyond those, the cord of braided shells on your wrist is the only other reminder of the life you once led beneath the waves.\n\n[MECHANICS]\nNO_MECHANICS\n\n[SUGGESTIONS]\n- Examine the bone needle for any hidden markings [roll:false]\n- Open the vial to taste the sea\u2011salt, recalling its purpose [roll:false]\n- Follow the shoreline toward the distant cliffs that loom beyond the dunes [roll:false]\n- Sit on the sand and meditate, letting the tide\u2019s rhythm guide your thoughts [roll:false]\n\n[CHRONICLE]\nCrowley inspected their satchel, noting a bone needle, a vial of sea salt, and a polished abalone shell."
+    },
+    {
+      "role": "user",
+      "content": "Examine the bone needle for any hidden markings"
+    },
+    {
+      "role": "assistant",
+      "content": "[SCENE]\nexploration\n\n[CHAPTER]\nNONE\n\n[STORY]\n[narrator] You lift the slender bone needle into the clear morning light, turning it slowly between your fingers.\n[narrator] Near the eye, carved with exquisite, microscopic precision, are tiny whorls that resemble rolling ocean waves.\n[narrator] They are too fine to have been made by an ordinary blade, catching the sunlight like a secret map written in miniature.\n\n[MECHANICS]\nNO_MECHANICS\n\n[SUGGESTIONS]\n- Follow the shoreline toward the distant cliffs that loom beyond the dunes [roll:false]\n- Open the vial to taste the sea\u2011salt, recalling its purpose [roll:false]\n- Sit on the sand and meditate, letting the tide\u2019s rhythm guide your thoughts [roll:false]\n- Head inland along a faint trail winding through the coastal scrub [roll:false]\n\n[CHRONICLE]\nCrowley discovered delicate wave-like markings carved near the eye of the bone needle."
+    },
+    {
+      "role": "user",
+      "content": "Examine the bone needle for any hidden markings"
+    },
+    {
+      "role": "assistant",
+      "content": "[SCENE]\nmystery\n\n[CHAPTER]\nNONE\n\n[STORY]\n[narrator] The bone needle's surface shivers under your gaze, and the faint etching begins to glow softly in the morning light. \n[narrator] You see a delicate swirl of lines, interlocking like a compass rose merged with a stylized wave, the marks barely raised above the bone. \n[narrator] Beneath the pattern, a tiny glyph of a star appears, its points aligned toward the east, as if pointing to something beyond the shore. \n[narrator] The revelation feels like a fragment of a memory, a clue left by someone who once navigated the depths. \n\n[MECHANICS]\nENTITY_NEW:clue,Needle Markings,Faint etched rune of a compass\u2011rose and wave on the bone needle, pointing east\n\n[SUGGESTIONS]\n- Follow the direction indicated by the eastern star glyph, seeking what lies beyond the shore [roll:false]\n- Compare the markings with the polished abalone shell for possible matching symbols [roll:false]\n- Ask Chief Machinist Silas if he recognizes the rune [roll:false]\n- Keep the needle and continue exploring the beach for other clues [roll:false]\n\n[CHRONICLE]\nCrowley discovers hidden markings on the bone needle, revealing a compass\u2011rose and an eastern star."
+    },
+    {
+      "role": "user",
+      "content": "Examine the bone needle for any hidden markings"
+    },
+    {
+      "role": "assistant",
+      "content": "[SCENE]\ncalm\n\n[CHAPTER]\nNONE\n\n[STORY]\n[narrator] You lift the bone needle from its leather case, turning it slowly between thumb and forefinger. \n[narrator] The shaft is worn smooth by countless stitches, yet faint scratches trace a pattern along its length. \n[narrator] A faint glimmer catches your eye where the light hits a shallow groove, as if something was once etched there. \n[narrator] You lean closer, trying to discern the hidden markings beneath the grime of sand and salt.\n\n[MECHANICS]\nROLL_REQUEST:1d20 for Perception DC 12\n\n[SUGGESTIONS]\n- Scrape away the sand with a piece of driftwood to reveal the markings [roll:true]\n- Pocket the needle and continue walking along the shoreline [roll:false]\n- Examine the vial of sea\u2011salt for any clues about its origin [roll:false]\n- Sit on the sand and meditate, letting the tide\u2019s rhythm guide your thoughts [roll:false]\n\n[CHRONICLE]\nCrowley examined the bone needle, noticing faint scratches that may hide a secret."
+    }
+  ],
+  "turn_counter": 19,
+  "model": "gemini-3.5-flash-lite",
+  "timestamp": 1787567949.256118,
+  "world_campaign_id": "game_1787566259"
+}

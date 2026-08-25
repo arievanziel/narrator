@@ -10,6 +10,41 @@ let audioUpdateTimer = null;
 let settings = { autoroll: true, music: true, tts: 'kokoro', speed: 1.0, musicVol: 0.12, musicSrc: 'library', model: 'gemini-3.5-flash-lite', narrationVol: 1.0 };
 let currentMood = 'exploration';
 let bgMusicPlaying = false;
+let lastState = null;          // most recent game state (for re-render on storyteller toggle)
+let currentChapter = null;     // most recent chapter object from /api/turn
+
+// TASK 1a — Lexicon layer: single source of truth for player-visible strings.
+// storytellerMode (default false, persisted in localStorage) reveals mechanics.
+// When off: D&D jargon is hidden or translated to literary phrasing.
+let storytellerMode = (localStorage.getItem('narrator_storytellerMode') === 'true');
+
+const LEXICON = {
+  dm: 'the Narrator',
+  sessionZero: 'Foreword',
+  turn: 'passage',
+  hp: 'Condition',
+  ac: 'Armor',          // hidden entirely when storytellerMode is off
+  enemies: 'Present in this scene',
+  mechanics: 'Storyteller\u2019s notes',
+  inventory: 'Belongings',
+  chronicle: 'The story so far',
+  save: 'Place bookmark',
+  load: 'Resume reading',
+  newGame: 'New book',
+  // "class" → "vocation": rendered from state.pc_vocation (falls back to pc_class)
+  vocation: 'Vocation',
+  character: 'Your character',
+  equipment: 'Carried',
+};
+
+// Spell out chapter numbers in words (not digits or roman numerals).
+const NUMBER_WORDS = ['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
+                      'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty',
+                      'Twenty-One','Twenty-Two','Twenty-Three','Twenty-Four','Twenty-Five'];
+function numberToWord(n) {
+  if (n >= 0 && n < NUMBER_WORDS.length) return NUMBER_WORDS[n];
+  return n.toString();
+}
 
 // v0.4a: Segment queue state
 let queueState = null;       // last queue status from server
@@ -40,6 +75,26 @@ function toggleSetting(name, el) {
   el.classList.toggle('on');
   settings[name] = el.classList.contains('on');
   if (name === 'music') { updateBgMusic(); }
+}
+
+// TASK 1a — Storyteller's notes toggle: reveal/hide mechanics, dice, AC, raw changes.
+function toggleStorytellerMode(el) {
+  el.classList.toggle('on');
+  storytellerMode = el.classList.contains('on');
+  localStorage.setItem('narrator_storytellerMode', storytellerMode ? 'true' : 'false');
+  applyStorytellerMode();
+}
+
+// Apply storyteller-mode gating to the current DOM (toggle visibility of mechanics).
+function applyStorytellerMode() {
+  const root = document.documentElement;
+  if (storytellerMode) {
+    root.classList.add('storyteller-mode');
+  } else {
+    root.classList.remove('storyteller-mode');
+  }
+  // Re-render the left panel so stats show/hide
+  if (lastState) updateState(lastState);
 }
 function changeModel(val) { settings.model = val; }
 function changeTTS(val) { settings.tts = val; }
@@ -124,7 +179,9 @@ function crossfadeMusic(newUrl) {
 function setMood(mood) {
   if (mood && mood !== currentMood) {
     currentMood = mood;
-    document.getElementById('tb-mood').textContent = mood;
+    // tb-mood was removed in the book header redesign — no topbar mood display.
+    const moodEl = document.getElementById('tb-mood');
+    if (moodEl) moodEl.textContent = mood;
     updateBgMusic();
   }
 }
@@ -182,6 +239,7 @@ function setTheme(theme) {
 
 // Dice roller
 let diceRollHistory = [];
+let lastManualRoll = null;       // last d20 result for manual_roll (Fix 2)
 
 function rollDice(btn, sides) {
   btn.classList.add('rolling');
@@ -193,9 +251,13 @@ function rollDice(btn, sides) {
   diceRollHistory.unshift({sides, result, time: new Date()});
   if (diceRollHistory.length > 10) diceRollHistory.pop();
   updateDiceHistory();
-  // Add to input
-  const input = document.querySelector('.input-block input');
-  if (input) input.value += ` I rolled a ${result} on d${sides}.`;
+  // Fix 2: Store d20 results for manual_roll — don't append text to input.
+  // The backend reads data.manual_roll and uses it in the DC-then-roll flow.
+  if (sides === 20) {
+    lastManualRoll = result;
+    // Show a subtle indicator that the roll is ready to send
+    el.innerHTML += ' <span style="color:var(--ink-faint);font-size:11px;">(will be used for your next action)</span>';
+  }
 }
 
 function updateDiceHistory() {
@@ -211,22 +273,17 @@ async function startGame(opts = {}) {
   const overlay = document.getElementById('intro-overlay');
   const startBtn = document.getElementById('intro-start-btn');
   if (startBtn) { startBtn.disabled = true; startBtn.textContent = 'Starting...'; }
-  const params = opts.skip ? {} : {
-    style: document.getElementById('intro-style').value,
-    setting: document.getElementById('intro-setting').value,
-    name: document.getElementById('intro-name').value || 'Kael',
-    persona: document.getElementById('intro-persona').value,
-    atmosphere: document.getElementById('intro-atmosphere').value,
-    inspiration: document.getElementById('intro-inspiration').value,
-    dicemode: document.getElementById('intro-dicemode').value,
-  };
+  // The intro form was removed in v1 — "Open the book" always uses defaults/procedural generation.
+  // The foreword (Session Zero) is the way to customize the story.
+  const params = opts.skip ? {} : {};
   overlay.classList.add('hidden');
-  // Show left panel by default
+  // Show the main app
+  document.getElementById('app').classList.add('show-app');
   document.getElementById('app').classList.add('show-left');
   document.getElementById('tab-left').classList.add('active');
   document.getElementById('ctab-left').classList.add('active');
   await newGame(params);
-  if (startBtn) { startBtn.disabled = false; startBtn.textContent = 'Begin Your Story'; }
+  if (startBtn) { startBtn.disabled = false; startBtn.textContent = 'Open the book with defaults'; }
 }
 
 // New game
@@ -251,6 +308,7 @@ async function newGame(params = {}) {
     if (data.audio_enabled) pollAudio(data.audio_turn_id);
     updateBudget(data.budget);
     fetchChronicle();
+    fetchChapters();
     // Start/restart background music
     if (settings.music) {
       bgMusicPlaying = true;
@@ -276,9 +334,15 @@ async function sendAction() {
   const typing = showTyping();
 
   try {
+    // Fix 2: Send manual_roll if the player rolled a d20 and auto-roll is off.
+    const postBody = { action, settings: { autoroll: settings.autoroll, music: settings.music, tts: settings.tts, speed: settings.speed, musicVol: settings.musicVol, musicSrc: settings.musicSrc, model: settings.model, narrationVol: settings.narrationVol } };
+    if (lastManualRoll !== null && !settings.autoroll) {
+      postBody.manual_roll = lastManualRoll;
+      lastManualRoll = null;  // consume it — one roll per action
+    }
     const resp = await fetch('/api/turn', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ action, settings: { autoroll: settings.autoroll, music: settings.music, tts: settings.tts, speed: settings.speed, musicVol: settings.musicVol, musicSrc: settings.musicSrc, model: settings.model, narrationVol: settings.narrationVol } }),
+      body: JSON.stringify(postBody),
     });
     const data = await resp.json();
     typing.remove();
@@ -297,6 +361,7 @@ async function sendAction() {
         showFallbackWarning(data.original_model, data.model);
       }
       fetchChronicle();
+      fetchChapters();
       fetchProviderStatus();
     }
   } catch(e) { typing.remove(); addError('Connection error: ' + e.message); }
@@ -312,11 +377,33 @@ function addStoryTurn(data, isFirst = false) {
   // Update background music mood
   if (data.scene) setMood(data.scene);
 
-  // Turn mark
-  const mark = document.createElement('div');
-  mark.className = 'turn-mark';
-  mark.textContent = toRoman(turnCount);
-  container.appendChild(mark);
+  // TASK 1c: Track chapter for the book header
+  if (data.chapter) currentChapter = data.chapter;
+
+  // TASK 1c: Chapter heading — only when chapter.is_new (NOT a turn mark)
+  if (data.chapter && data.chapter.is_new) {
+    const heading = document.createElement('div');
+    heading.className = 'chapter-heading';
+    const num = data.chapter.number || 1;
+    heading.id = 'chapter-' + num;
+    heading.innerHTML =
+      `<div class="chapter-number">Chapter ${escapeHtml(numberToWord(num))}</div>` +
+      `<div class="chapter-title">${escapeHtml(data.chapter.title || '')}</div>` +
+      `<div class="chapter-rule"></div>`;
+    container.appendChild(heading);
+    // Refresh the TOC since a new chapter just opened
+    fetchChapters();
+  }
+
+  // TASK 1c: Scene-setting paragraph — only on chapter opening, with drop cap
+  if (data.chapter && data.chapter.is_new && data.scene_setting) {
+    const scene = document.createElement('div');
+    scene.className = 'scene-setting';
+    scene.textContent = data.scene_setting;
+    container.appendChild(scene);
+  }
+
+  // TASK 1c: No roman-numeral turn mark — removed per spec.
 
   // Story segments (word-for-word = what's spoken)
   if (data.segments && data.segments.length) {
@@ -338,8 +425,8 @@ function addStoryTurn(data, isFirst = false) {
     container.appendChild(passage);
   }
 
-  // v0.4b: Roll result display (dice roll indicator)
-  if (data.roll && data.contested) {
+  // v0.4b: Roll result display (dice roll indicator) — gated by storyteller mode
+  if (data.roll && data.contested && storytellerMode) {
     const rollDiv = document.createElement('div');
     rollDiv.className = 'roll-result-display';
     const isSuccess = data.roll.result === 'SUCCESS' || data.roll.result === 'CRITICAL_SUCCESS';
@@ -359,13 +446,14 @@ function addStoryTurn(data, isFirst = false) {
     container.appendChild(rollDiv);
   }
 
-  // State changes
-  if (data.changes && data.changes.length) {
+  // TASK 1a: State changes / reader notes — storyteller mode shows raw "changes",
+  // default mode shows "reader_notes" (literary) instead.
+  if (storytellerMode && data.changes && data.changes.length) {
     const changes = document.createElement('div');
     changes.className = 'state-changes';
     const label = document.createElement('div');
     label.className = 'state-changes-label';
-    label.textContent = 'Mechanics';
+    label.textContent = LEXICON.mechanics;
     changes.appendChild(label);
     data.changes.forEach(c => {
       const span = document.createElement('div');
@@ -380,18 +468,31 @@ function addStoryTurn(data, isFirst = false) {
       changes.appendChild(span);
     });
     container.appendChild(changes);
+  } else if (!storytellerMode && data.reader_notes && data.reader_notes.length) {
+    const notes = document.createElement('div');
+    notes.className = 'reader-notes';
+    const label = document.createElement('div');
+    label.className = 'reader-notes-label';
+    label.textContent = LEXICON.mechanics;
+    notes.appendChild(label);
+    data.reader_notes.forEach(n => {
+      const span = document.createElement('div');
+      span.className = 'reader-note';
+      span.textContent = n;
+      notes.appendChild(span);
+    });
+    container.appendChild(notes);
   }
 
-  // Choices
+  // Choices — 🎲 hidden unless storyteller mode
   if (data.suggestions && data.suggestions.length) {
     const choices = document.createElement('div');
     choices.className = 'choices-block';
     choices.innerHTML = '<div class="choices-label">What do you do?</div>';
     data.suggestions.forEach((s, i) => {
-      const letter = String.fromCharCode(65 + i);
       const item = document.createElement('div');
       item.className = 'choice-item';
-      item.innerHTML = `<span class="choice-letter">${i+1}</span><span>${escapeHtml(s.text)}</span>${s.roll ? '<span class="choice-roll">🎲 roll</span>' : ''}`;
+      item.innerHTML = `<span class="choice-letter">${i+1}</span><span>${escapeHtml(s.text)}</span>${s.roll && storytellerMode ? '<span class="choice-roll">\uD83C\uDFB2 roll</span>' : ''}`;
       item.onclick = () => useChoice(s.text);
       choices.appendChild(item);
     });
@@ -480,9 +581,48 @@ function onFreeTextInput(e) {
       const data = await resp.json();
       if (data.gen_id) {
         freetextGenId = data.gen_id;
+        // Fix 5: Poll /api/freetext_status until the audio is ready, then play it.
+        pollFreetextStatus(data.gen_id);
       }
     } catch(e) { /* silent fail */ }
   }, 1000);
+}
+
+// Fix 5: Poll /api/freetext_status and play the audio when ready.
+// Shows a subtle "voicing..." indicator near the input while generating.
+let freetextPollTimer = null;
+function pollFreetextStatus(genId) {
+  if (freetextPollTimer) clearInterval(freetextPollTimer);
+  const indicator = document.createElement('span');
+  indicator.id = 'freetext-voicing';
+  indicator.style.cssText = 'color:var(--ink-faint);font-size:11px;margin-left:8px;font-style:italic;';
+  indicator.textContent = 'voicing...';
+  const inputBlock = document.querySelector('.input-block');
+  if (inputBlock) inputBlock.appendChild(indicator);
+
+  freetextPollTimer = setInterval(async () => {
+    try {
+      const resp = await fetch(`/api/freetext_status?gen_id=${genId}`);
+      const data = await resp.json();
+      if (data.state === 'READY') {
+        clearInterval(freetextPollTimer);
+        freetextPollTimer = null;
+        if (indicator) indicator.remove();
+        // Play the generated audio
+        const audio = new Audio(`/audio/freetext/${genId}.wav`);
+        audio.volume = settings.narrationVol;
+        audio.play().catch(() => {});
+      } else if (data.state === 'FAILED' || data.state === 'superseded' || data.status === 'unknown') {
+        clearInterval(freetextPollTimer);
+        freetextPollTimer = null;
+        if (indicator) indicator.remove();
+      }
+    } catch(e) {
+      clearInterval(freetextPollTimer);
+      freetextPollTimer = null;
+      if (indicator) indicator.remove();
+    }
+  }, 500);
 }
 
 function addPlayerAction(text) {
@@ -498,7 +638,7 @@ function showTyping() {
   const container = document.getElementById('story-content');
   const el = document.createElement('div');
   el.className = 'typing-indicator';
-  el.innerHTML = 'The DM is weaving the story <span class="typing-dots"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
+  el.innerHTML = 'The Narrator is weaving the story <span class="typing-dots"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
   container.appendChild(el);
   document.getElementById('main-area').scrollTop = document.getElementById('main-area').scrollHeight;
   return el;
@@ -532,7 +672,7 @@ async function saveGame() {
     const resp = await fetch('/api/save', {method: 'POST'});
     const data = await resp.json();
     if (data.error) addError('Save failed: ' + data.error);
-    else addError('Game saved (turn ' + data.turn + ')');
+    else addError('Bookmark placed at passage ' + data.turn);
   } catch(e) { addError('Save error: ' + e.message); }
 }
 
@@ -543,9 +683,9 @@ async function loadGame() {
     if (data.error) { addError(data.error); return; }
     updateState(data.state);
     turnCount = data.turn;
-    document.getElementById('tb-turn').textContent = turnCount;
-    addError('Game loaded (turn ' + data.turn + ')');
+    addError('Resumed reading at passage ' + data.turn);
     fetchChronicle();
+    fetchChapters();
   } catch(e) { addError('Load error: ' + e.message); }
 }
 
@@ -559,10 +699,42 @@ async function fetchChronicle() {
       if (entries.length === 0) {
         list.innerHTML = '<div style="color:var(--ink-faint);font-style:italic;">No entries yet</div>';
       } else {
-        list.innerHTML = entries.map((e, i) => `<div style="padding:0.3rem 0;border-bottom:1px solid var(--rule-soft);"><span style="color:var(--ink-faint);font-size:11px;">Turn ${i+1}</span><br>${escapeHtml(e)}</div>`).join('');
+        list.innerHTML = entries.map((e, i) => `<div style="padding:0.3rem 0;border-bottom:1px solid var(--rule-soft);"><span style="color:var(--ink-faint);font-size:11px;">${escapeHtml(LEXICON.turn)} ${i+1}</span><br>${escapeHtml(e)}</div>`).join('');
       }
     }
   } catch(e) {}
+}
+
+// TASK 1d: Fetch the table of contents from /api/chapters and render it as
+// "The story so far". Each entry scrolls to the chapter heading (id="chapter-N").
+async function fetchChapters() {
+  try {
+    const resp = await fetch('/api/chapters');
+    const data = await resp.json();
+    const list = document.getElementById('toc-list');
+    if (!list) return;
+    const chapters = data.chapters || [];
+    if (chapters.length === 0) {
+      list.innerHTML = '<div style="color:var(--ink-faint);font-style:italic;">The book has not yet begun</div>';
+      return;
+    }
+    list.innerHTML = chapters.map(ch => {
+      const num = ch.number || 1;
+      const title = escapeHtml(ch.title || 'Untitled');
+      const numWord = escapeHtml(numberToWord(num));
+      return `<div class="toc-entry" onclick="scrollToChapter(${num})">` +
+             `<span class="toc-num">Chapter ${numWord}</span>` +
+             `<span class="toc-title">${title}</span></div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+// Scroll to a chapter heading by id.
+function scrollToChapter(num) {
+  const heading = document.getElementById('chapter-' + num);
+  if (heading) {
+    heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 async function fetchProviderStatus() {
@@ -588,44 +760,61 @@ async function fetchProviderStatus() {
 // Update state display
 function updateState(state) {
   if (!state) return;
+  lastState = state;
   const hpPct = (state.pc_hp / state.pc_max_hp) * 100;
   const hpColor = hpPct > 60 ? 'var(--hp-good)' : hpPct > 30 ? 'var(--hp-mid)' : 'var(--hp-bad)';
 
-  // Top bar
-  document.getElementById('tb-hp').textContent = `${state.pc_hp}/${state.pc_max_hp}`;
-  document.getElementById('tb-hpfill').style.width = hpPct + '%';
-  document.getElementById('tb-hpfill').style.background = hpColor;
-  document.getElementById('tb-ac').textContent = state.pc_ac;
-  document.getElementById('tb-turn').textContent = turnCount;
-  document.getElementById('tb-loc').textContent = state.location || '—';
+  // TASK 1b: Book header — title left, chapter centre, controls right.
+  // Stats are NO LONGER in the topbar; they live in the left panel only.
+  const bookTitle = document.getElementById('tb-booktitle');
+  if (bookTitle) bookTitle.textContent = state.pc_name ? state.pc_name + '\u2019s Tale' : 'Untitled Book';
+  const chapterLabel = document.getElementById('tb-chapter');
+  if (chapterLabel) {
+    if (currentChapter && currentChapter.title) {
+      const num = currentChapter.number || 1;
+      chapterLabel.textContent = 'Chapter ' + numberToWord(num) + ' \u00B7 ' + currentChapter.title;
+    } else {
+      chapterLabel.textContent = 'Chapter One';
+    }
+  }
 
-  // Left panel — Character info
+  // TASK 1d: Left panel — "Your character" (book lexicon)
+  // Vocation: use pc_vocation (falls back to pc_class if empty)
+  const vocation = state.pc_vocation || state.pc_class || '—';
   document.getElementById('char-info').innerHTML = `
     <div class="panel-item"><span>Name</span><span>${escapeHtml(state.pc_name)}</span></div>
-    <div class="panel-item"><span>Class</span><span>Level ${state.pc_level} ${escapeHtml(state.pc_class)}</span></div>
-    <div class="panel-item"><span>HP</span><span style="color:${hpColor}">${state.pc_hp}/${state.pc_max_hp}</span></div>
-    <div class="panel-item"><span>AC</span><span>${state.pc_ac}</span></div>`;
+    <div class="panel-item"><span>${escapeHtml(LEXICON.vocation)}</span><span>${escapeHtml(vocation)}</span></div>
+    <div class="panel-item"><span>${escapeHtml(LEXICON.hp)}</span><span style="color:${hpColor}">${state.pc_hp}/${state.pc_max_hp}</span></div>
+    <div class="hp-bar panel-hp-bar"><div class="hp-fill" style="width:${hpPct}%;background:${hpColor}"></div></div>`;
 
-  // Full ability scores with modifiers
-  const statMod = (v) => Math.floor((v - 10) / 2);
-  const modStr = (m) => m >= 0 ? `+${m}` : `${m}`;
-  document.getElementById('char-stats').innerHTML = `
-    <div class="stat-grid">
-      <div class="stat-box"><div class="stat-val">${state.pc_str}</div><div class="stat-mod">${modStr(statMod(state.pc_str))}</div><div class="stat-label">STR</div></div>
-      <div class="stat-box"><div class="stat-val">${state.pc_dex}</div><div class="stat-mod">${modStr(statMod(state.pc_dex))}</div><div class="stat-label">DEX</div></div>
-      <div class="stat-box"><div class="stat-val">${state.pc_con}</div><div class="stat-mod">${modStr(statMod(state.pc_con))}</div><div class="stat-label">CON</div></div>
-      <div class="stat-box"><div class="stat-val">${state.pc_int}</div><div class="stat-mod">${modStr(statMod(state.pc_int))}</div><div class="stat-label">INT</div></div>
-      <div class="stat-box"><div class="stat-val">${state.pc_wis}</div><div class="stat-mod">${modStr(statMod(state.pc_wis))}</div><div class="stat-label">WIS</div></div>
-      <div class="stat-box"><div class="stat-val">${state.pc_cha}</div><div class="stat-mod">${modStr(statMod(state.pc_cha))}</div><div class="stat-label">CHA</div></div>
-    </div>`;
+  // TASK 1a: Full ability scores + AC — only in storyteller mode
+  const statsEl = document.getElementById('char-stats');
+  if (storytellerMode) {
+    const statMod = (v) => Math.floor((v - 10) / 2);
+    const modStr = (m) => m >= 0 ? `+${m}` : `${m}`;
+    statsEl.innerHTML = `
+      <div class="panel-item"><span>AC</span><span>${state.pc_ac}</span></div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-val">${state.pc_str}</div><div class="stat-mod">${modStr(statMod(state.pc_str))}</div><div class="stat-label">STR</div></div>
+        <div class="stat-box"><div class="stat-val">${state.pc_dex}</div><div class="stat-mod">${modStr(statMod(state.pc_dex))}</div><div class="stat-label">DEX</div></div>
+        <div class="stat-box"><div class="stat-val">${state.pc_con}</div><div class="stat-mod">${modStr(statMod(state.pc_con))}</div><div class="stat-label">CON</div></div>
+        <div class="stat-box"><div class="stat-val">${state.pc_int}</div><div class="stat-mod">${modStr(statMod(state.pc_int))}</div><div class="stat-label">INT</div></div>
+        <div class="stat-box"><div class="stat-val">${state.pc_wis}</div><div class="stat-mod">${modStr(statMod(state.pc_wis))}</div><div class="stat-label">WIS</div></div>
+        <div class="stat-box"><div class="stat-val">${state.pc_cha}</div><div class="stat-mod">${modStr(statMod(state.pc_cha))}</div><div class="stat-label">CHA</div></div>
+      </div>`;
+    statsEl.style.display = '';
+  } else {
+    statsEl.innerHTML = '';
+    statsEl.style.display = 'none';
+  }
 
-  // Equipment
+  // TASK 1d: Equipment → "Carried"
   const eqList = document.getElementById('equipment-list');
   if (state.equipment) {
     eqList.innerHTML = state.equipment.split(',').map(e => {
       e = e.trim();
       if (!e) return '';
-      return `<div class="panel-item"><span class="equip-icon">⚔</span><span>${escapeHtml(e)}</span></div>`;
+      return `<div class="panel-item"><span>${escapeHtml(e)}</span></div>`;
     }).join('') || '<div class="panel-item" style="color:var(--ink-faint)">None</div>';
   } else {
     eqList.innerHTML = '<div class="panel-item" style="color:var(--ink-faint)">None</div>';
@@ -642,12 +831,18 @@ function updateState(state) {
     condList.innerHTML = '<div class="panel-item" style="color:var(--ink-faint)">None</div>';
   }
 
-  // Enemies
-  document.getElementById('enemy-list').innerHTML = state.enemies.map(e =>
-    `<div class="enemy-item ${e.alive ? '' : 'dead'}"><div class="enemy-dot ${e.alive ? 'alive' : 'dead'}"></div><span>${escapeHtml(e.name)}</span><span class="enemy-status">${e.hp}/${e.max_hp} HP, AC ${e.ac}</span></div>`
-  ).join('') || '<div class="panel-item" style="color:var(--ink-faint)">None</div>';
+  // TASK 1a: Enemies → "Present in this scene" — only in storyteller mode
+  const enemySection = document.getElementById('enemy-section');
+  if (storytellerMode) {
+    if (enemySection) enemySection.style.display = '';
+    document.getElementById('enemy-list').innerHTML = state.enemies.map(e =>
+      `<div class="enemy-item ${e.alive ? '' : 'dead'}"><div class="enemy-dot ${e.alive ? 'alive' : 'dead'}"></div><span>${escapeHtml(e.name)}</span><span class="enemy-status">${e.hp}/${e.max_hp} HP, AC ${e.ac}</span></div>`
+    ).join('') || '<div class="panel-item" style="color:var(--ink-faint)">None</div>';
+  } else {
+    if (enemySection) enemySection.style.display = 'none';
+  }
 
-  // Inventory
+  // TASK 1d: Inventory → "Belongings"
   document.getElementById('inv-list').innerHTML = state.inventory.map(i =>
     `<div class="panel-item"><span>${escapeHtml(i)}</span></div>`
   ).join('') || '<div class="panel-item" style="color:var(--ink-faint)">Empty</div>';
@@ -658,6 +853,10 @@ function updateSettingsUI() {
   if (settings.autoroll) ar.classList.add('on'); else ar.classList.remove('on');
   document.getElementById('set-model').value = settings.model;
   document.getElementById('set-tts').value = settings.tts;
+  // TASK 1a: storyteller toggle
+  const sm = document.getElementById('set-storyteller');
+  if (sm) { if (storytellerMode) sm.classList.add('on'); else sm.classList.remove('on'); }
+  applyStorytellerMode();
 }
 
 function updateBudget(budget) {
@@ -933,95 +1132,111 @@ function startAudioUpdate() {
 }
 function stopAudioUpdate() { if (audioUpdateTimer) { clearInterval(audioUpdateTimer); audioUpdateTimer = null; } }
 
-function seekAudio(e) {
-  const player = document.getElementById('audio-player');
-  if (!player.duration) return;
-  const bar = e.currentTarget;
-  const pct = (e.clientX - bar.getBoundingClientRect().left) / bar.offsetWidth;
-  player.currentTime = pct * player.duration;
-}
+// Fix 3: seekAudio removed — seek bar is now a non-interactive progress indicator.
+// Cross-segment seeking is broken and per Arie's "work fully or be removed" directive,
+// we make it display-only for v1. Play/pause and replay still work.
+function seekAudio(e) { /* no-op — progress indicator only */ }
 
-// --- Session Zero wizard ---
+// --- Session Zero / Foreword — integrated into the main book area ---
 let szActive = false;
 let szTurnCount = 0;
-const szMaxProgressDots = 8;
 
 async function openSessionZero() {
   const intro = document.getElementById('intro-overlay');
-  const sz = document.getElementById('session-zero-overlay');
   intro.classList.add('hidden');
-  sz.classList.add('active');
+  // Show the main app area — the foreword renders in #story-content, not a separate overlay.
+  document.getElementById('app').classList.add('show-app');
   szActive = true;
   szTurnCount = 0;
-  document.getElementById('sz-conversation').innerHTML = '';
-  updateSzProgress();
+  // Clear story content and show a foreword heading
+  const container = document.getElementById('story-content');
+  container.innerHTML = '';
+  // Add a foreword chapter heading — this IS the first page of the book
+  const heading = document.createElement('div');
+  heading.className = 'chapter-heading';
+  heading.innerHTML = '<div class="chapter-number">Foreword</div>' +
+    '<div class="chapter-title">Before the story begins</div>' +
+    '<div class="chapter-rule"></div>';
+  container.appendChild(heading);
+  // Add a model picker inline (small, at the top of the foreword)
+  const modelPick = document.createElement('div');
+  modelPick.style.cssText = 'text-align:center;margin-bottom:1.5rem;font-size:13px;color:var(--ink-faint);';
+  modelPick.innerHTML = '<label>Narrator voice: <select id="sz-model" style="font-size:13px;' +
+    'background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:2px 6px;color:var(--ink-mid);">' +
+    '<option value="gemini-3.5-flash-lite">Gemini Flash (free)</option>' +
+    '<option value="openai/gpt-oss-120b">GPT-OSS 120B (free)</option>' +
+    '<option value="claude-haiku-4-5">Claude Haiku (paid)</option>' +
+    '</select></label> &nbsp; ' +
+    '<a href="#" onclick="szSkipToGame();return false;" style="color:var(--ink-faint);font-size:12px;">skip to defaults</a>';
+  container.appendChild(modelPick);
   await szStart();
 }
 
 async function szStart() {
-  const model = document.getElementById('sz-model').value;
-  addSzTyping();
+  const modelEl = document.getElementById('sz-model');
+  const model = modelEl ? modelEl.value : settings.model;
+  szAddTyping();
   try {
     const resp = await fetch('/api/session_zero/start', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({model}),
     });
     const data = await resp.json();
-    removeSzTyping();
-    if (data.error) { addSzMsg('dm', 'Error: ' + data.error); return; }
+    szRemoveTyping();
+    if (data.error) { szAddNarrator(data.error); return; }
     szTurnCount = data.turn || 1;
-    addSzMsg('dm', data.narrative, data.suggestions);
-    updateSzProgress();
+    szAddNarrator(data.narrative, data.suggestions);
     updateBudget(data.budget);
-  } catch(e) { removeSzTyping(); addSzMsg('dm', 'Connection error: ' + e.message); }
+    // Fix 4: Lock the model picker after the first exchange.
+    if (modelEl) modelEl.disabled = true;
+    szShowInput();
+  } catch(e) { szRemoveTyping(); szAddNarrator('Connection error: ' + e.message); }
 }
 
 async function szSendAnswer(answer) {
   if (!szActive) return;
   const input = document.getElementById('sz-input');
   if (!answer) {
-    answer = input.value.trim();
+    answer = input ? input.value.trim() : '';
     if (!answer) return;
     input.value = '';
   }
-  addSzMsg('player', answer);
-  const btn = document.getElementById('sz-send-btn');
-  btn.disabled = true;
-  addSzTyping();
+  szAddPlayer(answer);
+  szHideInput();
+  szAddTyping();
   try {
     const resp = await fetch('/api/session_zero/turn', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({answer}),
     });
     const data = await resp.json();
-    removeSzTyping();
-    btn.disabled = false;
-    if (data.error) { addSzMsg('dm', 'Error: ' + data.error); return; }
+    szRemoveTyping();
+    if (data.error) { szAddNarrator('Error: ' + data.error); szShowInput(); return; }
     szTurnCount = data.turn || szTurnCount + 1;
-    addSzMsg('dm', data.narrative, data.suggestions);
-    updateSzProgress();
+    szAddNarrator(data.narrative, data.suggestions);
     updateBudget(data.budget);
     if (data.done) {
       setTimeout(() => szFinish(), 1500);
+    } else {
+      szShowInput();
     }
-  } catch(e) { removeSzTyping(); btn.disabled = false; addSzMsg('dm', 'Connection error: ' + e.message); }
-  document.getElementById('sz-input').focus();
+  } catch(e) { szRemoveTyping(); szAddNarrator('Connection error: ' + e.message); szShowInput(); }
 }
 
 async function szFinish() {
   if (!szActive) return;
   szActive = false;
-  addSzMsg('dm', 'Starting your adventure...');
-  addSzTyping();
+  szAddNarrator('Turning the page...');
+  szAddTyping();
   try {
     const resp = await fetch('/api/session_zero/finish', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({}),
     });
     const data = await resp.json();
-    removeSzTyping();
-    if (data.error) { addSzMsg('dm', 'Error starting game: ' + data.error); return; }
-    document.getElementById('session-zero-overlay').classList.remove('active');
+    szRemoveTyping();
+    if (data.error) { szAddNarrator('Error starting game: ' + data.error); return; }
+    // The foreword is done — the first chapter renders in the same story-content area.
     document.getElementById('app').classList.add('show-left');
     document.getElementById('tab-left').classList.add('active');
     document.getElementById('ctab-left').classList.add('active');
@@ -1029,10 +1244,11 @@ async function szFinish() {
     settings.autoroll = data.auto_roll;
     updateSettingsUI();
     updateState(data.state);
-    if (data.story) addStoryTurn(data, true);
+    if (data.segments || data.story) addStoryTurn(data, true);
     if (data.audio_enabled) pollAudio(data.audio_turn_id);
     updateBudget(data.budget);
     fetchChronicle();
+    fetchChapters();
     if (settings.music) {
       bgMusicPlaying = true;
       if (data.scene) currentMood = data.scene;
@@ -1040,62 +1256,90 @@ async function szFinish() {
       document.getElementById('bg-music-player').play().catch(()=>{});
     }
     fetchProviderStatus();
-  } catch(e) { removeSzTyping(); addSzMsg('dm', 'Connection error: ' + e.message); }
+  } catch(e) { szRemoveTyping(); szAddNarrator('Connection error: ' + e.message); }
 }
 
 function szSkipToGame() {
-  if (!confirm('Skip Session Zero and start with default settings?')) return;
+  if (!confirm('Skip the foreword and start with default settings?')) return;
   szActive = false;
   startGame({skip: true});
-  document.getElementById('session-zero-overlay').classList.remove('active');
 }
 
 function szChangeModel(model) {
   settings.model = model;
 }
 
-function addSzMsg(role, text, suggestions) {
-  const conv = document.getElementById('sz-conversation');
-  const msg = document.createElement('div');
-  msg.className = 'sz-msg ' + role;
-  let html = `<div class="sz-bubble">${escapeHtml(text)}</div>`;
+// Render foreword messages as book-style paragraphs in #story-content
+function szAddNarrator(text, suggestions) {
+  const container = document.getElementById('story-content');
+  const p = document.createElement('p');
+  p.className = 'narration';
+  p.style.cssText = 'margin-bottom:1.2rem;line-height:1.9;text-align:justify;';
+  p.textContent = text;
+  container.appendChild(p);
+  // Preset answer buttons — only real user answers, not narrator text
   if (suggestions && suggestions.length) {
-    html += '<div class="sz-suggestions">';
+    const sugDiv = document.createElement('div');
+    sugDiv.className = 'sz-presets';
+    sugDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin:0.8rem 0 1.2rem;';
     suggestions.forEach(s => {
-      html += `<button class="sz-suggestion-btn" onclick="szSendAnswer('${escapeAttr(s)}')">${escapeHtml(s)}</button>`;
+      const btn = document.createElement('button');
+      btn.className = 'sz-preset-btn';
+      btn.style.cssText = 'background:var(--bg);border:1px solid var(--rule);border-radius:6px;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:inherit;transition:all 0.15s;';
+      btn.textContent = s;
+      btn.onmouseenter = () => { btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--ink)'; };
+      btn.onmouseleave = () => { btn.style.borderColor = 'var(--rule)'; btn.style.color = 'var(--ink-mid)'; };
+      btn.onclick = () => szSendAnswer(s);
+      sugDiv.appendChild(btn);
     });
-    html += '</div>';
+    container.appendChild(sugDiv);
   }
-  msg.innerHTML = html;
-  conv.appendChild(msg);
-  conv.scrollTop = conv.scrollHeight;
+  container.parentElement.scrollTop = container.parentElement.scrollHeight;
 }
 
-function addSzTyping() {
-  const conv = document.getElementById('sz-conversation');
-  const t = document.createElement('div');
-  t.className = 'sz-msg dm';
+function szAddPlayer(text) {
+  const container = document.getElementById('story-content');
+  const p = document.createElement('p');
+  p.className = 'dialogue-entry';
+  p.style.cssText = 'margin-bottom:1.2rem;margin-left:2rem;font-style:italic;color:var(--ink-mid);';
+  p.textContent = '\u201C' + text + '\u201D';
+  container.appendChild(p);
+  container.parentElement.scrollTop = container.parentElement.scrollHeight;
+}
+
+function szAddTyping() {
+  const container = document.getElementById('story-content');
+  const t = document.createElement('p');
   t.id = 'sz-typing-indicator';
-  t.innerHTML = '<div class="sz-typing">DM is thinking</div>';
-  conv.appendChild(t);
-  conv.scrollTop = conv.scrollHeight;
+  t.className = 'narration';
+  t.style.cssText = 'color:var(--ink-faint);font-style:italic;';
+  t.textContent = 'The Narrator is weaving';
+  container.appendChild(t);
+  container.parentElement.scrollTop = container.parentElement.scrollHeight;
 }
 
-function removeSzTyping() {
+function szRemoveTyping() {
   const t = document.getElementById('sz-typing-indicator');
   if (t) t.remove();
 }
 
-function updateSzProgress() {
-  const dots = document.getElementById('sz-progress');
-  dots.innerHTML = '';
-  for (let i = 0; i < szMaxProgressDots; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'sz-progress-dot';
-    if (i < szTurnCount) dot.classList.add('done');
-    else if (i === szTurnCount) dot.classList.add('active');
-    dots.appendChild(dot);
-  }
+function szShowInput() {
+  // Remove any existing foreword input
+  szHideInput();
+  const container = document.getElementById('story-content');
+  const inputArea = document.createElement('div');
+  inputArea.id = 'sz-input-block';
+  inputArea.className = 'input-block';
+  inputArea.style.cssText = 'margin:1.5rem 0;';
+  inputArea.innerHTML = '<input type="text" id="sz-input" placeholder="Your answer..." onkeydown="if(event.key===\'Enter\')szSendAnswer()" autofocus><button onclick="szSendAnswer()">Send</button>';
+  container.appendChild(inputArea);
+  document.getElementById('sz-input').focus();
+  container.parentElement.scrollTop = container.parentElement.scrollHeight;
+}
+
+function szHideInput() {
+  const existing = document.getElementById('sz-input-block');
+  if (existing) existing.remove();
 }
 
 // --- Voice assignment screen ---

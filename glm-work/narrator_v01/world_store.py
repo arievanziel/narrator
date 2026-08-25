@@ -247,6 +247,8 @@ class WorldStore:
         self._turn_count = 0
         # v1.0: book structure. Code owns numbering; the LLM proposes titles.
         self.chapters: list[Chapter] = []
+        # v1.0: scene digest from enter_scene() — fed into the next turn's context
+        self._last_scene_digest: str = ""
 
     # --- Book structure (v1.0) ---
 
@@ -644,6 +646,13 @@ class WorldStore:
                         ename, etype, {"summary": esummary},
                         current_turn=current_turn)
                     changes.append(f"{'Created' if created else 'Matched'}: {ename} ({reason})")
+                    # v1.0: When a location is introduced or matched, enter the scene.
+                    # This unlocks location tracking, the "since you were last here"
+                    # digest, and the presence-and-liveness guard.
+                    if etype == "location":
+                        digest = self.enter_scene(entity.id, current_turn)
+                        if digest:
+                            self._last_scene_digest = digest
 
             elif t == "ENTITY_UPDATE":
                 # ENTITY_UPDATE:<name>,<field>,<value>

@@ -76,6 +76,20 @@ class NarratorHandler(BaseHTTPRequestHandler):
                 self.end_headers()
 
         # Serve audio files (full turn WAV — legacy path)
+        elif parsed.path.startswith("/audio/freetext/"):
+            # Free-text TTS audio: /audio/freetext/{gen_id}.wav
+            gen_id = parsed.path.replace("/audio/freetext/", "").replace(".wav", "")
+            if not gen_id.replace("_", "").isalnum():
+                self.send_response(400)
+                self.end_headers()
+                return
+            audio_path = config.SEGMENTS_DIR / "freetext" / f"{gen_id}.wav"
+            if audio_path.exists():
+                self._serve_file(audio_path, "audio/wav")
+            else:
+                self.send_response(404)
+                self.end_headers()
+
         elif parsed.path.startswith("/audio/segments/"):
             # Segment-level audio: /audio/segments/{turn_id}/seg_{index}.wav
             parts = parsed.path.split("/")
@@ -281,6 +295,7 @@ class NarratorHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "no-cache, must-revalidate")
             self.end_headers()
             self.wfile.write(data)
         except Exception as e:

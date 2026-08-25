@@ -1,0 +1,14 @@
+{
+  "name": "no_music",
+  "settings": {
+    "autoroll": true,
+    "music": false,
+    "tts": "kokoro",
+    "speed": 1.0,
+    "musicVol": 0.0,
+    "musicSrc": "library",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "turns": [],
+  "errors": []
+}

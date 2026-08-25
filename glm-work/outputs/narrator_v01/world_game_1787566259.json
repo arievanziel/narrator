@@ -1,0 +1,160 @@
+{
+  "campaign_id": "game_1787566259",
+  "rules_profile": {
+    "name": "dnd5e_lite",
+    "dc_ladder": {
+      "trivial": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "very_hard": 25
+    },
+    "ability_list": [
+      "STR",
+      "DEX",
+      "CON",
+      "INT",
+      "WIS",
+      "CHA"
+    ],
+    "hp_model": "flat",
+    "crit_rule": "nat20_success_nat1_failure"
+  },
+  "campaign_meta": {
+    "style": "classic fantasy",
+    "setting": "inside a submarine",
+    "persona": "",
+    "atmosphere": "adventurous",
+    "inspiration": ""
+  },
+  "entities": {
+    "pc_0001_ignatiuscrow": {
+      "id": "pc_0001_ignatiuscrow",
+      "type": "pc",
+      "name": "Ignatius Crow",
+      "norm_name": "ignatius crow",
+      "summary": "",
+      "attributes": {
+        "hp": 14,
+        "max_hp": 14,
+        "disposition": "friendly",
+        "voice_description": "player",
+        "inventory": [
+          "Bone needle",
+          "vial of sea salt",
+          "polished abalone shell"
+        ],
+        "stats": {
+          "STR": 16,
+          "DEX": 12,
+          "CON": 14,
+          "INT": 10,
+          "WIS": 10,
+          "CHA": 10
+        }
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 0,
+      "last_seen_turn": 0,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "location_0002_thenautilusi": {
+      "id": "location_0002_thenautilusi",
+      "type": "location",
+      "name": "The Nautilus Interior",
+      "norm_name": "nautilus interior",
+      "summary": "A cramped, brass-and-iron submarine currently plunging into the deep ocean.",
+      "attributes": {
+        "summary": "A cramped, brass-and-iron submarine currently plunging into the deep ocean."
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 1,
+      "last_seen_turn": 1,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "npc_0003_chiefmachini": {
+      "id": "npc_0003_chiefmachini",
+      "type": "npc",
+      "name": "Chief Machinist Silas",
+      "norm_name": "chief machinist silas",
+      "summary": "A soot-stained, nervous engineer who tends the submarine's temperamental boilers.",
+      "attributes": {
+        "summary": "A soot-stained, nervous engineer who tends the submarine's temperamental boilers.",
+        "hp": 5,
+        "max_hp": 7
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 1,
+      "last_seen_turn": 0,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    },
+    "clue_0004_needlemarkin": {
+      "id": "clue_0004_needlemarkin",
+      "type": "clue",
+      "name": "Needle Markings",
+      "norm_name": "needle markings",
+      "summary": "Faint etched rune of a compass\u2011rose and wave on the bone needle, pointing east",
+      "attributes": {
+        "summary": "Faint etched rune of a compass\u2011rose and wave on the bone needle, pointing east"
+      },
+      "links": [],
+      "tags": [],
+      "alive": true,
+      "first_seen_turn": 18,
+      "last_seen_turn": 18,
+      "revisions": [],
+      "known_facts": [],
+      "schema_version": 1
+    }
+  },
+  "aliases": {
+    "ignatius crow": "pc_0001_ignatiuscrow",
+    "nautilus interior": "location_0002_thenautilusi",
+    "chief machinist silas": "npc_0003_chiefmachini",
+    "needle markings": "clue_0004_needlemarkin"
+  },
+  "turn_count": 19,
+  "entity_counter": 4,
+  "chapters": [
+    {
+      "number": 1,
+      "title": "The Brass and the Deep",
+      "scene_setting": "Rivet-headed iron plates weep condensation into the narrow corridor, smelling faintly of coal-oil and old salt. Through the thick glass of the deadlight, the ocean presses its immense, lightless weight against the hull like a sleeping beast. Brass dials tick in rhythm with the rhythmic, iron-lung throb of the boiler somewhere below decks. It is a world of shadows, steam, and narrow passages where the only sky is miles of black water.",
+      "start_turn": 1,
+      "location_id": "location_0002_thenautilusi",
+      "location_name": "The Nautilus Interior",
+      "mood": "exploration"
+    },
+    {
+      "number": 2,
+      "title": "The Long Sleep",
+      "scene_setting": "The pale bioluminescence fades into a gentle, silvery twilight that stretches across an endless, silent sea floor. No cold touches the skin here, and the heavy roar of the machine has dissolved into a quiet, rhythmic pulse like a distant heartbeat. Time ceases its frantic march, leaving only the tranquil drift of floating spores and the weightless peace of the abyss. Here, the deep claims its own, wrapping them in an eternal, dreamless quiet.",
+      "start_turn": 13,
+      "location_id": "location_0002_thenautilusi",
+      "location_name": "The Nautilus Interior",
+      "mood": "sad"
+    },
+    {
+      "number": 3,
+      "title": "The Salt and the Sand",
+      "scene_setting": "Warm morning sunlight spills across a wide expanse of pale quartz sand, glinting off the crests of gentle, turquoise waves. A salty breeze carries the sharp scent of drying kelp and sun-warmed driftwood, rustling through the tall dune grass just beyond the reach of the tide. Gulls wheel lazily in the cloudless blue overhead, their cries faint and musical against the steady, rhythmic murmur of the surf. Here, far from the crushing darkness of the abyss, the world begins entirely anew.",
+      "start_turn": 14,
+      "location_id": "location_0002_thenautilusi",
+      "location_name": "The Nautilus Interior",
+      "mood": "calm"
+    }
+  ],
+  "schema_version": 2
+}

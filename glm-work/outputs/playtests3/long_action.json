@@ -1,0 +1,14 @@
+{
+  "name": "long_action",
+  "settings": {
+    "autoroll": true,
+    "music": true,
+    "tts": "kokoro",
+    "speed": 1.0,
+    "musicVol": 0.12,
+    "musicSrc": "library",
+    "model": "openai/gpt-oss-120b"
+  },
+  "turns": [],
+  "errors": []
+}

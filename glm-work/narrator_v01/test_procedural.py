@@ -84,13 +84,32 @@ def test_prompt_has_procedural_instructions():
 def test_prompt_has_new_tags():
     """Test that the system prompt documents the new entity tags."""
     from narrator_v01.dm_engine import SYSTEM_PROMPT
-    
+
     assert "ENTITY_NEW" in SYSTEM_PROMPT
     assert "ENTITY_UPDATE" in SYSTEM_PROMPT
     assert "ALIAS" in SYSTEM_PROMPT
     assert "QUEST_UPDATE" in SYSTEM_PROMPT
-    
+
     print("PASS: prompt_has_new_tags")
+
+
+def test_derive_mood_from_scene_setting():
+    """v1.0: Test that _derive_mood infers mood from scene-setting prose."""
+    from narrator_v01.game_loop import _derive_mood
+
+    # Horror keywords
+    assert _derive_mood("The crypt was filled with dread and decay.") == "horror"
+    # Mystery keywords
+    assert _derive_mood("An ancient, forgotten hall full of secrets.") == "mystery"
+    # Combat keywords
+    assert _derive_mood("The sound of swords clashing echoed.") == "combat"
+    # Tavern keywords
+    assert _derive_mood("A warm tavern with laughter and ale.") == "tavern"
+    # No match → fallback
+    assert _derive_mood("A quiet path through the woods.") == "exploration"
+    assert _derive_mood("A quiet path through the woods.", "mystery") == "mystery"
+
+    print("PASS: derive_mood_from_scene_setting")
 
 
 def main():
@@ -106,6 +125,7 @@ def main():
         test_prompt_version,
         test_prompt_has_procedural_instructions,
         test_prompt_has_new_tags,
+        test_derive_mood_from_scene_setting,
     ]
     
     passed = 0

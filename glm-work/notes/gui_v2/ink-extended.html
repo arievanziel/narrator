@@ -504,11 +504,17 @@
   #app.audio-collapsed .audio-label,
   #app.audio-collapsed .audio-time,
   #app.audio-collapsed .audio-ctrl-btn,
+  #app.audio-collapsed .audio-line-expanded {
+    display: none;
+  }
   #app.audio-collapsed .audio-collapse-btn {
     display: none;
   }
   /* Expanded state: hide mini elements */
   #app:not(.audio-collapsed) .audio-play-mini,
+  #app:not(.audio-collapsed) .audio-line-collapsed {
+    display: none;
+  }
   #app:not(.audio-collapsed) .audio-expand-tab {
     display: none;
   }
@@ -710,11 +716,11 @@
   <div class="audio-bar ui-font">
     <!-- Collapsed: breathing play button + line + expand tab -->
     <button class="audio-play-mini playing" id="audioPlayMini" onclick="toggleAudio()" title="Play/Pause">▶</button>
-    <div class="audio-line" onclick="expandAudio()" title="Open audio bar"><div class="fill" id="audioFillMini"></div></div>
+    <div class="audio-line audio-line-collapsed" onclick="expandAudio()" title="Open audio bar"><div class="fill" id="audioFillMini"></div></div>
     <button class="audio-expand-tab" onclick="expandAudio()" title="Open audio bar">▴</button>
     <!-- Expanded: full audio bar -->
     <button class="audio-play-btn" id="audioPlayBtn" onclick="toggleAudio()">▶</button>
-    <div class="audio-line" onclick="toggleAudio()"><div class="fill" id="audioFill"></div></div>
+    <div class="audio-line audio-line-expanded" onclick="toggleAudio()"><div class="fill" id="audioFill"></div></div>
     <span class="audio-label" id="audioLabel">Narrator · turn IV</span>
     <span class="audio-time" id="audioTime">0:12 / 0:34</span>
     <button class="audio-ctrl-btn" onclick="skipAudio(-1)" title="Previous">⏮</button>

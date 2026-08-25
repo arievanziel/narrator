@@ -1,0 +1,231 @@
+{
+  "name": "groq_kokoro_nomusic",
+  "settings": {
+    "autoroll": true,
+    "music": false,
+    "tts": "kokoro",
+    "speed": 1.0,
+    "musicVol": 0.0,
+    "musicSrc": "library",
+    "model": "openai/gpt-oss-120b"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The wind howls outside the craggy peaks as Kael pushes open the heavy oak door of the Rusty Anchor, its dim candlelight flickering against stone walls."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "A stale scent of ale and damp wool mingles with the faint smell of ash, and shadows dance across the low\u2011ceilinged room."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Barkeep",
+          "text": "Evening, stranger. Not many brave souls wander these parts after sundown."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Two goblin eyes glint from a dark corner, their crude weapons barely concealed beneath tattered cloaks."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The murmur of hushed voices fades as the tavern\u2019s patrons stare, their faces pale with fear."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Approach the barkeep and ask about the village\u2019s troubles.",
+          "roll": false
+        },
+        {
+          "text": "Draw your longsword and issue a warning to the goblins.",
+          "roll": false
+        },
+        {
+          "text": "Scan the room for hidden threats or traps.",
+          "roll": true
+        },
+        {
+          "text": "Slip into the shadows and observe quietly.",
+          "roll": true
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "audio_status": "ready",
+      "audio_duration": 37.8,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/groq_kokoro_nomusic_turn_001.wav",
+      "audio_size": 1813244,
+      "total_text": "The wind howls outside the craggy peaks as Kael pushes open the heavy oak door of the Rusty Anchor, its dim candlelight flickering against stone walls. A stale scent of ale and damp wool mingles with the faint smell of ash, and shadows dance across the low\u2011ceilinged room. Evening, stranger. Not many brave souls wander these parts after sundown. Two goblin eyes glint from a dark corner, their crude weapons barely concealed beneath tattered cloaks. The murmur of hushed voices fades as the tavern\u2019s patrons stare, their faces pale with fear.",
+      "text_length": 543
+    },
+    {
+      "turn": 2,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael's foot catches on a loose plank, and he stumbles forward, the tavern's dim candlelight spilling over his armor."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "He blinks, realizing the cold night wind and tangled trees are far beyond the heavy oak door he just entered."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The goblin eyes narrow, their hands tightening around rusted daggers as they sense his unease."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Barkeep",
+          "text": "You look lost, friend. The forest's a cruel place after dark; the inn's the only shelter left."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Ask the barkeep about safe routes through the forest.",
+          "roll": false
+        },
+        {
+          "text": "Draw your longsword and demand the goblins reveal their purpose.",
+          "roll": false
+        },
+        {
+          "text": "Slip into the shadows near the far wall to observe the goblins quietly.",
+          "roll": true
+        },
+        {
+          "text": "Exit the tavern cautiously to assess the forest outside.",
+          "roll": true
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "action": "I sneak carefully through the dark forest.",
+      "audio_status": "ready",
+      "audio_duration": 32.1,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/groq_kokoro_nomusic_turn_002.wav",
+      "audio_size": 1542044,
+      "total_text": "Kael's foot catches on a loose plank, and he stumbles forward, the tavern's dim candlelight spilling over his armor. He blinks, realizing the cold night wind and tangled trees are far beyond the heavy oak door he just entered. The goblin eyes narrow, their hands tightening around rusted daggers as they sense his unease. You look lost, friend. The forest's a cruel place after dark; the inn's the only shelter left.",
+      "text_length": 416
+    },
+    {
+      "turn": 3,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael's hand brushes against the rough wooden frame of the tavern door, not a stone slab or iron latch."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The only lock he feels is the simple iron bolt on the tavern's back entrance, its key long since rusted away."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The goblins shift, eyes glinting, as the barkeep leans forward, his voice low and wary."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Barkeep",
+          "text": "There ain't no crypt behind these walls, lad. If it's secrets you seek, the village's old chapel lies beyond the forest, but it's a cursed place."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Ask the barkeep for more information about the cursed chapel.",
+          "roll": false
+        },
+        {
+          "text": "Draw your longsword and confront the goblins directly.",
+          "roll": false
+        },
+        {
+          "text": "Search the tavern for any hidden compartments or clues.",
+          "roll": true
+        },
+        {
+          "text": "Exit the tavern and head toward the forest to find the chapel.",
+          "roll": true
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "action": "I attempt to pick the lock on the old crypt door.",
+      "audio_status": "ready",
+      "audio_duration": 33.8,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/groq_kokoro_nomusic_turn_003.wav",
+      "audio_size": 1622444,
+      "total_text": "Kael's hand brushes against the rough wooden frame of the tavern door, not a stone slab or iron latch. The only lock he feels is the simple iron bolt on the tavern's back entrance, its key long since rusted away. The goblins shift, eyes glinting, as the barkeep leans forward, his voice low and wary. There ain't no crypt behind these walls, lad. If it's secrets you seek, the village's old chapel lies beyond the forest, but it's a cursed place.",
+      "text_length": 446
+    },
+    {
+      "turn": 4,
+      "scene": "tense",
+      "segments": [
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "Kael swings his torch forward, its flame sputtering against the stale air of the Rusty Anchor."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "The light reveals the tavern\u2019s rough wooden beams and the two goblin scouts eyeing him warily from the shadows."
+        },
+        {
+          "kind": "narrator",
+          "speaker": "narrator",
+          "text": "There is no crypt behind the tavern door\u2014only a back entrance that leads to a narrow, stone\u2011cobbled alley."
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "Barkeep",
+          "text": "You look like you're after something hidden, lad. The old chapel up the hill holds a crypt, but it's cursed and best left alone."
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "Ask the barkeep for directions to the cursed chapel and its crypt.",
+          "roll": false
+        },
+        {
+          "text": "Move toward the back entrance and peek into the alley for clues.",
+          "roll": true
+        },
+        {
+          "text": "Draw your longsword and demand the goblins reveal why they\u2019re here.",
+          "roll": false
+        },
+        {
+          "text": "Use your torch to search the tavern for hidden compartments or secret doors.",
+          "roll": true
+        }
+      ],
+      "changes": [],
+      "model": "openai/gpt-oss-120b",
+      "action": "I cast my torch forward and enter the crypt.",
+      "audio_status": "ready",
+      "audio_duration": 32.2,
+      "audio_file": "/Users/arie/CascadeProjects/narrator/glm-work/outputs/playtests/groq_kokoro_nomusic_turn_004.wav",
+      "audio_size": 1544444,
+      "total_text": "Kael swings his torch forward, its flame sputtering against the stale air of the Rusty Anchor. The light reveals the tavern\u2019s rough wooden beams and the two goblin scouts eyeing him warily from the shadows. There is no crypt behind the tavern door\u2014only a back entrance that leads to a narrow, stone\u2011cobbled alley. You look like you're after something hidden, lad. The old chapel up the hill holds a crypt, but it's cursed and best left alone.",
+      "text_length": 442
+    }
+  ],
+  "errors": []
+}
